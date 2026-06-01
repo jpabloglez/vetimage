@@ -1,0 +1,59 @@
+{
+  "hero": {
+    "titleLine1": "Advanced Medical AI",
+    "titleLine2": "for Image Analysis",
+    "subtitle": "Revolutionizing healthcare with state-of-the-art deep learning models for automated medical image analysis. DICOM-native, privacy-first, clinically validated.",
+    "openDashboard": "Open Dashboard",
+    "startAnalysis": "Start Analysis",
+    "getStarted": "Get Started Free",
+    "watchDemo": "Watch Demo"
+  },
+  "stats": {
+    "accuracy": "Accuracy",
+    "imagesAnalyzed": "Images Analyzed",
+    "analysisTime": "Analysis Time",
+    "healthcarePartners": "Healthcare Partners"
+  },
+  "features": {
+    "heading": "Cutting-Edge Medical AI Models",
+    "subtitle": "Purpose-built deep learning models validated on large clinical datasets",
+    "multiModal": "Multi-Modal Analysis",
+    "multiModalDesc": "Support for X-ray, CT, MRI, and other medical imaging modalities with specialized models.",
+    "realTime": "Real-Time Processing",
+    "realTimeDesc": "Get analysis results in seconds with our optimized inference pipeline and GPU acceleration.",
+    "hipaa": "HIPAA Compliant",
+    "hipaaDesc": "Enterprise-grade security with end-to-end encryption, audit logging, and data anonymization.",
+    "clinical": "Clinical Validation",
+    "clinicalDesc": "Models validated against clinical datasets with published accuracy metrics and peer review.",
+    "precision": "Precision Medicine",
+    "precisionDesc": "Personalized analysis considering patient demographics and clinical context.",
+    "continuousLearning": "Continuous Learning",
+    "continuousLearningDesc": "Models continuously improve through federated learning while preserving patient privacy."
+  },
+  "useCases": {
+    "heading": "Built for Healthcare Professionals",
+    "radiologists": "Radiologists",
+    "radiologistsDesc": "Automated preliminary reads, anomaly detection, and structured reporting for faster diagnosis.",
+    "emergency": "Emergency Physicians",
+    "emergencyDesc": "Rapid triage of critical findings including hemorrhage, fractures, and pneumothorax detection.",
+    "researchers": "Researchers",
+    "researchersDesc": "Batch processing, statistical analysis, and model comparison tools for clinical research."
+  },
+  "testimonials": {
+    "quote1": "The accuracy and speed of OpenMedLab has transformed our radiology workflow. We can now provide faster diagnoses without compromising quality.",
+    "author1": "Dr. Sarah Chen",
+    "position1": "Chief Radiologist, Metro General Hospital",
+    "quote2": "As an emergency physician, having instant AI insights during critical cases has been a game-changer for patient outcomes.",
+    "author2": "Dr. Michael Rodriguez",
+    "position2": "Emergency Medicine, City Medical Center",
+    "quote3": "The research capabilities and model transparency make this platform invaluable for our clinical studies.",
+    "author3": "Prof. Lisa Thompson",
+    "position3": "Director of Medical AI Research, University Hospital"
+  },
+  "cta": {
+    "heading": "Ready to Transform Your Medical Imaging Workflow?",
+    "subtitle": "Join healthcare institutions worldwide using AI-powered analysis.",
+    "startTrial": "Start Free Trial",
+    "contactSales": "Contact Sales"
+  }
+}

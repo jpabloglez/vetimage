@@ -1,0 +1,59 @@
+{
+  "hero": {
+    "titleLine1": "AI Médica Avanzada",
+    "titleLine2": "para Análisis de Imágenes",
+    "subtitle": "Revolucionando la atención médica con modelos de aprendizaje profundo de última generación para el análisis automatizado de imágenes médicas. Nativo de DICOM, privacidad primero, validado clínicamente.",
+    "openDashboard": "Abrir Panel",
+    "startAnalysis": "Iniciar Análisis",
+    "getStarted": "Comenzar Gratis",
+    "watchDemo": "Ver Demo"
+  },
+  "stats": {
+    "accuracy": "Precisión",
+    "imagesAnalyzed": "Imágenes Analizadas",
+    "analysisTime": "Tiempo de Análisis",
+    "healthcarePartners": "Socios de Salud"
+  },
+  "features": {
+    "heading": "Modelos de AI Médica de Vanguardia",
+    "subtitle": "Modelos de aprendizaje profundo diseñados específicamente y validados en grandes conjuntos de datos clínicos",
+    "multiModal": "Análisis Multi-Modal",
+    "multiModalDesc": "Soporte para rayos X, CT, MRI y otras modalidades de imágenes médicas con modelos especializados.",
+    "realTime": "Procesamiento en Tiempo Real",
+    "realTimeDesc": "Obtenga resultados de análisis en segundos con nuestro pipeline de inferencia optimizado y aceleración por GPU.",
+    "hipaa": "Compatible con HIPAA",
+    "hipaaDesc": "Seguridad de nivel empresarial con cifrado de extremo a extremo, registro de auditoría y anonimización de datos.",
+    "clinical": "Validación Clínica",
+    "clinicalDesc": "Modelos validados contra conjuntos de datos clínicos con métricas de precisión publicadas y revisión por pares.",
+    "precision": "Medicina de Precisión",
+    "precisionDesc": "Análisis personalizado considerando la demografía del paciente y el contexto clínico.",
+    "continuousLearning": "Aprendizaje Continuo",
+    "continuousLearningDesc": "Los modelos mejoran continuamente mediante aprendizaje federado mientras preservan la privacidad del paciente."
+  },
+  "useCases": {
+    "heading": "Diseñado para Profesionales de la Salud",
+    "radiologists": "Radiólogos",
+    "radiologistsDesc": "Lecturas preliminares automatizadas, detección de anomalías e informes estructurados para un diagnóstico más rápido.",
+    "emergency": "Médicos de Emergencia",
+    "emergencyDesc": "Triaje rápido de hallazgos críticos incluyendo hemorragia, fracturas y detección de neumotórax.",
+    "researchers": "Investigadores",
+    "researchersDesc": "Procesamiento por lotes, análisis estadístico y herramientas de comparación de modelos para investigación clínica."
+  },
+  "testimonials": {
+    "quote1": "La precisión y velocidad de OpenMedLab ha transformado nuestro flujo de trabajo en radiología. Ahora podemos ofrecer diagnósticos más rápidos sin comprometer la calidad.",
+    "author1": "Dra. Sarah Chen",
+    "position1": "Radióloga Jefe, Metro General Hospital",
+    "quote2": "Como médico de urgencias, tener información de IA al instante en casos críticos ha sido un cambio revolucionario para los resultados de los pacientes.",
+    "author2": "Dr. Michael Rodríguez",
+    "position2": "Medicina de Urgencias, City Medical Center",
+    "quote3": "Las capacidades de investigación y la transparencia del modelo hacen de esta plataforma una herramienta invaluable para nuestros estudios clínicos.",
+    "author3": "Prof. Lisa Thompson",
+    "position3": "Directora de Investigación en IA Médica, University Hospital"
+  },
+  "cta": {
+    "heading": "¿Listo para Transformar su Flujo de Trabajo en Imágenes Médicas?",
+    "subtitle": "Únase a instituciones de salud en todo el mundo que utilizan análisis impulsado por AI.",
+    "startTrial": "Iniciar Prueba Gratuita",
+    "contactSales": "Contactar Ventas"
+  }
+}

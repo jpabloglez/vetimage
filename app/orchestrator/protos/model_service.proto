@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+package model_service.v1;
+
+// ==============================================================================
+// Model Service - Orchestrator → Model Services Communication
+// ==============================================================================
+
+service ModelService {
+  // Execute inference (unary - for most tasks)
+  rpc RunInference(InferenceRequest) returns (InferenceResponse);
+
+  // Execute inference with streaming (for large outputs or progress updates)
+  rpc RunInferenceStream(InferenceRequest) returns (stream InferenceResponse);
+
+  // Load model into memory
+  rpc LoadModel(LoadModelRequest) returns (LoadModelResponse);
+
+  // Unload model from memory
+  rpc UnloadModel(UnloadModelRequest) returns (UnloadModelResponse);
+
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+
+  // Get model capabilities
+  rpc GetCapabilities(GetCapabilitiesRequest) returns (GetCapabilitiesResponse);
+}
+
+// ==============================================================================
+// Request/Response Messages
+// ==============================================================================
+
+message ImageInput {
+  string modality = 1;
+  string source = 2; // S3 URI or local path
+  bytes data = 3;     // Optional: inline data for small images
+}
+
+message InferenceRequest {
+  string job_id = 1; // For tracking
+  repeated ImageInput images = 2;
+  string task_type = 3;
+  string model_size = 4;
+
+  // Output specification
+  string output_destination = 5;
+  string output_format = 6;
+
+  // Task-specific parameters
+  int32 num_classes = 7;
+  repeated string class_names = 8;
+
+  // Execution parameters
+  int32 timeout_seconds = 9;
+  bool return_intermediate_results = 10;
+
+  // Model-specific runtime parameters (device, threads, use_3T, etc.)
+  map<string, string> metadata = 11;
+}
+
+message InferenceResponse {
+  string job_id = 1;
+  InferenceStatus status = 2;
+
+  // Results
+  repeated OutputArtifact outputs = 3;
+  map<string, string> metrics = 4; // inference_time_ms, gpu_memory_used, etc.
+
+  // Error handling
+  string error_message = 5;
+
+  // Progress (for streaming)
+  float progress_percent = 6;
+  string progress_message = 7;
+}
+
+message OutputArtifact {
+  string key = 1;           // bscan, slo, features, etc.
+  string uri = 2;           // S3 URI or local path
+  string content_type = 3;  // application/octet-stream, image/png, etc.
+  int64 size_bytes = 4;
+  map<string, string> metadata = 5;
+}
+
+message LoadModelRequest {
+  string model_size = 1;
+  bool preload_weights = 2;
+}
+
+message LoadModelResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message UnloadModelRequest {
+  string model_size = 1;
+}
+
+message UnloadModelResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  bool gpu_available = 2;
+  int32 gpu_count = 3;
+  string gpu_name = 4;
+  map<string, bool> models_loaded = 5;
+  string version = 6;
+}
+
+message GetCapabilitiesRequest {}
+
+message GetCapabilitiesResponse {
+  string model_name = 1;
+  string model_version = 2;
+  repeated string supported_tasks = 3;
+  repeated string supported_modalities = 4;
+  repeated string supported_model_sizes = 5;
+  map<string, string> metadata = 6;
+}
+
+// ==============================================================================
+// Enums
+// ==============================================================================
+
+enum InferenceStatus {
+  INFERENCE_STATUS_UNSPECIFIED = 0;
+  INFERENCE_STATUS_PROCESSING = 1;
+  INFERENCE_STATUS_COMPLETED = 2;
+  INFERENCE_STATUS_FAILED = 3;
+}

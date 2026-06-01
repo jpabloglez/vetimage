@@ -1,0 +1,41 @@
+{
+  "title": "Visor DICOM",
+  "loading": "Cargando visor...",
+  "loadError": "Error al cargar el visor",
+  "noStudy": "Ningún estudio seleccionado",
+  "toolbar": {
+    "zoom": "Zoom",
+    "pan": "Desplazar",
+    "window": "Ventana/Nivel",
+    "measure": "Medir",
+    "annotate": "Anotar",
+    "reset": "Restablecer",
+    "fullscreen": "Pantalla Completa",
+    "aiAnalysis": "Análisis de AI",
+    "mpr": "Vista MPR",
+    "comparison": "Comparación"
+  },
+  "mpr": {
+    "title": "Visor MPR",
+    "axial": "Axial",
+    "sagittal": "Sagital",
+    "coronal": "Coronal",
+    "loading": "Cargando datos MPR...",
+    "notSupported": "MPR no soportado para esta serie"
+  },
+  "comparison": {
+    "title": "Visor de Comparación",
+    "selectStudy": "Seleccione un estudio para comparar",
+    "currentStudy": "Estudio Actual",
+    "compareWith": "Comparar Con",
+    "sync": "Sincronizar Desplazamiento",
+    "noStudies": "No hay estudios disponibles para comparación"
+  },
+  "ai": {
+    "runAnalysis": "Ejecutar Análisis de AI",
+    "selectModel": "Seleccionar Modelo de AI",
+    "analyzing": "Analizando...",
+    "resultsReady": "Resultados listos",
+    "viewResults": "Ver Resultados"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "pageTitle": "Análise",
+  "pageSubtitle": "Gerencie seu histórico de análises, execute novos fluxos de trabalho e gere relatórios",
+  "title": "Análise de Imagens Médicas",
+  "subtitle": "Envie imagens médicas, selecione um modelo de IA e execute tarefas de análise",
+  "tabs": {
+    "worklist": "Lista de Trabalho",
+    "newAnalysis": "Nova Análise",
+    "reports": "Relatórios",
+    "models": "Modelos de IA"
+  },
+  "worklist": {
+    "searchPlaceholder": "Buscar por nome do arquivo...",
+    "allStatuses": "Todos os Status",
+    "allModels": "Todos os Modelos",
+    "noTasks": "Nenhuma análise encontrada",
+    "noTasksHint": "Inicie uma nova análise para ver os resultados aqui",
+    "retry": "Tentar novamente",
+    "retried": "Análise na fila para nova tentativa",
+    "generateReport": "Relatório",
+    "reportCreated": "Relatório criado com sucesso",
+    "columns": {
+      "patient": "Paciente / Arquivo",
+      "model": "Modelo",
+      "status": "Status",
+      "created": "Criado",
+      "duration": "Duração",
+      "actions": "Ações"
+    }
+  },
+  "steps": {
+    "upload": "Enviar Imagens",
+    "uploadDesc": "Envie arquivos DICOM, NIfTI ou imagens padrão",
+    "selectModel": "Selecionar Modelo",
+    "selectModelDesc": "Escolha o melhor modelo de IA para suas imagens",
+    "configure": "Configurar",
+    "configureDesc": "Defina os parâmetros de análise"
+  },
+  "upload": {
+    "dragDrop": "Arraste e solte imagens médicas aqui",
+    "or": "ou",
+    "browse": "Procurar Arquivos",
+    "supportedFormats": "Formatos suportados: DICOM (.dcm), NIfTI (.nii, .nii.gz), JPEG, PNG",
+    "maxSize": "Tamanho máximo do arquivo: {{size}}",
+    "uploading": "Enviando...",
+    "uploadComplete": "Envio concluído!",
+    "uploadFailed": "Falha no envio",
+    "filesSelected": "{{count}} arquivo(s) selecionado(s)",
+    "totalSize": "Tamanho total: {{size}}",
+    "removeFile": "Remover arquivo",
+    "clearAll": "Limpar tudo"
+  },
+  "uploadedImages": "Imagens Enviadas ({{count}})",
+  "continueToModel": "Continuar para Seleção de Modelo",
+  "selectOtherModel": "Escolha outro modelo…",
+  "backToUpload": "← Voltar para Envio",
+  "backToModel": "← Voltar para Seleção de Modelo",
+  "selectedModel": "Modelo Selecionado",
+  "changeModel": "Alterar Modelo",
+  "startAnalysis": "Iniciar Nova Análise",
+  "analysisCreated": "Tarefa de análise criada!",
+  "analysisSubmitted": "Análise enviada — acompanhe o progresso na página Monitor",
+  "progress": {
+    "pending": "Pendente",
+    "queued": "Na Fila",
+    "dispatched": "Despachado",
+    "processing": "Processando",
+    "completed": "Concluído",
+    "failed": "Falhou",
+    "timeout": "Tempo Esgotado",
+    "cancelled": "Cancelado",
+    "step": "Etapa {{current}} de {{total}}"
+  },
+  "studyTable": {
+    "studyDate": "Data do Estudo",
+    "patientId": "ID do Paciente",
+    "patientName": "Nome do Paciente",
+    "modality": "Modalidade",
+    "description": "Descrição",
+    "series": "Séries",
+    "instances": "Instâncias",
+    "actions": "Ações",
+    "noStudies": "Nenhum estudo encontrado",
+    "view": "Visualizar",
+    "analyze": "Analisar",
+    "delete": "Excluir"
+  },
+  "viewToggle": {
+    "grid": "Visualização em Grade",
+    "table": "Visualização em Tabela"
+  }
+}

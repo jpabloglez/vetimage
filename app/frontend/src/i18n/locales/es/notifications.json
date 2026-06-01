@@ -1,0 +1,6 @@
+{
+  "title": "Notificaciones",
+  "markAllRead": "Marcar todas como leídas",
+  "noNotifications": "Aún no hay notificaciones",
+  "ariaLabel": "Notificaciones ({{count}} sin leer)"
+}

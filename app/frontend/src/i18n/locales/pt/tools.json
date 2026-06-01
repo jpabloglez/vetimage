@@ -1,0 +1,39 @@
+{
+  "title": "Ferramentas",
+  "subtitle": "Utilitários para visualizar, anonimizar, converter e gerenciar dados de imagens médicas.",
+  "backToTools": "Voltar para Ferramentas",
+  "openTool": "Abrir ferramenta",
+  "comingSoon": "Em Breve",
+  "viewer": {
+    "title": "Visualizador",
+    "description": "Envie arquivos DICOM, navegue pelos estudos e abra o visualizador de imagens médicas com ferramentas avançadas de visualização."
+  },
+  "anonymizer": {
+    "title": "Anonimizador",
+    "description": "Remova informações de saúde do paciente (PHI) de arquivos DICOM para pesquisa e conformidade.",
+    "inputMode": { "library": "Da Biblioteca", "upload": "Enviar Arquivos" },
+    "outputFormat": {
+      "label": "Formato de Saída",
+      "dicom_zip": "DICOM ZIP",
+      "nifti_bids": "NIfTI + BIDS",
+      "png_bids": "PNG + BIDS",
+      "dicom_zip_desc": "Arquivos DICOM anonimizados em arquivo ZIP",
+      "nifti_bids_desc": "Volumes NIfTI + sidecars JSON em estrutura de pastas BIDS",
+      "png_bids_desc": "Fatias PNG + sidecars JSON em estrutura de pastas BIDS"
+    },
+    "bidsInfo": "O formato BIDS requer um estudo completo. O PHI é removido antes da conversão. Os parâmetros técnicos são preservados.",
+    "uploadComplete": "Arquivos enviados — estudo selecionado"
+  },
+  "converter": {
+    "title": "Conversor",
+    "description": "Converta arquivos DICOM para outros formatos como JPEG, PNG ou NIfTI."
+  },
+  "compressor": {
+    "title": "Compressor",
+    "description": "Compacte estudos DICOM em formato 7z para armazenamento e transferência eficientes."
+  },
+  "tagEditor": {
+    "title": "Editor de Tags",
+    "description": "Visualize e edite tags de metadados DICOM de estudos e imagens."
+  }
+}

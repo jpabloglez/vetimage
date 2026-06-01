@@ -1,0 +1,61 @@
+{
+  "title": "Monitoring Dashboard",
+  "subtitle": "Real-time tracking of analysis jobs and DICOM transfers",
+  "tabs": {
+    "aiAnalyses": "AI Analyses",
+    "dicomTransfers": "DICOM Transfers",
+    "audit": "Audit Report"
+  },
+  "tasks": {
+    "model": "Model",
+    "status": "Status",
+    "created": "Created",
+    "completed": "Completed",
+    "duration": "Duration",
+    "createdBy": "Created By",
+    "department": "Department",
+    "error": "Error",
+    "noTasks": "No analysis tasks found"
+  },
+  "transfers": {
+    "study": "Study",
+    "source": "Source",
+    "modality": "Modality",
+    "instances": "Instances",
+    "status": "Status",
+    "size": "Size",
+    "duration": "Duration",
+    "noTransfers": "No DICOM transfers found"
+  },
+  "stats": {
+    "totalJobs": "Total Jobs",
+    "successRate": "Success Rate",
+    "avgProcessingTime": "Avg Processing Time",
+    "byStatus": "By Status",
+    "byModel": "By Model"
+  },
+  "filters": {
+    "dateFrom": "Date From",
+    "dateTo": "Date To",
+    "status": "Status",
+    "scope": "Scope",
+    "model": "Model",
+    "scopeOwn": "My Jobs",
+    "scopeColleagues": "Colleagues",
+    "scopeDepartment": "Department",
+    "scopeTeam": "Team"
+  },
+  "status": {
+    "success": "Success",
+    "partial": "Partial",
+    "failed": "Failed",
+    "inProgress": "In Progress",
+    "pending": "Pending",
+    "queued": "Queued",
+    "dispatched": "Dispatched",
+    "processing": "Processing",
+    "completed": "Completed",
+    "timeout": "Timeout",
+    "cancelled": "Cancelled"
+  }
+}

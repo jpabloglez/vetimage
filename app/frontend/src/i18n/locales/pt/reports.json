@@ -1,0 +1,24 @@
+{
+  "title": "Relatórios",
+  "subtitle": "Relatórios de análise por IA com achados estruturados",
+  "refresh": "Atualizar",
+  "compare": "Comparar",
+  "generate": "Gerar Relatório",
+  "noReports": "Nenhum Relatório Ainda",
+  "noReportsHint": "Gere um relatório a partir de uma tarefa de análise por IA concluída.",
+  "downloadPdf": "PDF",
+  "table": {
+    "title": "Título",
+    "model": "Modelo",
+    "status": "Status",
+    "created": "Criado em",
+    "actions": "Ações"
+  },
+  "status": {
+    "draft": "Rascunho",
+    "final": "Final"
+  },
+  "generateSuccess": "Relatório gerado com sucesso",
+  "generateError": "Falha ao gerar relatório",
+  "downloadError": "Falha ao baixar PDF"
+}

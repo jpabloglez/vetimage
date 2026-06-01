@@ -1,0 +1,85 @@
+{
+  "title": "Analysis Statistics",
+  "subtitle": "Comprehensive analytics and insights for your AI analysis tasks",
+  "tabs": {
+    "analysisTasks": "Analysis Tasks",
+    "studyAnalytics": "Study Analytics",
+    "modelPerformance": "Model Performance",
+    "userActivity": "User Activity",
+    "population": "Population"
+  },
+  "cards": {
+    "totalTasks": "Total Tasks",
+    "completed": "Completed",
+    "failed": "Failed",
+    "avgProcessingTime": "Avg Processing Time"
+  },
+  "charts": {
+    "tasksOverTime": "Tasks Over Time",
+    "statusDistribution": "Status Distribution",
+    "modelUsage": "Model Usage Statistics",
+    "modalityDistribution": "Modality Distribution",
+    "uploadTrends": "Upload Trends",
+    "storageUsage": "Storage Usage",
+    "ageDistribution": "Age Distribution",
+    "genderDistribution": "Gender Distribution",
+    "topFindings": "Top Findings"
+  },
+  "table": {
+    "patientId": "Patient ID",
+    "model": "Model",
+    "status": "Status",
+    "demographics": "Demographics",
+    "modality": "Modality",
+    "bodyPart": "Body Part",
+    "created": "Created",
+    "duration": "Duration"
+  },
+  "loading": "Loading statistics...",
+  "noData": "No Data Available",
+  "noDataMessage": "No analysis tasks found matching your filters.",
+  "filters": {
+    "dateFrom": "Date From",
+    "dateTo": "Date To",
+    "models": "Models",
+    "statuses": "Statuses",
+    "modalities": "Modalities",
+    "bodyParts": "Body Parts",
+    "patientSex": "Patient Sex",
+    "ageRange": "Age Range",
+    "ageMin": "Min Age",
+    "ageMax": "Max Age",
+    "apply": "Apply Filters",
+    "clear": "Clear Filters",
+    "title": "Filters"
+  },
+  "study": {
+    "totalStudies": "Total Studies",
+    "totalStorage": "Total Storage"
+  },
+  "modelMetrics": {
+    "title": "Detailed Model Metrics",
+    "model": "Model",
+    "total": "Total",
+    "completed": "Completed",
+    "failed": "Failed",
+    "timeout": "Timeout",
+    "avgTime": "Avg Time",
+    "failureRate": "Failure Rate"
+  },
+  "userActivity": {
+    "title": "User Activity",
+    "uploads": "Uploads",
+    "analyses": "Analyses",
+    "completedAnalyses": "Completed",
+    "failedAnalyses": "Failed",
+    "storage": "Storage",
+    "lastActive": "Last Active"
+  },
+  "population": {
+    "title": "Population Insights",
+    "totalPatients": "Total Patients"
+  },
+  "seconds": "{{value}}s",
+  "notAvailable": "N/A"
+}

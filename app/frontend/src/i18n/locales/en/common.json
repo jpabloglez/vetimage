@@ -1,0 +1,220 @@
+{
+  "nav": {
+    "models": "Models",
+    "analysis": "Analysis",
+    "statistics": "Statistics",
+    "reports": "Reports",
+    "tools": "Tools",
+    "monitor": "Monitor",
+    "audit": "Audit",
+    "documentation": "Documentation",
+    "security": "Security",
+    "profile": "Profile",
+    "signIn": "Sign In",
+    "getStarted": "Get Started",
+    "signOut": "Sign Out"
+  },
+  "userMenu": {
+    "aiModels": "AI Models",
+    "myProfile": "My Profile",
+    "accountSettings": "Account Settings",
+    "language": "Language",
+    "logout": "Logout"
+  },
+  "roles": {
+    "user": "User",
+    "guest": "Guest",
+    "admin": "Administrator",
+    "manager": "Manager",
+    "superuser": "Superuser"
+  },
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "refresh": "Refresh",
+    "download": "Download",
+    "upload": "Upload",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "apply": "Apply",
+    "confirm": "Confirm",
+    "retry": "Retry",
+    "loading": "Loading...",
+    "saveChanges": "Save Changes",
+    "returnHome": "Return Home"
+  },
+  "labels": {
+    "email": "Email",
+    "password": "Password",
+    "status": "Status",
+    "date": "Date",
+    "actions": "Actions",
+    "name": "Name",
+    "description": "Description",
+    "type": "Type",
+    "version": "Version",
+    "created": "Created",
+    "updated": "Updated",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "optional": "Optional"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "unauthorized": "Session expired. Please log in again.",
+    "notFound": "Resource not found.",
+    "loadFailed": "Failed to load data"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{current}} of {{total}}",
+    "showing": "Showing {{from}} to {{to}} of {{total}}"
+  },
+  "notFound": {
+    "title": "404",
+    "heading": "Page Not Found",
+    "message": "The page you're looking for doesn't exist or has been moved.",
+    "returnHome": "Return Home"
+  },
+  "dashboard": {
+    "title": "Medical AI Dashboard",
+    "recentAnalyses": "Recent Analyses",
+    "recentAnalysesDesc": "View your recent medical image analyses",
+    "availableModels": "Available Models",
+    "availableModelsDesc": "Browse AI models for different medical imaging tasks",
+    "quickAnalysis": "Quick Analysis",
+    "quickAnalysisDesc": "Start a new image analysis"
+  },
+  "footer": {
+    "tagline": "Advanced medical imaging platform powered by DICOMweb standards and AI analysis models.",
+    "compliance": "DICOM Compliant \u2022 Secure \u2022 HIPAA-Ready",
+    "platform": "Platform",
+    "tools": "Tools",
+    "resources": "Resources",
+    "allRightsReserved": "\u00a9 {{year}} OpenMedLab. All rights reserved.",
+    "builtFor": "Built for medical professionals.",
+    "poweredBy": "Powered by Cornerstone.js \u2022 DICOMweb \u2022 OHIF Viewer \u2022 Django REST Framework",
+    "madeWith": "Made with \u2764 for healthcare innovation",
+    "analysis": "Analysis",
+    "monitor": "Monitor",
+    "viewer": "Viewer",
+    "anonymizer": "Anonymizer",
+    "converter": "Converter",
+    "docs": "Documentation",
+    "apiRef": "API Reference",
+    "security": "Security",
+    "company": "Company",
+    "features": "Features",
+    "pricing": "Pricing",
+    "research": "Research",
+    "blog": "Blog",
+    "about": "About",
+    "careers": "Careers"
+  },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "pressEscToClose": "Press Esc to close"
+  },
+  "theme": {
+    "toggleTheme": "Toggle theme"
+  },
+  "time": {
+    "justNow": "Just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
+  },
+  "audit": {
+    "title": "Audit Trail Report",
+    "subtitle": "Generate and download audit trail reports for compliance monitoring",
+    "preview": "Preview",
+    "downloadPdf": "Download PDF",
+    "loadError": "Failed to load audit report",
+    "downloadError": "Failed to download PDF"
+  },
+  "documentation": {
+    "title": "Documentation",
+    "subtitle": "Everything you need to integrate, use, and build with OpenMedLab. Comprehensive guides, API references, and examples.",
+    "searchPlaceholder": "Search documentation...",
+    "viewDocumentation": "View Documentation",
+    "externalResources": "External Resources",
+    "needHelp": "Need Help?",
+    "needHelpDesc": "Can't find what you're looking for? Our support team is here to help.",
+    "getStarted": "Get Started",
+    "contactSupport": "Contact Support",
+    "sections": {
+      "gettingStarted": "Getting Started",
+      "gettingStartedDesc": "Quick start guide to begin using OpenMedLab",
+      "apiReference": "API Reference",
+      "apiReferenceDesc": "Complete REST API documentation with examples",
+      "dicomStandards": "DICOMweb Standards",
+      "dicomStandardsDesc": "DICOM and DICOMweb compliance information",
+      "aiModels": "AI Models",
+      "aiModelsDesc": "Documentation for available AI models",
+      "integration": "Integration Guides",
+      "integrationDesc": "Integrate OpenMedLab into your workflow",
+      "tutorials": "Tutorials & Examples",
+      "tutorialsDesc": "Step-by-step guides and code examples"
+    },
+    "quickLinks": {
+      "apiAuth": "API Authentication",
+      "uploadDicom": "Upload DICOM Files",
+      "dicomwebQueries": "DICOMweb Queries",
+      "aiModelCatalog": "AI Model Catalog"
+    }
+  },
+  "security": {
+    "title": "Security & Compliance",
+    "subtitle": "Your data security is our top priority. Learn about our comprehensive security measures, compliance certifications, and best practices.",
+    "hipaaCompliant": "HIPAA Compliant Platform",
+    "hipaaCompliantDesc": "Enterprise-grade security for protected health information",
+    "getStartedSecurely": "Get Started Securely",
+    "securityFeatures": "Security Features",
+    "certificationsTitle": "Certifications & Standards",
+    "securityPractices": "Security Practices",
+    "howToReport": "How to Report:",
+    "bugBounty": "Bug Bounty:",
+    "questionsTitle": "Questions About Security?",
+    "questionsDesc": "Our security team is available to answer any questions about our security practices, certifications, or to provide documentation for compliance reviews.",
+    "contactSecurityTeam": "Contact Security Team",
+    "viewDocumentation": "View Documentation",
+    "features": {
+      "encryption": "End-to-End Encryption",
+      "encryptionDesc": "All data is encrypted in transit using TLS 1.3 and at rest using AES-256 encryption.",
+      "hipaa": "HIPAA Compliance",
+      "hipaaDesc": "Full HIPAA compliance with Business Associate Agreements (BAA) available.",
+      "auth": "Authentication & Authorization",
+      "authDesc": "Multi-layered security with JWT tokens and API keys with granular permissions.",
+      "isolation": "Data Isolation",
+      "isolationDesc": "Complete data segregation between users and organizations.",
+      "auditLogging": "Audit Logging",
+      "auditLoggingDesc": "Comprehensive logging of all system activities and data access.",
+      "infrastructure": "Infrastructure Security",
+      "infrastructureDesc": "Enterprise-grade infrastructure with redundancy and monitoring."
+    },
+    "practices": {
+      "dataProtection": "Data Protection",
+      "accessControl": "Access Control",
+      "monitoring": "Monitoring",
+      "development": "Development"
+    },
+    "disclosure": {
+      "title": "Responsible Disclosure",
+      "description": "We take security seriously. If you discover a security vulnerability, please report it to us responsibly.",
+      "reward": "Eligible researchers may receive acknowledgment and rewards through our bug bounty program."
+    }
+  }
+}

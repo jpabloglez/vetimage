@@ -1,0 +1,24 @@
+{
+  "title": "Reports",
+  "subtitle": "AI analysis reports with structured findings",
+  "refresh": "Refresh",
+  "compare": "Compare",
+  "generate": "Generate Report",
+  "noReports": "No Reports Yet",
+  "noReportsHint": "Generate a report from a completed AI analysis task.",
+  "downloadPdf": "PDF",
+  "table": {
+    "title": "Title",
+    "model": "Model",
+    "status": "Status",
+    "created": "Created",
+    "actions": "Actions"
+  },
+  "status": {
+    "draft": "Draft",
+    "final": "Final"
+  },
+  "generateSuccess": "Report generated successfully",
+  "generateError": "Failed to generate report",
+  "downloadError": "Failed to download PDF"
+}

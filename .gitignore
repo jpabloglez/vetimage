@@ -1,0 +1,53 @@
+# Data
+data/
+
+# Logs
+logs
+*.log
+
+# Editor directories and files
+.vscode/*
+*.pyc
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.cache
+
+# Testing
+coverage/
+*.cover
+*.coverage
+*.coverage.*
+*.log
+.nyc_output/
+coverage-final.json
+
+# Environment variables
+.env
+.env.*
+envs/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Virtual environments
+venv/
+env/
+
+# Miscellaneous
+*.bak
+*.tmp
+*.temp
+*.orig
+*.backup
+
+# Ignore the following files and directories
+# (uncomment and modify as needed)
+# config/
+# secrets/
+tests/

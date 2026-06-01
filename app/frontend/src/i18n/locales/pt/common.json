@@ -1,0 +1,220 @@
+{
+  "nav": {
+    "models": "Modelos",
+    "analysis": "Análise",
+    "statistics": "Estatísticas",
+    "reports": "Relatórios",
+    "tools": "Ferramentas",
+    "monitor": "Monitoramento",
+    "audit": "Auditoria",
+    "documentation": "Documentação",
+    "security": "Segurança",
+    "profile": "Perfil",
+    "signIn": "Entrar",
+    "getStarted": "Começar",
+    "signOut": "Sair"
+  },
+  "userMenu": {
+    "aiModels": "Modelos de IA",
+    "myProfile": "Meu Perfil",
+    "accountSettings": "Configurações da Conta",
+    "language": "Idioma",
+    "logout": "Sair"
+  },
+  "roles": {
+    "user": "Usuário",
+    "guest": "Convidado",
+    "admin": "Administrador",
+    "manager": "Gerente",
+    "superuser": "Superusuário"
+  },
+  "buttons": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "close": "Fechar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "submit": "Enviar",
+    "refresh": "Atualizar",
+    "download": "Baixar",
+    "upload": "Enviar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "clear": "Limpar",
+    "apply": "Aplicar",
+    "confirm": "Confirmar",
+    "retry": "Tentar novamente",
+    "loading": "Carregando...",
+    "saveChanges": "Salvar Alterações",
+    "returnHome": "Voltar ao Início"
+  },
+  "labels": {
+    "email": "E-mail",
+    "password": "Senha",
+    "status": "Status",
+    "date": "Data",
+    "actions": "Ações",
+    "name": "Nome",
+    "description": "Descrição",
+    "type": "Tipo",
+    "version": "Versão",
+    "created": "Criado em",
+    "updated": "Atualizado em",
+    "all": "Todos",
+    "none": "Nenhum",
+    "yes": "Sim",
+    "no": "Não",
+    "enabled": "Ativado",
+    "disabled": "Desativado",
+    "optional": "Opcional"
+  },
+  "errors": {
+    "generic": "Algo deu errado. Por favor, tente novamente.",
+    "network": "Erro de rede. Por favor, verifique sua conexão.",
+    "unauthorized": "Sessão expirada. Por favor, faça login novamente.",
+    "notFound": "Recurso não encontrado.",
+    "loadFailed": "Falha ao carregar dados"
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Próximo",
+    "pageOf": "Página {{current}} de {{total}}",
+    "showing": "Exibindo {{from}} a {{to}} de {{total}}"
+  },
+  "notFound": {
+    "title": "404",
+    "heading": "Página Não Encontrada",
+    "message": "A página que você está procurando não existe ou foi movida.",
+    "returnHome": "Voltar ao Início"
+  },
+  "dashboard": {
+    "title": "Painel de IA Médica",
+    "recentAnalyses": "Análises Recentes",
+    "recentAnalysesDesc": "Visualize suas análises recentes de imagens médicas",
+    "availableModels": "Modelos Disponíveis",
+    "availableModelsDesc": "Explore modelos de IA para diferentes tarefas de imagem médica",
+    "quickAnalysis": "Análise Rápida",
+    "quickAnalysisDesc": "Iniciar uma nova análise de imagem"
+  },
+  "footer": {
+    "tagline": "Plataforma avançada de imagens médicas baseada em padrões DICOMweb e modelos de análise por IA.",
+    "compliance": "Compatível com DICOM • Seguro • Preparado para HIPAA",
+    "platform": "Plataforma",
+    "tools": "Ferramentas",
+    "resources": "Recursos",
+    "allRightsReserved": "© {{year}} OpenMedLab. Todos os direitos reservados.",
+    "builtFor": "Desenvolvido para profissionais de saúde.",
+    "poweredBy": "Desenvolvido com Cornerstone.js • DICOMweb • OHIF Viewer • Django REST Framework",
+    "madeWith": "Feito com ❤ para inovação na saúde",
+    "analysis": "Análise",
+    "monitor": "Monitoramento",
+    "viewer": "Visualizador",
+    "anonymizer": "Anonimizador",
+    "converter": "Conversor",
+    "docs": "Documentação",
+    "apiRef": "Referência da API",
+    "security": "Segurança",
+    "company": "Empresa",
+    "features": "Funcionalidades",
+    "pricing": "Preços",
+    "research": "Pesquisa",
+    "blog": "Blog",
+    "about": "Sobre Nós",
+    "careers": "Vagas"
+  },
+  "shortcuts": {
+    "title": "Atalhos de Teclado",
+    "pressEscToClose": "Pressione Esc para fechar"
+  },
+  "theme": {
+    "toggleTheme": "Alternar tema"
+  },
+  "time": {
+    "justNow": "Agora mesmo",
+    "minutesAgo": "{{count}}min atrás",
+    "hoursAgo": "{{count}}h atrás",
+    "daysAgo": "{{count}}d atrás"
+  },
+  "audit": {
+    "title": "Relatório de Auditoria",
+    "subtitle": "Gere e baixe relatórios de auditoria para monitoramento de conformidade",
+    "preview": "Visualizar",
+    "downloadPdf": "Baixar PDF",
+    "loadError": "Falha ao carregar relatório de auditoria",
+    "downloadError": "Falha ao baixar PDF"
+  },
+  "documentation": {
+    "title": "Documentação",
+    "subtitle": "Tudo o que você precisa para integrar, usar e construir com o OpenMedLab. Guias completos, referências de API e exemplos.",
+    "searchPlaceholder": "Buscar na documentação...",
+    "viewDocumentation": "Ver Documentação",
+    "externalResources": "Recursos Externos",
+    "needHelp": "Precisa de Ajuda?",
+    "needHelpDesc": "Não encontrou o que procura? Nossa equipe de suporte está aqui para ajudar.",
+    "getStarted": "Começar",
+    "contactSupport": "Contatar Suporte",
+    "sections": {
+      "gettingStarted": "Primeiros Passos",
+      "gettingStartedDesc": "Guia de início rápido para começar a usar o OpenMedLab",
+      "apiReference": "Referência da API",
+      "apiReferenceDesc": "Documentação completa da API REST com exemplos",
+      "dicomStandards": "Padrões DICOMweb",
+      "dicomStandardsDesc": "Informações de conformidade DICOM e DICOMweb",
+      "aiModels": "Modelos de AI",
+      "aiModelsDesc": "Documentação dos modelos de AI disponíveis",
+      "integration": "Guias de Integração",
+      "integrationDesc": "Integre o OpenMedLab ao seu fluxo de trabalho",
+      "tutorials": "Tutoriais e Exemplos",
+      "tutorialsDesc": "Guias passo a passo e exemplos de código"
+    },
+    "quickLinks": {
+      "apiAuth": "Autenticação de API",
+      "uploadDicom": "Upload de Arquivos DICOM",
+      "dicomwebQueries": "Consultas DICOMweb",
+      "aiModelCatalog": "Catálogo de Modelos de AI"
+    }
+  },
+  "security": {
+    "title": "Segurança e Conformidade",
+    "subtitle": "A segurança dos seus dados é nossa prioridade máxima. Conheça nossas medidas de segurança abrangentes, certificações de conformidade e melhores práticas.",
+    "hipaaCompliant": "Plataforma Compatível com HIPAA",
+    "hipaaCompliantDesc": "Segurança de nível empresarial para informações de saúde protegidas",
+    "getStartedSecurely": "Comece com Segurança",
+    "securityFeatures": "Recursos de Segurança",
+    "certificationsTitle": "Certificações e Padrões",
+    "securityPractices": "Práticas de Segurança",
+    "howToReport": "Como Reportar:",
+    "bugBounty": "Recompensa por Bugs:",
+    "questionsTitle": "Dúvidas Sobre Segurança?",
+    "questionsDesc": "Nossa equipe de segurança está disponível para responder qualquer pergunta sobre nossas práticas de segurança, certificações ou fornecer documentação para revisões de conformidade.",
+    "contactSecurityTeam": "Contatar Equipe de Segurança",
+    "viewDocumentation": "Ver Documentação",
+    "features": {
+      "encryption": "Criptografia de Ponta a Ponta",
+      "encryptionDesc": "Todos os dados são criptografados em trânsito usando TLS 1.3 e em repouso usando criptografia AES-256.",
+      "hipaa": "Conformidade HIPAA",
+      "hipaaDesc": "Conformidade total com HIPAA com Acordos de Associado Comercial (BAA) disponíveis.",
+      "auth": "Autenticação e Autorização",
+      "authDesc": "Segurança em múltiplas camadas com tokens JWT e chaves de API com permissões granulares.",
+      "isolation": "Isolamento de Dados",
+      "isolationDesc": "Segregação completa de dados entre usuários e organizações.",
+      "auditLogging": "Registro de Auditoria",
+      "auditLoggingDesc": "Registro abrangente de todas as atividades do sistema e acesso a dados.",
+      "infrastructure": "Segurança de Infraestrutura",
+      "infrastructureDesc": "Infraestrutura de nível empresarial com redundância e monitoramento."
+    },
+    "practices": {
+      "dataProtection": "Proteção de Dados",
+      "accessControl": "Controle de Acesso",
+      "monitoring": "Monitoramento",
+      "development": "Desenvolvimento"
+    },
+    "disclosure": {
+      "title": "Divulgação Responsável",
+      "description": "Levamos a segurança a sério. Se você descobrir uma vulnerabilidade de segurança, por favor reporte de forma responsável.",
+      "reward": "Pesquisadores elegíveis podem receber reconhecimento e recompensas através do nosso programa de recompensas por bugs."
+    }
+  }
+}

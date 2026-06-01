@@ -1,0 +1,51 @@
+{
+  "title": "Meu Perfil",
+  "subtitle": "Gerencie as informações da sua conta e preferências",
+  "editProfile": "Editar Perfil",
+  "accountInfo": "Informações da Conta",
+  "email": "Endereço de E-mail",
+  "jobTitle": "Cargo",
+  "department": "Departamento",
+  "teamWorkspace": "Equipe / Área de Trabalho",
+  "memberSince": "Membro desde",
+  "preferences": "Preferências",
+  "jobSharing": "Compartilhamento de Tarefas",
+  "jobSharingDesc": "Compartilhar tarefas de análise com colegas",
+  "loading": "Carregando perfil...",
+  "avatar": {
+    "changePhoto": "Alterar foto",
+    "uploadHint": "JPG, PNG ou WebP · máx 5 MB",
+    "uploading": "Enviando...",
+    "uploadSuccess": "Foto atualizada",
+    "uploadError": "Falha ao enviar",
+    "sizeTooLarge": "O arquivo excede o limite de 5 MB",
+    "invalidType": "Por favor selecione um arquivo de imagem"
+  },
+  "form": {
+    "saveChanges": "Salvar Alterações",
+    "saving": "Salvando...",
+    "saveSuccess": "Perfil atualizado",
+    "saveError": "Falha ao salvar perfil"
+  },
+  "settings": {
+    "title": "Configurações da Conta",
+    "email": "E-mail",
+    "emailReadonly": "O e-mail não pode ser alterado",
+    "role": "Função",
+    "department": "Departamento / Divisão",
+    "departmentPlaceholder": "ex.: Radiologia, Cardiologia",
+    "jobTitle": "Cargo",
+    "jobTitlePlaceholder": "ex.: Radiologista, Técnico",
+    "teamWorkspace": "Equipe / Área de Trabalho",
+    "teamPlaceholder": "ex.: Equipe de Imagem, Laboratório de Pesquisa",
+    "shareJobs": "Compartilhar tarefas de análise com colegas",
+    "shareJobsDesc": "Permitir que membros da equipe visualizem e colaborem nas suas tarefas de análise",
+    "changePassword": "Alterar Senha",
+    "preferredLanguage": "Idioma Preferido",
+    "languageHelp": "Aplicado automaticamente ao fazer login",
+    "saveChanges": "Salvar Alterações",
+    "cancel": "Cancelar",
+    "updateSuccess": "Perfil atualizado com sucesso",
+    "updateError": "Falha ao atualizar perfil"
+  }
+}

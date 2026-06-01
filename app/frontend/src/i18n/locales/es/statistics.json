@@ -1,0 +1,85 @@
+{
+  "title": "Estadísticas de Análisis",
+  "subtitle": "Analítica integral e información sobre sus tareas de análisis con AI",
+  "tabs": {
+    "analysisTasks": "Tareas de Análisis",
+    "studyAnalytics": "Analítica de Estudios",
+    "modelPerformance": "Rendimiento de Modelos",
+    "userActivity": "Actividad de Usuarios",
+    "population": "Población"
+  },
+  "cards": {
+    "totalTasks": "Total de Tareas",
+    "completed": "Completadas",
+    "failed": "Fallidas",
+    "avgProcessingTime": "Tiempo Promedio de Procesamiento"
+  },
+  "charts": {
+    "tasksOverTime": "Tareas a lo Largo del Tiempo",
+    "statusDistribution": "Distribución de Estados",
+    "modelUsage": "Estadísticas de Uso de Modelos",
+    "modalityDistribution": "Distribución de Modalidades",
+    "uploadTrends": "Tendencias de Subida",
+    "storageUsage": "Uso de Almacenamiento",
+    "ageDistribution": "Distribución por Edad",
+    "genderDistribution": "Distribución por Género",
+    "topFindings": "Hallazgos Principales"
+  },
+  "table": {
+    "patientId": "ID del Paciente",
+    "model": "Modelo",
+    "status": "Estado",
+    "demographics": "Demografía",
+    "modality": "Modalidad",
+    "bodyPart": "Parte del Cuerpo",
+    "created": "Creado",
+    "duration": "Duración"
+  },
+  "loading": "Cargando estadísticas...",
+  "noData": "Sin Datos Disponibles",
+  "noDataMessage": "No se encontraron tareas de análisis que coincidan con sus filtros.",
+  "filters": {
+    "dateFrom": "Fecha Desde",
+    "dateTo": "Fecha Hasta",
+    "models": "Modelos",
+    "statuses": "Estados",
+    "modalities": "Modalidades",
+    "bodyParts": "Partes del Cuerpo",
+    "patientSex": "Sexo del Paciente",
+    "ageRange": "Rango de Edad",
+    "ageMin": "Edad Mínima",
+    "ageMax": "Edad Máxima",
+    "apply": "Aplicar Filtros",
+    "clear": "Limpiar Filtros",
+    "title": "Filtros"
+  },
+  "study": {
+    "totalStudies": "Total de Estudios",
+    "totalStorage": "Almacenamiento Total"
+  },
+  "modelMetrics": {
+    "title": "Métricas Detalladas de Modelos",
+    "model": "Modelo",
+    "total": "Total",
+    "completed": "Completados",
+    "failed": "Fallidos",
+    "timeout": "Tiempo Agotado",
+    "avgTime": "Tiempo Promedio",
+    "failureRate": "Tasa de Fallas"
+  },
+  "userActivity": {
+    "title": "Actividad de Usuarios",
+    "uploads": "Subidas",
+    "analyses": "Análisis",
+    "completedAnalyses": "Completados",
+    "failedAnalyses": "Fallidos",
+    "storage": "Almacenamiento",
+    "lastActive": "Última Actividad"
+  },
+  "population": {
+    "title": "Información Poblacional",
+    "totalPatients": "Total de Pacientes"
+  },
+  "seconds": "{{value}}s",
+  "notAvailable": "N/D"
+}

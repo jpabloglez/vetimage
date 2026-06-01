@@ -1,0 +1,281 @@
+services:
+
+  db-openmedlab:
+    image: postgres:17
+    container_name: db-openmedlab
+    ports:
+      - 5444:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    networks:
+       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-openmedlab:
+    image: redis:7-alpine
+    container_name: redis-openmedlab
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/data
+    command: redis-server --appendonly yes
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend-openmedlab:
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile.backend
+    container_name: backend-openmedlab
+    image: backend-openmedlab
+    depends_on:
+      - db-openmedlab
+      - redis-openmedlab
+    ports:
+      - 3080:3080
+    volumes:
+      - ./app/backend:/var/www/app/backend
+      - ./data/media:/var/www/app/backend/media
+      - shared_volume:/var/www/static
+    command: daphne -b 0.0.0.0 -p 3080 backend.asgi:application
+    tty: true
+    networks:
+       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3080/api/health/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - CELERY_BROKER_URL=redis://redis-openmedlab:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis-openmedlab:6379/0
+      - REDIS_HOST=redis-openmedlab
+      - REDIS_PORT=6379
+      - ORCHESTRATOR_HOST=orchestrator-openmedlab
+      - ORCHESTRATOR_PORT=50050
+      - USE_ORCHESTRATOR=True
+
+  celery-worker-openmedlab:
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile.backend
+    container_name: celery-worker-openmedlab
+    depends_on:
+      - db-openmedlab
+      - redis-openmedlab
+      - backend-openmedlab
+    volumes:
+      - ./app/backend:/var/www/app/backend
+      - ./data/media:/var/www/app/backend/media
+    command: celery -A backend worker --loglevel=info --queues=ai_jobs,monitoring,default
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A backend inspect ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - CELERY_BROKER_URL=redis://redis-openmedlab:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis-openmedlab:6379/0
+
+  celery-beat-openmedlab:
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile.backend
+    container_name: celery-beat-openmedlab
+    depends_on:
+      - db-openmedlab
+      - redis-openmedlab
+    volumes:
+      - ./app/backend:/var/www/app/backend
+    command: celery -A backend beat --loglevel=info
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'celery.*beat'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - CELERY_BROKER_URL=redis://redis-openmedlab:6379/0
+
+  frontend-openmedlab:
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile.frontend
+    container_name: frontend-openmedlab
+    image: frontend-openmedlab
+    ports:
+      - 3000:3000
+    volumes:
+      - ./app/frontend/:/var/www/app/frontend
+      - shared_volume:/var/www/static
+    command: npm run dev
+    tty: true
+    networks:
+       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  dicom-gateway-openmedlab:
+    build:
+      context: ./app/dicom-gateway
+      dockerfile: Dockerfile
+    container_name: dicom-gateway-openmedlab
+    depends_on:
+      - db-openmedlab
+      - redis-openmedlab
+      - backend-openmedlab
+    ports:
+      - "11112:11112"  # DICOM SCP
+      - "8001:8001"    # Gateway API
+    volumes:
+      - ./app/dicom-gateway:/app
+      - dicom_temp_volume:/app/storage/dicom-temp
+    environment:
+      - DICOM_AE_TITLE=OPENMEDLAB
+      - DICOM_PORT=11112
+      - DICOM_HOST=0.0.0.0
+      - BACKEND_API_URL=http://backend-openmedlab:3080
+      - DATABASE_URL=postgresql://postgres:postgres@db-openmedlab:5432/postgres
+      - REDIS_URL=redis://redis-openmedlab:6379/0
+      - CELERY_BROKER_URL=redis://redis-openmedlab:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis-openmedlab:6379/0
+      - STORAGE_PATH=/app/storage/dicom-temp
+      - AUTO_FORWARD_TO_BACKEND=true
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=development
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  gateway-celery-worker:
+    build:
+      context: ./app/dicom-gateway
+      dockerfile: Dockerfile
+    container_name: gateway-celery-worker
+    depends_on:
+      - redis-openmedlab
+      - dicom-gateway-openmedlab
+    volumes:
+      - ./app/dicom-gateway:/app
+      - dicom_temp_volume:/app/storage/dicom-temp
+    command: celery -A gateway.tasks worker --loglevel=info --queues=dicom_processing
+    environment:
+      - REDIS_URL=redis://redis-openmedlab:6379/0
+      - CELERY_BROKER_URL=redis://redis-openmedlab:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis-openmedlab:6379/0
+      - BACKEND_API_URL=http://backend-openmedlab:3080
+      - DATABASE_URL=postgresql://postgres:postgres@db-openmedlab:5432/postgres
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A gateway.tasks inspect ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  orthanc-test-pacs:
+    image: jodogne/orthanc-plugins:1.12.5
+    container_name: orthanc-test-pacs
+    ports:
+      - "4242:4242"   # DICOM protocol
+      - "8042:8042"   # Web interface
+    environment:
+      - ORTHANC_NAME=Orthanc Test PACS
+      - ORTHANC_AET=ORTHANC
+      - ORTHANC_USERNAME=orthanc
+      - ORTHANC_PASSWORD=orthanc
+    volumes:
+      - ./setup/orthanc.json:/etc/orthanc/orthanc.json:ro
+      - ./data/orthanc:/var/lib/orthanc/db
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8042/system || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  orchestrator-redis:
+    image: redis:7-alpine
+    container_name: orchestrator-redis
+    ports:
+      - "6380:6379"  # Different port to avoid conflict with redis-openmedlab
+    volumes:
+      - ./data/orchestrator-redis:/data
+    command: redis-server --appendonly yes
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  orchestrator-openmedlab:
+    build:
+      context: ./app/orchestrator
+      dockerfile: ./Dockerfile.orchestrator
+    container_name: orchestrator-openmedlab
+    depends_on:
+      - orchestrator-redis
+    ports:
+      - "50050:50050"  # gRPC port
+      - "8080:8080"    # Prometheus metrics
+    volumes:
+      # Don't mount source in production - proto files are compiled during build
+      # - ./app/orchestrator:/app
+      - ./data/media:/var/www/app/backend/media  # Shared media for file access
+    environment:
+      - REDIS_HOST=orchestrator-redis
+      - REDIS_PORT=6379
+      - GRPC_PORT=50050
+      - METRICS_PORT=8080
+      - NUM_WORKERS=2
+      - MODELS_CONFIG=/app/orchestrator/config/models.yaml
+    networks:
+      - app-network
+    restart: unless-stopped
+    command: python -m orchestrator.main
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  shared_volume:
+  dicom_temp_volume:
+
+networks:
+  app-network:
+    name: openmedlab_app-network

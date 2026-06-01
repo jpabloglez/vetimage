@@ -1,0 +1,61 @@
+{
+  "title": "Painel de Monitoramento",
+  "subtitle": "Acompanhamento em tempo real de tarefas de análise e transferências DICOM",
+  "tabs": {
+    "aiAnalyses": "Análises de IA",
+    "dicomTransfers": "Transferências DICOM",
+    "audit": "Relatório de Auditoria"
+  },
+  "tasks": {
+    "model": "Modelo",
+    "status": "Status",
+    "created": "Criado em",
+    "completed": "Concluído em",
+    "duration": "Duração",
+    "createdBy": "Criado por",
+    "department": "Departamento",
+    "error": "Erro",
+    "noTasks": "Nenhuma tarefa de análise encontrada"
+  },
+  "transfers": {
+    "study": "Estudo",
+    "source": "Origem",
+    "modality": "Modalidade",
+    "instances": "Instâncias",
+    "status": "Status",
+    "size": "Tamanho",
+    "duration": "Duração",
+    "noTransfers": "Nenhuma transferência DICOM encontrada"
+  },
+  "stats": {
+    "totalJobs": "Total de Tarefas",
+    "successRate": "Taxa de Sucesso",
+    "avgProcessingTime": "Tempo Médio de Processamento",
+    "byStatus": "Por Status",
+    "byModel": "Por Modelo"
+  },
+  "filters": {
+    "dateFrom": "Data Inicial",
+    "dateTo": "Data Final",
+    "status": "Status",
+    "scope": "Escopo",
+    "model": "Modelo",
+    "scopeOwn": "Minhas Tarefas",
+    "scopeColleagues": "Colegas",
+    "scopeDepartment": "Departamento",
+    "scopeTeam": "Equipe"
+  },
+  "status": {
+    "success": "Sucesso",
+    "partial": "Parcial",
+    "failed": "Falhou",
+    "inProgress": "Em Andamento",
+    "pending": "Pendente",
+    "queued": "Na Fila",
+    "dispatched": "Despachado",
+    "processing": "Processando",
+    "completed": "Concluído",
+    "timeout": "Tempo Esgotado",
+    "cancelled": "Cancelado"
+  }
+}

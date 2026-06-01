@@ -1,0 +1,281 @@
+# =============================================================================
+# AI Model Services — External to the core OpenMedLab stack
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.services.yml up -d
+#
+# Or start only specific model services:
+#   docker compose -f docker-compose.yml -f docker-compose.services.yml up -d mirage-service
+#   docker compose -f docker-compose.yml -f docker-compose.services.yml up -d chexnet-service
+#
+# Prerequisites:
+#   1. Build each model image first (see per-service instructions below)
+#   2. Register models in DB:  docker compose exec backend-openmedlab python manage.py seed_ai_models
+#   3. Rebuild backend if needed: docker compose build backend-openmedlab celery-worker-openmedlab
+#
+# File paths:
+#   Connectors pass image paths as /var/www/app/backend/media/...
+#   All model services mount the host media dir at that exact path.
+# =============================================================================
+
+services:
+
+  # Mount fastsurfer_output in backend + celery so result files are accessible
+  backend-openmedlab:
+    volumes:
+      - fastsurfer_output:/fastsurfer_output:ro
+
+  celery-worker-openmedlab:
+    volumes:
+      - fastsurfer_output:/fastsurfer_output:ro
+
+  # ---------------------------------------------------------------------------
+  # MIRAGE — Retinal OCT/SLO Foundation Model
+  #
+  # Protocol: HTTP REST (Celery mode, USE_ORCHESTRATOR=False)
+  # Connector: ai_analysis.connectors.mirage.MirageConnector
+  # Registered endpoint: http://mirage-service:8000
+  #
+  # Build the image from the MIRAGE repository:
+  #   cd /path/to/mirage-repo
+  #   docker build -t openmedlab/mirage-service:latest .
+  #
+  # Expected API:
+  #   POST /analyze            — Submit analysis job
+  #   GET  /jobs/{job_id}      — Poll job status
+  #   POST /models/{size}/load — Pre-load model to GPU
+  #   GET  /health             — Health check
+  # ---------------------------------------------------------------------------
+  mirage-service:
+    image: openmedlab/mirage-service:latest
+    container_name: mirage-service
+    ports:
+      - "8010:8000"
+    volumes:
+      - ./data/media:/var/www/app/backend/media:ro
+      - mirage_cache:/root/.cache  # HuggingFace / torch model weights
+    environment:
+      - DEVICE=cuda           # cuda | cpu
+      - DEFAULT_MODEL_SIZE=base
+      - LOG_LEVEL=INFO
+      - WORKERS=1
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s  # Model loading on first start
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ---------------------------------------------------------------------------
+  # CheXNet — Chest X-ray 14-Pathology Classification
+  #
+  # Protocol: HTTP REST + webhook callback (Celery mode)
+  # Connector: ai_analysis.connectors.chexnet.CheXNetConnector
+  # Registered endpoint: http://chexnet-service:8000
+  #
+  # Build the image:
+  #   cd /path/to/chexnet-repo
+  #   docker build -t openmedlab/chexnet-service:latest .
+  #
+  # Expected API:
+  #   POST /classify — Submit classification (with callback_url + webhook_secret)
+  #   GET  /health   — Health check
+  # ---------------------------------------------------------------------------
+  chexnet-service:
+    image: openmedlab/chexnet-service:latest
+    container_name: chexnet-service
+    ports:
+      - "8011:8000"
+    volumes:
+      - ./data/media:/var/www/app/backend/media:ro
+      - chexnet_cache:/root/.cache
+    environment:
+      - DEVICE=cuda
+      - LOG_LEVEL=INFO
+      - WORKERS=1
+      # Backend URL for webhook delivery (container-to-container)
+      - BACKEND_WEBHOOK_URL=http://backend-openmedlab:3080
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ---------------------------------------------------------------------------
+  # PICAI — Prostate Cancer Detection (nnU-Net)
+  #
+  # Protocol: gRPC (Orchestrator mode, USE_ORCHESTRATOR=True)
+  # Connector: ai_analysis.connectors.picai.PICAIConnector
+  # Orchestrator endpoint: picai-service:50051
+  #
+  # Build the image:
+  #   cd /path/to/picai-repo
+  #   docker build -t openmedlab/picai-service:latest .
+  #
+  # Expected gRPC (model_service.proto):
+  #   RunInference(InferenceRequest)    — Run detection
+  #   GetModelInfo(ModelInfoRequest)    — Model capabilities
+  #   HealthCheck(HealthCheckRequest)   — Liveness probe
+  #
+  # NOTE: Requires USE_ORCHESTRATOR=True in backend-openmedlab environment
+  # ---------------------------------------------------------------------------
+  picai-service:
+    image: juanpablogglez/openmedlab-services:picai-v1.0.0
+    container_name: picai-service
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./data/media:/var/www/app/backend/media:ro
+      - picai_cache:/root/.cache
+    environment:
+      - DEVICE=cuda
+      - GRPC_PORT=50051
+      - LOG_LEVEL=INFO
+      - ENSEMBLE_FOLDS=5
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import grpc; ch=grpc.insecure_channel('localhost:50051'); grpc.channel_ready_future(ch).result(timeout=5)\" || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s  # nnU-Net model loading is slow
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ---------------------------------------------------------------------------
+  # FastSurfer — Whole-Brain T1w MRI Segmentation
+  #
+  # Protocol: gRPC (Orchestrator mode, USE_ORCHESTRATOR=True)
+  # Connector: ai_analysis.connectors.fastsurfer.FastSurferConnector
+  # Orchestrator endpoint: fastsurfer-service:50051
+  #
+  # Build the image:
+  #   cd /path/to/medimaging-repo
+  #   docker build -f setup/Dockerfile.fastsurfer -t openmedlab/fastsurfer-service:latest .
+  #
+  # The connector automatically converts DICOM → NIfTI via dcm2niix before dispatch.
+  #
+  # Expected gRPC (model_service.proto):
+  #   RunInference(InferenceRequest)    — Run segmentation (t1w NIfTI path in images[0].source)
+  #   GetCapabilities(ModelInfoRequest) — Model capabilities
+  #   HealthCheck(HealthCheckRequest)   — Liveness probe
+  #
+  # Outputs (written to fastsurfer_output volume):
+  #   aseg.auto_noCCseg.mgz — Whole-brain segmentation
+  #   aseg+DKT.stats        — Region volume statistics
+  #   mask.mgz              — Brain mask
+  #
+  # NOTE: Requires USE_ORCHESTRATOR=True in backend-openmedlab environment
+  # ---------------------------------------------------------------------------
+  fastsurfer-service:
+    image: juanpablogglez/openmedlab-services:fastsurfer-v2.0.0
+    container_name: fastsurfer-service
+    ports:
+      - "8012:8000"    # FastAPI REST (for local testing / health checks)
+      - "50052:50051"  # gRPC ModelService
+    volumes:
+      - ./data/media:/var/www/app/backend/media:ro
+      - fastsurfer_output:/output
+      - fastsurfer_cache:/root/.cache
+    environment:
+      - DEVICE=cuda
+      - GRPC_PORT=50051
+      - LOG_LEVEL=INFO
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ---------------------------------------------------------------------------
+  # nnU-Net — Universal Segmentation Framework
+  #
+  # Protocol: local subprocess (NNUNetConnector calls nnUNetv2_predict directly
+  #           inside the celery worker — no separate service container needed)
+  # Connector: ai_analysis.connectors.nnunet.NNUNetConnector
+  #
+  # Models covered by one connector: STU-Net-S/B/L, MIS-FM, A-Eval
+  # (any nnU-Net v2 model whose weights are installed in nnUNet_results)
+  #
+  # Setup — download weights into the nnunet_results volume:
+  #   1. Start a temporary container with the volume mounted:
+  #      docker run --rm -v nnunet_results:/nnunet_results \
+  #        python:3.12 bash -c "pip install nnunetv2 && nnUNetv2_download_pretrained_model <dataset_id>"
+  #   2. Or copy pre-downloaded weights:
+  #      docker cp /local/path/nnUNet_results/. <container>:/nnunet_results/
+  #
+  # Required env vars (set in celery-worker-openmedlab):
+  #   nnUNet_results=/nnunet_results  — where model weights live
+  #   nnUNet_raw=/nnunet_raw         — staging area for raw data (optional)
+  #
+  # Supported models (seed with: python manage.py seed_ai_models):
+  #   stunet-s-v1  STU-Net Small  (14.6M params, DSC=0.814)
+  #   stunet-b-v1  STU-Net Base   (58.3M params, DSC=0.836)
+  #   stunet-l-v1  STU-Net Large  (440M  params, DSC=0.850)
+  #   misfm-v1     MIS-FM         (8-organ CT/MRI foundation model)
+  # ---------------------------------------------------------------------------
+
+  # Mount the nnunet_results volume into celery worker so nnUNetv2_predict
+  # can find pre-downloaded model weights.
+  celery-worker-openmedlab:
+    volumes:
+      - nnunet_results:/nnunet_results:ro
+      - nnunet_raw:/nnunet_raw
+    environment:
+      - nnUNet_results=/nnunet_results
+      - nnUNet_raw=/nnunet_raw
+      - NNUNET_RESULTS=/nnunet_results
+
+volumes:
+  mirage_cache:
+  chexnet_cache:
+  picai_cache:
+  fastsurfer_output:
+  fastsurfer_cache:
+  nnunet_results:
+  nnunet_raw:
+
+# Joins the network defined in docker-compose.yml
+networks:
+  app-network:
+    external: true
+    name: openmedlab_app-network

@@ -1,0 +1,32 @@
+FROM node:22-slim
+
+# Install system dependencies needed for some medical imaging npm packages
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /var/www/app/frontend
+
+ENV PATH /var/www/app/frontend/node_modules/.bin:$PATH
+
+COPY ./app/frontend/package*.json ./
+
+# CLEAN COMMAND: Removed the inline comment and added compatibility flags
+RUN npm install --legacy-peer-deps && npm cache clean --force
+
+# Copy the rest of the frontend code
+COPY ./app/frontend/ .
+
+# Ownership and User management
+RUN usermod --non-unique --uid 1000 www-data \
+  && groupmod --non-unique --gid 1000 www-data \
+  && chown -R www-data:www-data /var/www
+
+USER www-data
+
+EXPOSE 3000
+
+# Ensure you have a start script defined in package.json
+#CMD ["npm", "start"]

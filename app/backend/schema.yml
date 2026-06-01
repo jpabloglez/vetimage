@@ -1,0 +1,1179 @@
+openapi: 3.0.3
+info:
+  title: DICOM Medical Imaging Platform API
+  version: 1.0.0
+  description: "\n    RESTful API for DICOM medical image management with DICOMweb\
+    \ support.\n\n    **Features:**\n    - User authentication with JWT\n    - DICOM\
+    \ file upload and storage\n    - DICOMweb QIDO-RS (Query) endpoints\n    - DICOMweb\
+    \ WADO-RS (Retrieve) endpoints\n    - Image rendering with windowing\n    - Thumbnail\
+    \ generation\n    - Advanced search and filtering\n    - Image annotations with\
+    \ automatic measurements\n\n    **Authentication:**\n    All endpoints require\
+    \ authentication unless marked otherwise.\n    Use the `/users/auth/login/` endpoint\
+    \ to obtain a JWT access token.\n    Include the token in the Authorization header:\
+    \ `Authorization: Bearer <token>`\n    "
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: Proprietary
+paths:
+  /api/dicom/annotations/{annotation_id}/:
+    get:
+      operationId: dicom_annotations_retrieve
+      description: Get annotation details
+      parameters:
+      - in: path
+        name: annotation_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: dicom_annotations_update
+      description: Update annotation (only creator can update)
+      parameters:
+      - in: path
+        name: annotation_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: dicom_annotations_destroy
+      description: Delete annotation (only creator can delete)
+      parameters:
+      - in: path
+        name: annotation_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/dicom/dicom-web/studies:
+    get:
+      operationId: dicom_dicom_web_studies_retrieve
+      description: Query studies with optional filters
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dicom/dicom-web/studies/{study_uid}/metadata:
+    get:
+      operationId: dicom_dicom_web_studies_metadata_retrieve
+      description: Retrieve DICOM metadata for study, series, or instance
+      parameters:
+      - in: path
+        name: study_uid
+        schema:
+          type: string
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dicom/dicom-web/studies/{study_uid}/series:
+    get:
+      operationId: dicom_dicom_web_studies_series_retrieve
+      description: Query series for a specific study
+      parameters:
+      - in: path
+        name: study_uid
+        schema:
+          type: string
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dicom/dicom-web/studies/{study_uid}/series/{series_uid}/instances:
+    get:
+      operationId: dicom_dicom_web_studies_series_instances_retrieve
+      description: Query instances for a specific series
+      parameters:
+      - in: path
+        name: series_uid
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: study_uid
+        schema:
+          type: string
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dicom/dicom-web/studies/{study_uid}/series/{series_uid}/instances/{sop_uid}:
+    get:
+      operationId: dicom_dicom_web_studies_series_instances_retrieve_2
+      description: Retrieve full DICOM instance
+      parameters:
+      - in: path
+        name: series_uid
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: sop_uid
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: study_uid
+        schema:
+          type: string
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dicom/dicom-web/studies/{study_uid}/series/{series_uid}/instances/{sop_uid}/frames/{frame_number}:
+    get:
+      operationId: dicom_dicom_web_studies_series_instances_frames_retrieve
+      description: "\n    Retrieve a specific frame from a DICOM instance as a rendered\
+        \ JPEG image.\n    Supports windowing parameters for adjusting image display.\n\
+        \n    DICOMweb WADO-RS compliant endpoint.\n    "
+      summary: Retrieve rendered image frame (WADO-RS)
+      parameters:
+      - in: path
+        name: frame_number
+        schema:
+          type: integer
+        description: Frame number (1-based)
+        required: true
+      - in: path
+        name: series_uid
+        schema:
+          type: string
+        description: Series Instance UID
+        required: true
+      - in: path
+        name: sop_uid
+        schema:
+          type: string
+        description: SOP Instance UID
+        required: true
+      - in: path
+        name: study_uid
+        schema:
+          type: string
+        description: Study Instance UID
+        required: true
+      - in: query
+        name: window_center
+        schema:
+          type: number
+          format: double
+        description: Window center for image rendering
+      - in: query
+        name: window_width
+        schema:
+          type: number
+          format: double
+        description: Window width for image rendering
+      tags:
+      - DICOMweb WADO-RS
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: JPEG image
+                content:
+                  image/jpeg:
+                    schema:
+                      type: string
+                      format: binary
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                description: Image not found
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                description: Authentication required
+          description: ''
+  /api/dicom/dicom-web/studies/{study_uid}/series/{series_uid}/instances/{sop_uid}/metadata:
+    get:
+      operationId: dicom_dicom_web_studies_series_instances_metadata_retrieve
+      description: Retrieve DICOM metadata for study, series, or instance
+      parameters:
+      - in: path
+        name: series_uid
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: sop_uid
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: study_uid
+        schema:
+          type: string
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dicom/dicom-web/studies/{study_uid}/series/{series_uid}/metadata:
+    get:
+      operationId: dicom_dicom_web_studies_series_metadata_retrieve
+      description: Retrieve DICOM metadata for study, series, or instance
+      parameters:
+      - in: path
+        name: series_uid
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: study_uid
+        schema:
+          type: string
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dicom/images/{sop_uid}/annotations/:
+    get:
+      operationId: dicom_images_annotations_retrieve
+      description: "\n    Create annotations on DICOM images with automatic measurement\
+        \ calculations.\n\n    Supported annotation types:\n    - distance: 2-point\
+        \ line with length calculation\n    - area: Polygon with area calculation\n\
+        \    - angle: 3-point angle measurement\n    - text, arrow, rectangle, ellipse,\
+        \ line, roi\n\n    Measurements are automatically calculated in mm (if pixel\
+        \ spacing available) or pixels.\n    "
+      summary: List/Create image annotations
+      parameters:
+      - in: path
+        name: sop_uid
+        schema:
+          type: string
+        required: true
+      tags:
+      - Annotations
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                description: Annotation created with automatic measurements
+                content:
+                  application/json:
+                    example:
+                      id: 1
+                      annotation_type: distance
+                      geometry_data:
+                        points:
+                        - x: 100
+                          y: 150
+                        - x: 200
+                          y: 250
+                      measurement_value: 70.71
+                      measurement_unit: mm
+                      label: Tumor diameter
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                description: Invalid geometry data
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                description: Authentication required
+          description: ''
+    post:
+      operationId: dicom_images_annotations_create
+      description: "\n    Create annotations on DICOM images with automatic measurement\
+        \ calculations.\n\n    Supported annotation types:\n    - distance: 2-point\
+        \ line with length calculation\n    - area: Polygon with area calculation\n\
+        \    - angle: 3-point angle measurement\n    - text, arrow, rectangle, ellipse,\
+        \ line, roi\n\n    Measurements are automatically calculated in mm (if pixel\
+        \ spacing available) or pixels.\n    "
+      summary: List/Create image annotations
+      parameters:
+      - in: path
+        name: sop_uid
+        schema:
+          type: string
+        required: true
+      tags:
+      - Annotations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                annotation_type: distance
+                frame_number: 0
+                geometry_data:
+                  points:
+                  - x: 100
+                    y: 150
+                  - x: 200
+                    y: 250
+                label: Tumor diameter
+                visibility: private
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                description: Annotation created with automatic measurements
+                content:
+                  application/json:
+                    example:
+                      id: 1
+                      annotation_type: distance
+                      geometry_data:
+                        points:
+                        - x: 100
+                          y: 150
+                        - x: 200
+                          y: 250
+                      measurement_value: 70.71
+                      measurement_unit: mm
+                      label: Tumor diameter
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                description: Invalid geometry data
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                description: Authentication required
+          description: ''
+  /api/dicom/search/advanced/:
+    post:
+      operationId: dicom_search_advanced_create
+      description: "\n    Search DICOM studies using multiple filter criteria.\n\n\
+        \    Supports:\n    - Text search on patient name, ID, study description\n\
+        \    - Date range filtering\n    - Modality filtering (CT, MR, CR, etc.)\n\
+        \    - Body part filtering\n    - Pagination\n    "
+      summary: Advanced DICOM study search
+      tags:
+      - Search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                patient_name: john
+                modality:
+                - CT
+                - MR
+                date_from: '2024-01-01'
+                date_to: '2024-12-31'
+                limit: 50
+                offset: 0
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Search results
+                content:
+                  application/json:
+                    example:
+                      total: 150
+                      limit: 50
+                      offset: 0
+                      results:
+                      - id: 1
+                        study_instance_uid: 1.2.840...
+                        patient_name: DOE^JOHN
+                        study_date: '2024-06-15'
+                        study_description: CT CHEST
+                        number_of_series: 3
+                        number_of_instances: 120
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                description: Authentication required
+          description: ''
+  /api/dicom/search/saved/:
+    get:
+      operationId: dicom_search_saved_retrieve
+      description: List all saved searches for user
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: dicom_search_saved_create
+      description: Create new saved search
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dicom/search/saved/{search_id}/:
+    get:
+      operationId: dicom_search_saved_retrieve_2
+      description: |-
+        Get saved search details or execute it
+        Query param: execute=true to run the search
+      parameters:
+      - in: path
+        name: search_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: dicom_search_saved_update
+      description: Update saved search
+      parameters:
+      - in: path
+        name: search_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: dicom_search_saved_destroy
+      description: Delete saved search
+      parameters:
+      - in: path
+        name: search_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/dicom/series/{series_uid}/generate-thumbnails/:
+    post:
+      operationId: dicom_series_generate_thumbnails_create
+      description: Generate thumbnails for series
+      parameters:
+      - in: path
+        name: series_uid
+        schema:
+          type: string
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dicom/series/{series_uid}/thumbnail/{size}/:
+    get:
+      operationId: dicom_series_thumbnail_retrieve
+      description: |-
+        Get thumbnail for series (generate if needed)
+        size: small | medium | large
+      parameters:
+      - in: path
+        name: series_uid
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: size
+        schema:
+          type: string
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dicom/storage/:
+    get:
+      operationId: dicom_storage_retrieve
+      description: Get current user's storage quota and usage
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dicom/studies/{study_uid}:
+    delete:
+      operationId: dicom_studies_destroy
+      description: Delete a study (and cascade to series/images)
+      parameters:
+      - in: path
+        name: study_uid
+        schema:
+          type: string
+        required: true
+      tags:
+      - dicom
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/dicom/upload/:
+    post:
+      operationId: dicom_upload_create
+      description: "\n    Upload one or more DICOM files for storage and processing.\n\
+        \n    The endpoint:\n    - Validates DICOM file format\n    - Extracts metadata\
+        \ (patient info, study/series UIDs, image parameters)\n    - Stores files\
+        \ organized by date\n    - Updates user storage quota\n    - Returns study/series/instance\
+        \ information\n\n    Supports multipart/form-data with multiple files.\n \
+        \   "
+      summary: Upload DICOM files
+      tags:
+      - DICOM Upload
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                description: Files uploaded successfully
+                content:
+                  application/json:
+                    example:
+                      success: true
+                      message: Uploaded 3 files successfully
+                      studies:
+                      - study_instance_uid: 1.2.840.113619.2.55...
+                        patient_name: DOE^JOHN
+                        study_date: '2024-06-15'
+                        series_count: 1
+                        instance_count: 3
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                description: Invalid file format or missing required metadata
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                description: Authentication required
+          description: ''
+        '413':
+          content:
+            application/json:
+              schema:
+                description: Upload would exceed storage quota
+          description: ''
+  /files/:
+    post:
+      operationId: files_create
+      tags:
+      - files
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /users/:
+    get:
+      operationId: users_retrieve
+      description: User List View
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: users_create
+      description: User List View
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /users/{id}/:
+    get:
+      operationId: users_retrieve_2
+      description: User Detail View
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: users_update
+      description: User Detail View
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: users_destroy
+      description: User Detail View
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /users/auth/change-password/:
+    post:
+      operationId: users_auth_change_password_create
+      description: |-
+        Change password endpoint
+        POST /api/auth/change-password/
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /users/auth/login/:
+    post:
+      operationId: users_auth_login_create
+      description: |-
+        Custom login endpoint with cookie-based refresh token
+        POST /api/auth/login/
+        Body: { "email": "user@example.com", "password": "password123" }
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /users/auth/logout/:
+    post:
+      operationId: users_auth_logout_create
+      description: |-
+        Logout endpoint - blacklists refresh token
+        POST /api/auth/logout/
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /users/auth/profile/:
+    get:
+      operationId: users_auth_profile_retrieve
+      description: |-
+        Get or update authenticated user profile
+        GET/PATCH /api/auth/profile/
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAuth'
+          description: ''
+    put:
+      operationId: users_auth_profile_update
+      description: |-
+        Get or update authenticated user profile
+        GET/PATCH /api/auth/profile/
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAuthRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserAuthRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserAuthRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAuth'
+          description: ''
+    patch:
+      operationId: users_auth_profile_partial_update
+      description: |-
+        Get or update authenticated user profile
+        GET/PATCH /api/auth/profile/
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAuthRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAuthRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAuthRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAuth'
+          description: ''
+  /users/auth/refresh/:
+    post:
+      operationId: users_auth_refresh_create
+      description: |-
+        Custom token refresh endpoint that reads refresh token from cookie
+        POST /api/auth/refresh/
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /users/auth/register/:
+    post:
+      operationId: users_auth_register_create
+      description: |-
+        User registration endpoint
+        POST /api/auth/register/
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistration'
+          description: ''
+  /users/profile/:
+    get:
+      operationId: users_profile_retrieve
+      description: User Profile List View
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: users_profile_create
+      description: User Profile List View
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /users/profile/{id}/:
+    get:
+      operationId: users_profile_retrieve_2
+      description: User Profile Detail View
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: users_profile_update
+      description: User Profile Detail View
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: users_profile_destroy
+      description: Soft deletion of the user profile
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    CustomTokenObtainPairRequest:
+      type: object
+      description: Custom token serializer with additional user data
+      properties:
+        email:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    PatchedUserAuthRequest:
+      type: object
+      description: Serializer for authenticated user profile
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+    RoleEnum:
+      enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      type: integer
+      description: |-
+        * `1` - User
+        * `2` - Guest
+        * `3` - Admin
+        * `4` - Manager
+        * `5` - Superuser
+    UserAuth:
+      type: object
+      description: Serializer for authenticated user profile
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+      required:
+      - email
+      - id
+    UserAuthRequest:
+      type: object
+      description: Serializer for authenticated user profile
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+      required:
+      - email
+    UserRegistration:
+      type: object
+      description: Serializer for user registration
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          default: 1
+      required:
+      - email
+    UserRegistrationRequest:
+      type: object
+      description: Serializer for user registration
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password_confirm:
+          type: string
+          writeOnly: true
+          minLength: 1
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          default: 1
+      required:
+      - email
+      - password
+      - password_confirm
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

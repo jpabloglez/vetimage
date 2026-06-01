@@ -1,0 +1,41 @@
+{
+  "title": "Visualizador DICOM",
+  "loading": "Carregando visualizador...",
+  "loadError": "Falha ao carregar visualizador",
+  "noStudy": "Nenhum estudo selecionado",
+  "toolbar": {
+    "zoom": "Zoom",
+    "pan": "Panorâmica",
+    "window": "Janela/Nível",
+    "measure": "Medir",
+    "annotate": "Anotar",
+    "reset": "Redefinir",
+    "fullscreen": "Tela Cheia",
+    "aiAnalysis": "Análise por IA",
+    "mpr": "Visualização MPR",
+    "comparison": "Comparação"
+  },
+  "mpr": {
+    "title": "Visualizador MPR",
+    "axial": "Axial",
+    "sagittal": "Sagital",
+    "coronal": "Coronal",
+    "loading": "Carregando dados MPR...",
+    "notSupported": "MPR não suportado para esta série"
+  },
+  "comparison": {
+    "title": "Visualizador de Comparação",
+    "selectStudy": "Selecione um estudo para comparar",
+    "currentStudy": "Estudo Atual",
+    "compareWith": "Comparar Com",
+    "sync": "Sincronizar Rolagem",
+    "noStudies": "Nenhum estudo disponível para comparação"
+  },
+  "ai": {
+    "runAnalysis": "Executar Análise por IA",
+    "selectModel": "Selecionar Modelo de IA",
+    "analyzing": "Analisando...",
+    "resultsReady": "Resultados prontos",
+    "viewResults": "Ver Resultados"
+  }
+}

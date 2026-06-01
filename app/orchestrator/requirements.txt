@@ -1,0 +1,12 @@
+# gRPC dependencies
+grpcio==1.60.0
+grpcio-tools==1.60.0
+
+# Redis client
+redis==5.0.1
+
+# Configuration
+pyyaml==6.0.1
+
+# Monitoring
+prometheus-client==0.19.0

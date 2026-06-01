@@ -1,0 +1,51 @@
+{
+  "title": "My Profile",
+  "subtitle": "Manage your account information and preferences",
+  "editProfile": "Edit Profile",
+  "accountInfo": "Account Information",
+  "email": "Email Address",
+  "jobTitle": "Job Title",
+  "department": "Department",
+  "teamWorkspace": "Team / Workspace",
+  "memberSince": "Member Since",
+  "preferences": "Preferences",
+  "jobSharing": "Job Sharing",
+  "jobSharingDesc": "Share analysis jobs with colleagues",
+  "loading": "Loading profile...",
+  "avatar": {
+    "changePhoto": "Change photo",
+    "uploadHint": "JPG, PNG or WebP · max 5 MB",
+    "uploading": "Uploading...",
+    "uploadSuccess": "Photo updated",
+    "uploadError": "Upload failed",
+    "sizeTooLarge": "File exceeds 5 MB limit",
+    "invalidType": "Please select an image file"
+  },
+  "form": {
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "saveSuccess": "Profile updated",
+    "saveError": "Failed to save profile"
+  },
+  "settings": {
+    "title": "Account Settings",
+    "email": "Email",
+    "emailReadonly": "Email cannot be changed",
+    "role": "Role",
+    "department": "Department / Division",
+    "departmentPlaceholder": "e.g., Radiology, Cardiology",
+    "jobTitle": "Job Title",
+    "jobTitlePlaceholder": "e.g., Radiologist, Technician",
+    "teamWorkspace": "Team / Workspace",
+    "teamPlaceholder": "e.g., Imaging Team, Research Lab",
+    "shareJobs": "Share analysis jobs with colleagues",
+    "shareJobsDesc": "Allow team members to view and collaborate on your analysis jobs",
+    "changePassword": "Change Password",
+    "preferredLanguage": "Preferred Language",
+    "languageHelp": "Applied automatically on login",
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel",
+    "updateSuccess": "Profile updated successfully",
+    "updateError": "Failed to update profile"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "title": "DICOM Viewer",
+  "loading": "Loading viewer...",
+  "loadError": "Failed to load viewer",
+  "noStudy": "No study selected",
+  "toolbar": {
+    "zoom": "Zoom",
+    "pan": "Pan",
+    "window": "Window/Level",
+    "measure": "Measure",
+    "annotate": "Annotate",
+    "reset": "Reset",
+    "fullscreen": "Fullscreen",
+    "aiAnalysis": "AI Analysis",
+    "mpr": "MPR View",
+    "comparison": "Comparison"
+  },
+  "mpr": {
+    "title": "MPR Viewer",
+    "axial": "Axial",
+    "sagittal": "Sagittal",
+    "coronal": "Coronal",
+    "loading": "Loading MPR data...",
+    "notSupported": "MPR not supported for this series"
+  },
+  "comparison": {
+    "title": "Comparison Viewer",
+    "selectStudy": "Select a study to compare",
+    "currentStudy": "Current Study",
+    "compareWith": "Compare With",
+    "sync": "Sync Scrolling",
+    "noStudies": "No studies available for comparison"
+  },
+  "ai": {
+    "runAnalysis": "Run AI Analysis",
+    "selectModel": "Select AI Model",
+    "analyzing": "Analyzing...",
+    "resultsReady": "Results ready",
+    "viewResults": "View Results"
+  }
+}

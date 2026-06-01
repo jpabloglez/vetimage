@@ -1,0 +1,24 @@
+{
+  "title": "Reportes",
+  "subtitle": "Reportes de análisis con AI con hallazgos estructurados",
+  "refresh": "Actualizar",
+  "compare": "Comparar",
+  "generate": "Generar Reporte",
+  "noReports": "Aún No Hay Reportes",
+  "noReportsHint": "Genere un reporte a partir de una tarea de análisis con AI completada.",
+  "downloadPdf": "PDF",
+  "table": {
+    "title": "Título",
+    "model": "Modelo",
+    "status": "Estado",
+    "created": "Creado",
+    "actions": "Acciones"
+  },
+  "status": {
+    "draft": "Borrador",
+    "final": "Final"
+  },
+  "generateSuccess": "Reporte generado exitosamente",
+  "generateError": "Error al generar el reporte",
+  "downloadError": "Error al descargar el PDF"
+}

@@ -1,0 +1,33 @@
+# Model Registry Configuration
+#
+# Defines available ML models and their capabilities
+# Note: MIRAGE uses REST/Celery dispatch (not gRPC) and is NOT listed here.
+
+models:
+  - name: picai
+    version: "1.0"
+    endpoint: "picai-service:50051"  # gRPC endpoint (hostname:port)
+    supported_tasks:
+      - segmentation
+    supported_modalities:
+      - t2w
+      - adc
+      - hbv
+    model_sizes:
+      - standard
+    health_check_interval: 30  # seconds
+    timeout: 600  # seconds (10 minutes - PICAI inference is slower)
+    auto_launch: false  # Set to true to enable EC2 auto-launching
+
+  - name: fastsurfer
+    version: "2.0"
+    endpoint: "fastsurfer-service:50051"  # gRPC endpoint (hostname:port)
+    supported_tasks:
+      - segmentation
+    supported_modalities:
+      - t1w
+    model_sizes:
+      - standard
+    health_check_interval: 30  # seconds
+    timeout: 300  # seconds (5 minutes)
+    auto_launch: false  # Set to true to enable EC2 auto-launching

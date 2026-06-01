@@ -1,0 +1,36 @@
+FROM python:3.12
+ARG PIP_ARGS=
+ARG DCMQI_VERSION=1.3.4
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /var/www/app
+
+# Install system tools: dcm2niix (NIfTI conversion) + dcmqi (DICOM SEG creation)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl \
+        dcm2niix \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL "https://github.com/QIICR/dcmqi/releases/download/v${DCMQI_VERSION}/dcmqi-${DCMQI_VERSION}-linux.tar.gz" \
+       | tar -xz -C /tmp \
+    && install -m 755 /tmp/dcmqi-*/bin/itkimage2segimage /usr/local/bin/ \
+    && install -m 755 /tmp/dcmqi-*/bin/segimage2itkimage /usr/local/bin/ \
+    && rm -rf /tmp/dcmqi-*
+
+# Requirements have to be pulled and installed here, otherwise caching won't work
+COPY ./setup/requirements.txt /var/www/app/requirements.txt
+
+# ADD ./app /var/www/app
+
+RUN pip install -U pip
+RUN pip install -r requirements.txt
+
+# Change www-data user to match the host system UID and GID and chown www directory
+RUN usermod --non-unique --uid 1000 www-data \
+  && groupmod --non-unique --gid 1000 www-data \
+  && chown -R www-data:www-data /var/www
+
+USER www-data
+
+WORKDIR /var/www/app/backend
+
+EXPOSE 3080

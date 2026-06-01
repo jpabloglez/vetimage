@@ -1,0 +1,10 @@
+Dockerfile
+.dockerignore
+.gitignore
+# Artifacts
+build
+node_modules
+# Database data
+data/
+# Git
+.git/

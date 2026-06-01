@@ -1,0 +1,140 @@
+syntax = "proto3";
+
+package orchestrator.v1;
+
+// ==============================================================================
+// Orchestrator Service - Web App → Orchestrator Communication
+// ==============================================================================
+
+service OrchestratorService {
+  // Submit inference job
+  rpc SubmitJob(SubmitJobRequest) returns (SubmitJobResponse);
+
+  // Get job status
+  rpc GetJobStatus(GetJobStatusRequest) returns (JobStatusResponse);
+
+  // Stream job status updates (for real-time UI)
+  rpc StreamJobStatus(GetJobStatusRequest) returns (stream JobStatusResponse);
+
+  // List available models
+  rpc ListModels(ListModelsRequest) returns (ListModelsResponse);
+
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// ==============================================================================
+// Request/Response Messages
+// ==============================================================================
+
+// Input specification
+message ImageInput {
+  string modality = 1;  // bscan, slo, bscanlayermap
+  string source = 2;     // S3 URI or local path
+}
+
+message SubmitJobRequest {
+  repeated ImageInput images = 1;
+  string task_type = 2;  // segmentation, classification, feature_extraction
+  string model_name = 3; // "mirage" or future model names
+  string model_size = 4; // "base", "large"
+  string output_destination = 5; // S3 URI or local path
+
+  // Optional fields
+  string output_format = 6;         // npy, png, jpg, jpeg
+  int32 num_classes = 7;            // Required for classification
+  repeated string class_names = 8;  // Optional class names
+  map<string, string> metadata = 9; // Extensible metadata
+}
+
+message SubmitJobResponse {
+  string job_id = 1;
+  JobStatus status = 2;
+  string message = 3;
+}
+
+message GetJobStatusRequest {
+  string job_id = 1;
+}
+
+message JobStatusResponse {
+  string job_id = 1;
+  JobStatus status = 2;
+  string model_service = 3; // Which model handled this
+
+  // Result data
+  string output_uri = 4;
+  repeated string output_keys = 5;
+  map<string, string> result_metadata = 6;
+
+  // Error info
+  string error_message = 7;
+  ErrorCode error_code = 8;
+
+  // Timestamps (Unix milliseconds)
+  int64 created_at = 9;
+  int64 updated_at = 10;
+  int64 started_at = 11;
+  int64 completed_at = 12;
+
+  // Progress info (for long-running jobs)
+  float progress_percent = 13;
+  string progress_message = 14;
+}
+
+message ListModelsRequest {
+  bool only_healthy = 1;
+}
+
+message ListModelsResponse {
+  repeated ModelInfo models = 1;
+}
+
+message ModelInfo {
+  string name = 1;
+  string version = 2;
+  repeated string supported_tasks = 3;
+  repeated string supported_modalities = 4;
+  bool is_healthy = 5;
+  string endpoint = 6;
+  map<string, string> metadata = 7;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string version = 2;
+  int32 active_jobs = 3;
+  int32 queued_jobs = 4;
+  repeated ModelHealth model_health = 5;
+}
+
+message ModelHealth {
+  string model_name = 1;
+  bool is_healthy = 2;
+  int64 last_check_time = 3;
+}
+
+// ==============================================================================
+// Enums
+// ==============================================================================
+
+enum JobStatus {
+  JOB_STATUS_UNSPECIFIED = 0;
+  JOB_STATUS_QUEUED = 1;
+  JOB_STATUS_PROCESSING = 2;
+  JOB_STATUS_COMPLETED = 3;
+  JOB_STATUS_FAILED = 4;
+  JOB_STATUS_CANCELLED = 5;
+}
+
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+  ERROR_CODE_INVALID_INPUT = 1;
+  ERROR_CODE_MODEL_UNAVAILABLE = 2;
+  ERROR_CODE_INFERENCE_FAILED = 3;
+  ERROR_CODE_STORAGE_ERROR = 4;
+  ERROR_CODE_TIMEOUT = 5;
+  ERROR_CODE_RESOURCE_EXHAUSTED = 6;
+}

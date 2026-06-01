@@ -1,0 +1,92 @@
+{
+  "pageTitle": "Análisis",
+  "pageSubtitle": "Gestione su historial de análisis, ejecute nuevos flujos de trabajo y genere informes",
+  "title": "Análisis de Imágenes Médicas",
+  "subtitle": "Suba imágenes médicas, seleccione un modelo de AI y ejecute tareas de análisis",
+  "tabs": {
+    "worklist": "Lista de Trabajo",
+    "newAnalysis": "Nuevo Análisis",
+    "reports": "Informes",
+    "models": "Modelos de IA"
+  },
+  "worklist": {
+    "searchPlaceholder": "Buscar por nombre de archivo...",
+    "allStatuses": "Todos los Estados",
+    "allModels": "Todos los Modelos",
+    "noTasks": "No se encontraron análisis",
+    "noTasksHint": "Inicie un nuevo análisis para ver los resultados aquí",
+    "retry": "Reintentar",
+    "retried": "Análisis en cola para reintento",
+    "generateReport": "Informe",
+    "reportCreated": "Informe creado exitosamente",
+    "columns": {
+      "patient": "Paciente / Archivo",
+      "model": "Modelo",
+      "status": "Estado",
+      "created": "Creado",
+      "duration": "Duración",
+      "actions": "Acciones"
+    }
+  },
+  "steps": {
+    "upload": "Subir Imágenes",
+    "uploadDesc": "Suba archivos DICOM, NIfTI o imágenes estándar",
+    "selectModel": "Seleccionar Modelo",
+    "selectModelDesc": "Elija el mejor modelo de AI para sus imágenes",
+    "configure": "Configurar",
+    "configureDesc": "Establezca los parámetros de análisis"
+  },
+  "upload": {
+    "dragDrop": "Arrastre y suelte imágenes médicas aquí",
+    "or": "o",
+    "browse": "Explorar Archivos",
+    "supportedFormats": "Formatos soportados: DICOM (.dcm), NIfTI (.nii, .nii.gz), JPEG, PNG",
+    "maxSize": "Tamaño máximo de archivo: {{size}}",
+    "uploading": "Subiendo...",
+    "uploadComplete": "¡Subida completada!",
+    "uploadFailed": "Error al subir",
+    "filesSelected": "{{count}} archivo(s) seleccionado(s)",
+    "totalSize": "Tamaño total: {{size}}",
+    "removeFile": "Eliminar archivo",
+    "clearAll": "Eliminar todos"
+  },
+  "uploadedImages": "Imágenes Subidas ({{count}})",
+  "continueToModel": "Continuar a Selección de Modelo",
+  "selectOtherModel": "Elige otro modelo…",
+  "backToUpload": "\u2190 Volver a Subir",
+  "backToModel": "\u2190 Volver a Selección de Modelo",
+  "selectedModel": "Modelo Seleccionado",
+  "changeModel": "Cambiar Modelo",
+  "startAnalysis": "Iniciar Nuevo Análisis",
+  "analysisCreated": "¡Tarea de análisis creada!",
+  "analysisSubmitted": "Análisis enviado — revisa el progreso en la página Monitor",
+  "progress": {
+    "pending": "Pendiente",
+    "queued": "En Cola",
+    "dispatched": "Enviado",
+    "processing": "Procesando",
+    "completed": "Completado",
+    "failed": "Fallido",
+    "timeout": "Tiempo Agotado",
+    "cancelled": "Cancelado",
+    "step": "Paso {{current}} de {{total}}"
+  },
+  "studyTable": {
+    "studyDate": "Fecha del Estudio",
+    "patientId": "ID del Paciente",
+    "patientName": "Nombre del Paciente",
+    "modality": "Modalidad",
+    "description": "Descripción",
+    "series": "Series",
+    "instances": "Instancias",
+    "actions": "Acciones",
+    "noStudies": "No se encontraron estudios",
+    "view": "Ver",
+    "analyze": "Analizar",
+    "delete": "Eliminar"
+  },
+  "viewToggle": {
+    "grid": "Vista de Cuadrícula",
+    "table": "Vista de Tabla"
+  }
+}

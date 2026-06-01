@@ -1,0 +1,48 @@
+# ==============================================================================
+# ML Model Orchestrator Dockerfile
+# ==============================================================================
+FROM python:3.10-slim
+
+# Prevent Python from writing .pyc files and enable unbuffered logging
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app:/app/orchestrator
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy orchestrator requirements and install
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r /tmp/requirements.txt && \
+    rm /tmp/requirements.txt
+
+# Copy proto files
+COPY protos/ /app/protos/
+
+# Copy orchestrator code
+COPY src/ /app/orchestrator/
+
+# Copy configuration files
+COPY config/ /app/orchestrator/config/
+
+# Compile proto files
+RUN python -m grpc_tools.protoc \
+    -I/app/protos \
+    --python_out=/app/orchestrator \
+    --grpc_python_out=/app/orchestrator \
+    /app/protos/orchestrator.proto /app/protos/model_service.proto
+
+# Expose ports (gRPC and Prometheus metrics)
+EXPOSE 50050 8080
+
+# Set working directory to orchestrator
+WORKDIR /app
+
+# Run orchestrator
+CMD ["python", "-m", "orchestrator.main"]

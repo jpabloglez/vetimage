@@ -1,0 +1,33 @@
+# DICOM Gateway Service Requirements
+
+# DICOM Processing
+pynetdicom==3.0.4
+pydicom==3.0.1
+
+# Async Task Processing
+celery==5.4.0
+redis==5.2.1
+
+# Database
+psycopg2-binary==2.9.10
+sqlalchemy==2.0.36
+
+# API Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.5
+pydantic-settings==2.7.0
+
+# HTTP Client
+httpx==0.28.1
+
+# Monitoring
+prometheus-client==0.21.0
+psutil==6.1.1
+
+# Logging
+structlog==24.4.0
+python-json-logger==3.2.1
+
+# Utilities
+python-dotenv==1.0.1

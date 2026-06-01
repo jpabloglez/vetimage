@@ -1,0 +1,51 @@
+{
+  "title": "Mi Perfil",
+  "subtitle": "Administre su información de cuenta y preferencias",
+  "editProfile": "Editar Perfil",
+  "accountInfo": "Información de la Cuenta",
+  "email": "Correo Electrónico",
+  "jobTitle": "Cargo",
+  "department": "Departamento",
+  "teamWorkspace": "Equipo / Espacio de Trabajo",
+  "memberSince": "Miembro Desde",
+  "preferences": "Preferencias",
+  "jobSharing": "Compartir Trabajos",
+  "jobSharingDesc": "Compartir trabajos de análisis con colegas",
+  "loading": "Cargando perfil...",
+  "avatar": {
+    "changePhoto": "Cambiar foto",
+    "uploadHint": "JPG, PNG o WebP · máx 5 MB",
+    "uploading": "Subiendo...",
+    "uploadSuccess": "Foto actualizada",
+    "uploadError": "Error al subir",
+    "sizeTooLarge": "El archivo supera el límite de 5 MB",
+    "invalidType": "Por favor seleccione un archivo de imagen"
+  },
+  "form": {
+    "saveChanges": "Guardar Cambios",
+    "saving": "Guardando...",
+    "saveSuccess": "Perfil actualizado",
+    "saveError": "Error al guardar el perfil"
+  },
+  "settings": {
+    "title": "Configuración de Cuenta",
+    "email": "Correo Electrónico",
+    "emailReadonly": "El correo electrónico no se puede cambiar",
+    "role": "Rol",
+    "department": "Departamento / División",
+    "departmentPlaceholder": "ej., Radiología, Cardiología",
+    "jobTitle": "Cargo",
+    "jobTitlePlaceholder": "ej., Radiólogo, Técnico",
+    "teamWorkspace": "Equipo / Espacio de Trabajo",
+    "teamPlaceholder": "ej., Equipo de Imagenología, Laboratorio de Investigación",
+    "shareJobs": "Compartir trabajos de análisis con colegas",
+    "shareJobsDesc": "Permitir que los miembros del equipo vean y colaboren en sus trabajos de análisis",
+    "changePassword": "Cambiar Contraseña",
+    "preferredLanguage": "Idioma Preferido",
+    "languageHelp": "Se aplica automáticamente al iniciar sesión",
+    "saveChanges": "Guardar Cambios",
+    "cancel": "Cancelar",
+    "updateSuccess": "Perfil actualizado exitosamente",
+    "updateError": "Error al actualizar el perfil"
+  }
+}

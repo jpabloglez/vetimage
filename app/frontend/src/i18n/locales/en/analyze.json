@@ -1,0 +1,92 @@
+{
+  "pageTitle": "Analysis",
+  "pageSubtitle": "Manage your analysis history, run new image workflows, and generate reports",
+  "title": "Medical Image Analysis",
+  "subtitle": "Upload medical images, select an AI model, and run analysis tasks",
+  "tabs": {
+    "worklist": "Worklist",
+    "newAnalysis": "New Analysis",
+    "reports": "Reports",
+    "models": "AI Models"
+  },
+  "worklist": {
+    "searchPlaceholder": "Search by filename...",
+    "allStatuses": "All Statuses",
+    "allModels": "All Models",
+    "noTasks": "No analyses found",
+    "noTasksHint": "Start a new analysis to see results here",
+    "retry": "Retry",
+    "retried": "Analysis queued for retry",
+    "generateReport": "Report",
+    "reportCreated": "Report created successfully",
+    "columns": {
+      "patient": "Patient / File",
+      "model": "Model",
+      "status": "Status",
+      "created": "Created",
+      "duration": "Duration",
+      "actions": "Actions"
+    }
+  },
+  "steps": {
+    "upload": "Upload Images",
+    "uploadDesc": "Upload DICOM, NIfTI, or standard image files",
+    "selectModel": "Select Model",
+    "selectModelDesc": "Choose the best AI model for your images",
+    "configure": "Configure",
+    "configureDesc": "Set analysis parameters"
+  },
+  "upload": {
+    "dragDrop": "Drag & drop medical images here",
+    "or": "or",
+    "browse": "Browse Files",
+    "supportedFormats": "Supported formats: DICOM (.dcm), NIfTI (.nii, .nii.gz), JPEG, PNG",
+    "maxSize": "Max file size: {{size}}",
+    "uploading": "Uploading...",
+    "uploadComplete": "Upload complete!",
+    "uploadFailed": "Upload failed",
+    "filesSelected": "{{count}} file(s) selected",
+    "totalSize": "Total size: {{size}}",
+    "removeFile": "Remove file",
+    "clearAll": "Clear all"
+  },
+  "uploadedImages": "Uploaded Images ({{count}})",
+  "continueToModel": "Continue to Model Selection",
+  "selectOtherModel": "Choose another model…",
+  "backToUpload": "\u2190 Back to Upload",
+  "backToModel": "\u2190 Back to Model Selection",
+  "selectedModel": "Selected Model",
+  "changeModel": "Change Model",
+  "startAnalysis": "Start New Analysis",
+  "analysisCreated": "Analysis task created!",
+  "analysisSubmitted": "Analysis submitted — track progress on the Monitor page",
+  "progress": {
+    "pending": "Pending",
+    "queued": "Queued",
+    "dispatched": "Dispatched",
+    "processing": "Processing",
+    "completed": "Completed",
+    "failed": "Failed",
+    "timeout": "Timeout",
+    "cancelled": "Cancelled",
+    "step": "Step {{current}} of {{total}}"
+  },
+  "studyTable": {
+    "studyDate": "Study Date",
+    "patientId": "Patient ID",
+    "patientName": "Patient Name",
+    "modality": "Modality",
+    "description": "Description",
+    "series": "Series",
+    "instances": "Instances",
+    "actions": "Actions",
+    "noStudies": "No studies found",
+    "view": "View",
+    "analyze": "Analyze",
+    "delete": "Delete"
+  },
+  "viewToggle": {
+    "grid": "Grid View",
+    "table": "Table View"
+  }
+}
