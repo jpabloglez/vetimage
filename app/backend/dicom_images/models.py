@@ -39,6 +39,15 @@ class MedicalStudy(models.Model):
     study_description = models.TextField(blank=True)
     accession_number = models.CharField(max_length=100, blank=True, db_index=True)
 
+    # Veterinary patient link
+    animal_patient = models.ForeignKey(
+        'patients.AnimalPatient',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='studies',
+    )
+
     # Ownership and tracking
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -790,3 +799,46 @@ class BatchJob(models.Model):
 
     def __str__(self):
         return f"BatchJob {str(self.id)[:8]}... - {self.operation} - {self.status}"
+
+
+class StudyShareLink(models.Model):
+    """
+    Token-gated share link allowing an external vet or specialist to access
+    a DICOM study via DICOMweb without requiring a platform account.
+    Only the owner of the study's organization can create links.
+    """
+    study = models.ForeignKey(
+        MedicalStudy,
+        on_delete=models.CASCADE,
+        related_name='share_links',
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='study_share_links',
+    )
+    recipient_email = models.EmailField(blank=True, help_text="For audit trail only; not used for access control.")
+    token       = models.UUIDField(unique=True, default=uuid.uuid4, db_index=True)
+    expires_at  = models.DateTimeField(null=True, blank=True)
+    access_count = models.PositiveIntegerField(default=0)
+    max_accesses = models.PositiveIntegerField(null=True, blank=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Study Share Link'
+        verbose_name_plural = 'Study Share Links'
+        indexes = [models.Index(fields=['study', '-created_at'])]
+
+    def __str__(self):
+        return f"Share {str(self.token)[:8]}… — {self.study.study_instance_uid}"
+
+    def is_valid(self):
+        """Return True if the link can still be accessed."""
+        from django.utils import timezone
+        if self.max_accesses is not None and self.access_count >= self.max_accesses:
+            return False
+        if self.expires_at is not None and timezone.now() > self.expires_at:
+            return False
+        return True

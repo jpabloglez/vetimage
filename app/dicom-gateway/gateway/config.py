@@ -14,12 +14,12 @@ class Settings(BaseSettings):
     """Application settings loaded from environment"""
 
     # Service Identity
-    SERVICE_NAME: str = "OpenMedLab DICOM Gateway"
+    SERVICE_NAME: str = "VetImage DICOM Gateway"
     VERSION: str = "0.1.0"
     ENVIRONMENT: str = "development"
 
     # DICOM SCP Settings
-    DICOM_AE_TITLE: str = "OPENMEDLAB"
+    DICOM_AE_TITLE: str = "VETIMAGE"
     DICOM_PORT: int = 11112
     DICOM_HOST: str = "0.0.0.0"
     DICOM_MAX_PDU_LENGTH: int = 16384
@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     # Backend API
     BACKEND_API_URL: str = "http://backend:8000"
     BACKEND_API_KEY: Optional[str] = None
-    BACKEND_SERVICE_EMAIL: str = "gateway@openmedlab.system"
+    BACKEND_SERVICE_EMAIL: str = "gateway@vetimage.system"
     BACKEND_SERVICE_PASSWORD: str = "gateway-service-key-12345"
 
     # PACS User API Keys (JSON format)
@@ -49,7 +49,7 @@ class Settings(BaseSettings):
             return {}
 
     # Database (for local transaction logging)
-    DATABASE_URL: str = "postgresql://openmedlab:openmedlab@db:5432/openmedlab"
+    DATABASE_URL: str = "postgresql://vetimage:vetimage@db:5432/vetimage"
 
     # Redis (for Celery)
     REDIS_URL: str = "redis://redis:6379/0"

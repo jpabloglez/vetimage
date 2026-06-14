@@ -2,13 +2,17 @@ import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 
+// Initialise i18n once for the whole test run so components rendered in
+// isolation resolve real translations instead of raw keys.
+import './i18n';
+
 // Cleanup after each test
 afterEach(() => {
   cleanup();
 });
 
 // Mock environment variables
-vi.stubEnv('VITE_API_URL', 'http://localhost:3080');
+vi.stubEnv('VITE_API_URL', 'http://localhost:3081');
 vi.stubEnv('VITE_ENVIRONMENT', 'test');
 
 // Mock window.matchMedia

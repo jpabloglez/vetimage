@@ -22,9 +22,20 @@ class ReportTemplateViewSet(viewsets.ModelViewSet):
     lookup_field = 'id'
 
     def get_queryset(self):
-        return ReportTemplate.objects.filter(
+        qs = ReportTemplate.objects.filter(
             Q(is_default=True) | Q(created_by=self.request.user)
         )
+        species = self.request.query_params.get('species')
+        if species:
+            qs = qs.filter(
+                Q(species_filter=[]) | Q(species_filter__contains=species)
+            )
+        modality = self.request.query_params.get('modality')
+        if modality:
+            qs = qs.filter(
+                Q(modality_filter=[]) | Q(modality_filter__contains=modality)
+            )
+        return qs
 
     def get_serializer_class(self):
         if self.action == 'create':

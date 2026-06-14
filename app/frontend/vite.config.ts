@@ -9,9 +9,21 @@ export default defineConfig({
     host: '0.0.0.0',
     proxy: {
       '/api': {
-        target: 'http://backend-openmedlab:3080',
+        target: 'http://backend-vetimage:3080',
         changeOrigin: true,
-      }
+      },
+      '/users': {
+        target: 'http://backend-vetimage:3080',
+        changeOrigin: true,
+      },
+      '/media': {
+        target: 'http://backend-vetimage:3080',
+        changeOrigin: true,
+      },
+      '/files': {
+        target: 'http://backend-vetimage:3080',
+        changeOrigin: true,
+      },
     }
   },
   build: {

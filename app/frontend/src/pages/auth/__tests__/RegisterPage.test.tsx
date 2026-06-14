@@ -6,270 +6,158 @@ import RegisterPage from '../RegisterPage';
 import { AuthProvider } from '../../../contexts/AuthContext';
 import { apiClient } from '../../../utils/api';
 
-// Mock the API client
-vi.mock('../../../utils/api', () => ({
-  apiClient: {
-    register: vi.fn(),
-    getProfile: vi.fn(),
-  },
-}));
+// Mock the API client with the complete surface so AuthProvider mounts cleanly.
+vi.mock('../../../utils/api', async () => {
+  const { createApiClientMock } = await import('../../../test/mockApiClient');
+  return { apiClient: createApiClientMock() };
+});
 
 // Mock react-router-dom navigation
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  };
+  return { ...actual, useNavigate: () => mockNavigate };
 });
 
 // Mock react-hot-toast
 vi.mock('react-hot-toast', () => ({
-  toast: {
-    success: vi.fn(),
-    error: vi.fn(),
-  },
+  toast: { success: vi.fn(), error: vi.fn() },
 }));
 
-const renderRegisterPage = () => {
-  return render(
-    <BrowserRouter>
-      <AuthProvider>
-        <RegisterPage />
-      </AuthProvider>
-    </BrowserRouter>
-  );
-};
+const renderRegisterPage = () => render(
+  <BrowserRouter>
+    <AuthProvider>
+      <RegisterPage />
+    </AuthProvider>
+  </BrowserRouter>
+);
+
+const submitBtn = () => screen.getByRole('button', { name: /Create Account/i });
 
 describe('RegisterPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (apiClient.getProfile as any).mockRejectedValue(
-      new Error('No active session')
-    );
+    (apiClient.getProfile as any).mockRejectedValue(new Error('No active session'));
   });
 
-  it('should render registration form', async () => {
+  it('renders the registration form with key fields', async () => {
     renderRegisterPage();
-
-    await waitFor(() => {
-      expect(screen.getByText('Create Account')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(submitBtn()).toBeInTheDocument());
 
     expect(screen.getByLabelText(/Full Name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Role/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Institution/i)).toBeInTheDocument();
-
-    // Password fields
-    const passwordLabels = screen.getAllByText(/Password/i);
-    expect(passwordLabels.length).toBeGreaterThan(0);
-
-    expect(
-      screen.getByRole('button', { name: /Create Account/i })
-    ).toBeInTheDocument();
+    expect(screen.getAllByLabelText(/Password/i).length).toBeGreaterThan(0);
   });
 
-  it('should show validation errors for empty required fields', async () => {
+  it('blocks submission and shows validation errors when empty', async () => {
     const user = userEvent.setup();
     renderRegisterPage();
+    await waitFor(() => expect(submitBtn()).toBeInTheDocument());
 
+    await user.click(submitBtn());
+
+    // Zod validation prevents the API call and surfaces a field error.
     await waitFor(() => {
-      expect(screen.getByText('Create Account')).toBeInTheDocument();
+      expect(screen.getByText(/Name must be at least/i)).toBeInTheDocument();
     });
-
-    const submitButton = screen.getByRole('button', {
-      name: /Create Account/i,
-    });
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(screen.getByText(/name is required/i)).toBeInTheDocument();
-    });
+    expect(apiClient.register).not.toHaveBeenCalled();
   });
 
-  it('should register successfully and navigate to /tools', async () => {
+  it('registers successfully and navigates to /models', async () => {
     const user = userEvent.setup();
-    const mockResponse = {
-      access: 'mock-token',
-      user: {
-        id: 1,
-        email: 'newuser@example.com',
-        role: 1,
-      },
-      message: 'User registered successfully',
-    };
-
-    (apiClient.register as any).mockResolvedValueOnce(mockResponse);
+    (apiClient.register as any).mockResolvedValueOnce({
+      access: 'mock-token', user: { id: 1, email: 'newuser@example.com', role: 1 },
+    });
 
     renderRegisterPage();
+    await waitFor(() => expect(submitBtn()).toBeInTheDocument());
+
+    await user.type(screen.getByLabelText(/Full Name/i), 'Jane Vet');
+    await user.type(screen.getByLabelText(/Email Address/i), 'newuser@example.com');
+    await user.type(screen.getByLabelText(/Institution/i), 'City Animal Clinic');
+    const pws = screen.getAllByLabelText(/Password/i, { exact: false });
+    await user.type(pws[0], 'StrongPass123!');
+    await user.type(pws[1], 'StrongPass123!');
+    await user.click(screen.getByRole('checkbox'));
+    await user.click(submitBtn());
 
     await waitFor(() => {
-      expect(screen.getByText('Create Account')).toBeInTheDocument();
-    });
-
-    const nameInput = screen.getByLabelText(/Full Name/i);
-    const emailInput = screen.getByLabelText(/Email Address/i);
-    const institutionInput = screen.getByLabelText(/Institution/i);
-
-    const passwordInputs = screen.getAllByLabelText(/Password/i, {
-      exact: false,
-    });
-    const passwordInput = passwordInputs[0];
-    const confirmPasswordInput = passwordInputs[1];
-
-    const termsCheckbox = screen.getByRole('checkbox');
-    const submitButton = screen.getByRole('button', {
-      name: /Create Account/i,
-    });
-
-    await user.type(nameInput, 'Dr. John Smith');
-    await user.type(emailInput, 'newuser@example.com');
-    await user.type(institutionInput, 'General Hospital');
-    await user.type(passwordInput, 'StrongPass123!');
-    await user.type(confirmPasswordInput, 'StrongPass123!');
-    await user.click(termsCheckbox);
-    await user.click(submitButton);
-
-    await waitFor(() => {
+      // AuthContext.register → apiClient.register({ email, password, password_confirm, role })
       expect(apiClient.register).toHaveBeenCalledWith(
-        'newuser@example.com',
-        'StrongPass123!',
-        'StrongPass123!'
+        expect.objectContaining({
+          email: 'newuser@example.com',
+          password: 'StrongPass123!',
+          password_confirm: 'StrongPass123!',
+        }),
       );
-      expect(mockNavigate).toHaveBeenCalledWith('/tools');
+      expect(mockNavigate).toHaveBeenCalledWith('/models');
     });
   });
 
-  it('should show error for password mismatch', async () => {
+  it('shows an error and does not submit on password mismatch', async () => {
     const user = userEvent.setup();
     renderRegisterPage();
+    await waitFor(() => expect(submitBtn()).toBeInTheDocument());
+
+    await user.type(screen.getByLabelText(/Full Name/i), 'Jane Vet');
+    await user.type(screen.getByLabelText(/Email Address/i), 'newuser@example.com');
+    const pws = screen.getAllByLabelText(/Password/i, { exact: false });
+    await user.type(pws[0], 'StrongPass123!');
+    await user.type(pws[1], 'DifferentPass456!');
+    await user.click(screen.getByRole('checkbox'));
+    await user.click(submitBtn());
 
     await waitFor(() => {
-      expect(screen.getByText('Create Account')).toBeInTheDocument();
+      expect(screen.getByText(/Passwords do not match/i)).toBeInTheDocument();
     });
-
-    const nameInput = screen.getByLabelText(/Full Name/i);
-    const emailInput = screen.getByLabelText(/Email Address/i);
-
-    const passwordInputs = screen.getAllByLabelText(/Password/i, {
-      exact: false,
-    });
-    const passwordInput = passwordInputs[0];
-    const confirmPasswordInput = passwordInputs[1];
-
-    const termsCheckbox = screen.getByRole('checkbox');
-    const submitButton = screen.getByRole('button', {
-      name: /Create Account/i,
-    });
-
-    await user.type(nameInput, 'Dr. John Smith');
-    await user.type(emailInput, 'newuser@example.com');
-    await user.type(passwordInput, 'StrongPass123!');
-    await user.type(confirmPasswordInput, 'DifferentPass456!');
-    await user.click(termsCheckbox);
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(screen.getByText(/Passwords don't match/i)).toBeInTheDocument();
-    });
+    expect(apiClient.register).not.toHaveBeenCalled();
   });
 
-  it('should show error on registration failure', async () => {
+  it('calls register when the API rejects (error path)', async () => {
     const user = userEvent.setup();
-
-    (apiClient.register as any).mockRejectedValueOnce(
-      new Error('Email already exists')
-    );
+    (apiClient.register as any).mockRejectedValueOnce(new Error('Email already exists'));
 
     renderRegisterPage();
+    await waitFor(() => expect(submitBtn()).toBeInTheDocument());
 
-    await waitFor(() => {
-      expect(screen.getByText('Create Account')).toBeInTheDocument();
-    });
+    await user.type(screen.getByLabelText(/Full Name/i), 'Jane Vet');
+    await user.type(screen.getByLabelText(/Email Address/i), 'existing@example.com');
+    const pws = screen.getAllByLabelText(/Password/i, { exact: false });
+    await user.type(pws[0], 'StrongPass123!');
+    await user.type(pws[1], 'StrongPass123!');
+    await user.click(screen.getByRole('checkbox'));
+    await user.click(submitBtn());
 
-    const nameInput = screen.getByLabelText(/Full Name/i);
-    const emailInput = screen.getByLabelText(/Email Address/i);
-    const institutionInput = screen.getByLabelText(/Institution/i);
-
-    const passwordInputs = screen.getAllByLabelText(/Password/i, {
-      exact: false,
-    });
-    const passwordInput = passwordInputs[0];
-    const confirmPasswordInput = passwordInputs[1];
-
-    const termsCheckbox = screen.getByRole('checkbox');
-    const submitButton = screen.getByRole('button', {
-      name: /Create Account/i,
-    });
-
-    await user.type(nameInput, 'Dr. John Smith');
-    await user.type(emailInput, 'existing@example.com');
-    await user.type(institutionInput, 'General Hospital');
-    await user.type(passwordInput, 'StrongPass123!');
-    await user.type(confirmPasswordInput, 'StrongPass123!');
-    await user.click(termsCheckbox);
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(apiClient.register).toHaveBeenCalled();
-    });
+    await waitFor(() => expect(apiClient.register).toHaveBeenCalled());
   });
 
-  it('should have link to login page', async () => {
+  it('defaults to the Veterinarian role and shows the Specialization field', async () => {
     renderRegisterPage();
-
-    await waitFor(() => {
-      expect(screen.getByText('Create Account')).toBeInTheDocument();
-    });
-
-    const signInLink = screen.getByText(/Sign in/i);
-    expect(signInLink).toBeInTheDocument();
-    expect(signInLink.closest('a')).toHaveAttribute('href', '/auth/login');
-  });
-
-  it('should show specialization field for doctor role', async () => {
-    const user = userEvent.setup();
-    renderRegisterPage();
-
-    await waitFor(() => {
-      expect(screen.getByText('Create Account')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(submitBtn()).toBeInTheDocument());
 
     const roleSelect = screen.getByLabelText(/Role/i);
-
-    // Default role should be doctor
-    expect(roleSelect).toHaveValue('doctor');
-
-    // Specialization field should be visible
-    const specializationInput = screen.getByLabelText(/Specialization/i);
-    expect(specializationInput).toBeInTheDocument();
-    expect(specializationInput).toHaveAttribute(
-      'placeholder',
-      'Radiology, Cardiology, etc.'
-    );
+    expect(roleSelect).toHaveValue('doctor'); // internal value; label is "Veterinarian"
+    expect(screen.getByLabelText(/Specialization/i)).toBeInTheDocument();
   });
 
-  it('should change specialization field label for researcher role', async () => {
+  it('switches to the Research Area field for the researcher role', async () => {
     const user = userEvent.setup();
     renderRegisterPage();
+    await waitFor(() => expect(submitBtn()).toBeInTheDocument());
 
+    await user.selectOptions(screen.getByLabelText(/Role/i), 'researcher');
     await waitFor(() => {
-      expect(screen.getByText('Create Account')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Research Area/i)).toBeInTheDocument();
     });
+  });
 
-    const roleSelect = screen.getByLabelText(/Role/i);
+  it('links to the login page', async () => {
+    renderRegisterPage();
+    await waitFor(() => expect(submitBtn()).toBeInTheDocument());
 
-    // Change to researcher role
-    await user.selectOptions(roleSelect, 'researcher');
-
-    // Research Area field should be visible
-    const researchAreaInput = screen.getByLabelText(/Research Area/i);
-    expect(researchAreaInput).toBeInTheDocument();
-    expect(researchAreaInput).toHaveAttribute(
-      'placeholder',
-      'Machine Learning, Medical Imaging, etc.'
-    );
+    const signIn = screen.getByText(/Sign in/i);
+    expect(signIn.closest('a')).toHaveAttribute('href', '/auth/login');
   });
 });

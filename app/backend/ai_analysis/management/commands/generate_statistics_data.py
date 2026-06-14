@@ -65,7 +65,7 @@ class Command(BaseCommand):
 
         # Get or create test user
         user, created = User.objects.get_or_create(
-            email='test@openmedlab.com',
+            email='test@vetimage.com',
             defaults={'password': 'test123', 'role': 1}
         )
         if created:

@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'dicom_gateway',  # DICOM Gateway Management
     'credentials',  # Enhanced Authentication & Session Tracking
     'reports',  # Structured Reports & PDF Export
+    'patients',  # Veterinary patient registry (Owner → AnimalPatient)
 ]
 
 MIDDLEWARE = [
@@ -115,7 +116,7 @@ DATABASES = {
         'NAME': os.getenv('POSTGRES_DB', 'postgres'),
         'USER': os.getenv('POSTGRES_USER', 'postgres'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
-        'HOST': os.getenv('POSTGRES_HOST', 'db-openmedlab'),
+        'HOST': os.getenv('POSTGRES_HOST', 'db-vetimage'),
         'PORT': os.getenv('POSTGRES_PORT', '5432'),
     }
 }
@@ -210,44 +211,79 @@ REST_FRAMEWORK = {
 
     # API Schema generation
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
+    # Rate limiting — protects unauthenticated auth endpoints (brute force /
+    # credential stuffing) and provides a default ceiling for the rest.
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'login': os.getenv('THROTTLE_LOGIN', '10/min'),
+        'register': os.getenv('THROTTLE_REGISTER', '5/min'),
+        'password_reset': os.getenv('THROTTLE_PASSWORD_RESET', '5/min'),
+        'token_refresh': os.getenv('THROTTLE_TOKEN_REFRESH', '30/min'),
+    },
 }
 
 # drf-spectacular settings
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'DICOM Medical Imaging Platform API',
+    'TITLE': 'VetImage Veterinary Imaging Platform API',
     'DESCRIPTION': '''
-    RESTful API for DICOM medical image management with DICOMweb support.
+    RESTful API for veterinary DICOM imaging: owner/patient registry, DICOM
+    storage with DICOMweb support, AI-assisted analysis, measurements (VHS),
+    structured reporting with veterinarian sign-off, and owner result sharing.
 
     **Features:**
-    - User authentication with JWT
-    - DICOM file upload and storage
-    - DICOMweb QIDO-RS (Query) endpoints
-    - DICOMweb WADO-RS (Retrieve) endpoints
-    - Image rendering with windowing
-    - Thumbnail generation
-    - Advanced search and filtering
-    - Image annotations with automatic measurements
+    - JWT authentication
+    - Owner → Animal Patient → Study registry
+    - DICOM upload & storage; DICOMweb QIDO-RS / WADO-RS
+    - Species-aware AI model catalog & analysis tasks (with triage priority)
+    - Vertebral Heart Score (VHS) measurements with trend tracking
+    - Structured veterinary reports, PDF export, vet sign-off, owner share links
+    - Image annotations with automatic measurements; anonymization & conversion
 
     **Authentication:**
-    All endpoints require authentication unless marked otherwise.
-    Use the `/users/auth/login/` endpoint to obtain a JWT access token.
-    Include the token in the Authorization header: `Authorization: Bearer <token>`
+    Most endpoints require authentication. Obtain a JWT access token from
+    `/users/auth/login/`, then click **Authorize** and paste the token, or send
+    `Authorization: Bearer <token>` manually.
+
+    **Responsible use:** AI output is veterinary decision support — not a
+    diagnosis. Results require review and sign-off by a qualified veterinarian.
     ''',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 
-    # Security schemes
-    'SECURITY': [
-        {
-            'bearerAuth': [],
-        }
-    ],
+    # Security: declare the bearer (JWT) scheme AND make the Authorize button
+    # work by defining the referenced securityScheme component.
+    'SECURITY': [{'bearerAuth': []}],
+    'APPEND_COMPONENTS': {
+        'securitySchemes': {
+            'bearerAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+                'description': 'JWT access token from /users/auth/login/',
+            },
+        },
+    },
     'COMPONENT_SPLIT_REQUEST': True,
+
+    # Logical grouping of operations in the docs UI.
+    'TAGS': [
+        {'name': 'Auth', 'description': 'Authentication & user profile'},
+        {'name': 'Patients', 'description': 'Owners, animal patients & signalment'},
+        {'name': 'VHS', 'description': 'Vertebral Heart Score measurements'},
+        {'name': 'DICOM', 'description': 'DICOM upload, storage & DICOMweb'},
+        {'name': 'AI Analysis', 'description': 'AI models & analysis tasks'},
+        {'name': 'Reports', 'description': 'Structured reports, sign-off & sharing'},
+        {'name': 'Credentials', 'description': 'API keys, sessions & audit'},
+        {'name': 'Gateway', 'description': 'DICOM gateway & transfers'},
+    ],
 
     # Contact and license info
     'CONTACT': {
-        'name': 'API Support',
-        'email': 'support@example.com',
+        'name': 'VetImage Support',
+        'email': 'support@vetimage.app',
     },
     'LICENSE': {
         'name': 'Proprietary',
@@ -262,6 +298,8 @@ SPECTACULAR_SETTINGS = {
         'deepLinking': True,
         'persistAuthorization': True,
         'displayOperationId': False,
+        'filter': True,
+        'tryItOutEnabled': True,
     },
 
     # Component naming
@@ -302,6 +340,28 @@ REFRESH_TOKEN_COOKIE_HTTPONLY = os.getenv('COOKIE_HTTPONLY', 'True') == 'True'
 REFRESH_TOKEN_COOKIE_SAMESITE = os.getenv('COOKIE_SAMESITE', 'Lax')
 REFRESH_TOKEN_COOKIE_MAX_AGE = int(os.getenv('JWT_REFRESH_TOKEN_LIFETIME', 10080)) * 60  # Convert minutes to seconds
 
+# ---------------------------------------------------------------------------
+# Production security hardening
+# ---------------------------------------------------------------------------
+# When DEBUG is off (production), enforce HTTPS-only cookies, SSL redirect, HSTS,
+# and standard browser protections. These can still be tuned via env vars.
+if not DEBUG:
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # The refresh-token cookie must be Secure in production regardless of env.
+    REFRESH_TOKEN_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', 31536000))  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SESSION_COOKIE_HTTPONLY = True
+
+# GDPR owner-PII retention window (days). 0 = disabled. The purge_expired_pii
+# management command anonymizes owners not updated within this window.
+OWNER_PII_RETENTION_DAYS = int(os.getenv('OWNER_PII_RETENTION_DAYS', 0) or 0)
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -309,15 +369,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email Configuration
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@openmedlab.local')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@vetimage.local')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
 # ============================================================================
 # Celery Configuration (Medical AI Analysis Orchestrator)
 # ============================================================================
 
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://redis-openmedlab:6379/0')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://redis-openmedlab:6379/0')
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://redis-vetimage:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://redis-vetimage:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -334,6 +394,7 @@ CELERY_TASK_ROUTES = {
     'ai_analysis.tasks.check_task_timeouts': {'queue': 'monitoring'},
     'ai_analysis.tasks.cleanup_old_tasks': {'queue': 'monitoring'},
     'ai_analysis.tasks.sync_orchestrator_status': {'queue': 'monitoring'},
+    'patients.tasks.send_vaccination_reminders': {'queue': 'monitoring'},
 }
 
 # ============================================================================
@@ -343,8 +404,8 @@ CELERY_TASK_ROUTES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL', 'redis://redis-openmedlab:6379/1'),  # Use DB 1 for cache
-        'KEY_PREFIX': 'openmedlab',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://redis-vetimage:6379/1'),  # Use DB 1 for cache
+        'KEY_PREFIX': 'vetimage',
         'TIMEOUT': 300,  # Default timeout: 5 minutes
     }
 }
@@ -358,7 +419,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [(os.getenv('REDIS_HOST', 'redis-openmedlab'), int(os.getenv('REDIS_PORT', 6379)))],
+            'hosts': [(os.getenv('REDIS_HOST', 'redis-vetimage'), int(os.getenv('REDIS_PORT', 6379)))],
         },
     },
 }
@@ -368,7 +429,7 @@ CHANNEL_LAYERS = {
 # ============================================================================
 
 # Backend base URL for webhook callbacks
-BACKEND_BASE_URL = os.getenv('BACKEND_BASE_URL', 'http://backend-openmedlab:3080')
+BACKEND_BASE_URL = os.getenv('BACKEND_BASE_URL', 'http://backend-vetimage:3080')
 
 # AI Results Storage
 AI_RESULTS_PATH = Path.joinpath(MEDIA_ROOT, 'ai_results')
@@ -381,7 +442,7 @@ AI_TASK_CLEANUP_DAYS = int(os.getenv('AI_TASK_CLEANUP_DAYS', 30))  # Delete old 
 # Orchestrator Configuration
 # ============================================================================
 
-ORCHESTRATOR_HOST = os.getenv('ORCHESTRATOR_HOST', 'orchestrator-openmedlab')
+ORCHESTRATOR_HOST = os.getenv('ORCHESTRATOR_HOST', 'orchestrator-vetimage')
 ORCHESTRATOR_PORT = int(os.getenv('ORCHESTRATOR_PORT', 50050))
 USE_ORCHESTRATOR = os.getenv('USE_ORCHESTRATOR', 'False') == 'True'
 ORCHESTRATOR_POLL_INTERVAL = int(os.getenv('ORCHESTRATOR_POLL_INTERVAL', 5))

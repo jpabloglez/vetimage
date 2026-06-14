@@ -146,10 +146,26 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ['-event_timestamp']
 
     def get_queryset(self):
-        """Return audit logs for the current user"""
-        queryset = AuditLog.objects.filter(
-            user=self.request.user
-        ).select_related('user', 'session')
+        """
+        Audit logs for the current user — or, for clinic admins/managers, the
+        whole organization (so they have oversight of who accessed what).
+        """
+        user = self.request.user
+        is_admin = getattr(user, 'role', 0) in (3, 4, 5) or user.is_staff or user.is_superuser
+        if is_admin:
+            org = None
+            try:
+                org = user.userprofile.organization
+            except Exception:
+                org = None
+            if org is not None:
+                queryset = AuditLog.objects.filter(
+                    user__userprofile__organization=org
+                ).select_related('user', 'session')
+            else:
+                queryset = AuditLog.objects.filter(user=user).select_related('user', 'session')
+        else:
+            queryset = AuditLog.objects.filter(user=user).select_related('user', 'session')
 
         # Filter by event type if provided
         event_type = self.request.query_params.get('event_type')

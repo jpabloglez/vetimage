@@ -1,0 +1,60 @@
+{
+  "title": "Agendamentos",
+  "subtitle": "Agenda da clínica",
+  "month": "Mês",
+  "week": "Semana",
+  "today": "Hoje",
+  "newAppointment": "Novo agendamento",
+  "noAppointments": "Nenhum agendamento programado",
+  "loading": "Carregando…",
+  "types": {
+    "consultation": "Consulta",
+    "follow_up": "Retorno",
+    "vaccination": "Vacinação",
+    "surgery": "Cirurgia",
+    "imaging": "Imagem",
+    "emergency": "Emergência"
+  },
+  "statuses": {
+    "pending": "Pendente",
+    "confirmed": "Confirmado",
+    "completed": "Concluído",
+    "cancelled": "Cancelado",
+    "no_show": "Não compareceu"
+  },
+  "detail": {
+    "animal": "Paciente",
+    "owner": "Tutor",
+    "type": "Tipo",
+    "scheduled": "Agendado para",
+    "duration": "Duração",
+    "status": "Status",
+    "notes": "Notas",
+    "complete": "Concluir e criar consulta",
+    "completing": "Concluindo…",
+    "edit": "Editar",
+    "cancel": "Cancelar agendamento",
+    "completed": "Consulta criada",
+    "completeFailed": "Falha ao concluir agendamento"
+  },
+  "form": {
+    "title": "Novo agendamento",
+    "editTitle": "Editar agendamento",
+    "animal": "Paciente",
+    "searchAnimal": "Buscar paciente…",
+    "type": "Tipo",
+    "scheduled": "Data e hora",
+    "duration": "Duração (minutos)",
+    "notes": "Notas (opcional)",
+    "save": "Agendar",
+    "saving": "Salvando…",
+    "cancel": "Cancelar",
+    "created": "Agendamento criado",
+    "updated": "Agendamento atualizado",
+    "failed": "Falha ao salvar agendamento"
+  },
+  "nav": {
+    "prev": "Anterior",
+    "next": "Próximo"
+  }
+}

@@ -8,7 +8,7 @@
 import { Types } from '@ohif/core';
 
 // API Base URL - use environment variable or default to backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3081';
 
 /**
  * OHIF Viewer Configuration Object

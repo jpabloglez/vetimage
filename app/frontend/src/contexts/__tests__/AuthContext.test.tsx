@@ -3,19 +3,21 @@ import { renderHook, waitFor, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../AuthContext';
 import { apiClient } from '../../utils/api';
 
-// Mock the API client
-vi.mock('../../utils/api', () => ({
-  apiClient: {
-    login: vi.fn(),
-    register: vi.fn(),
-    logout: vi.fn(),
-    getProfile: vi.fn(),
-  },
-}));
+// Mock the API client with the complete surface (getAccessToken, refreshToken,
+// etc.) so the provider's mount-time session restore never crashes.
+vi.mock('../../utils/api', async () => {
+  const { createApiClientMock } = await import('../../test/mockApiClient');
+  return { apiClient: createApiClientMock() };
+});
 
 describe('AuthContext', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset stateful implementations (persist across clearAllMocks) to a clean
+    // logged-out baseline so tests don't leak into one another.
+    (apiClient.getAccessToken as any).mockReset().mockReturnValue(null);
+    (apiClient.refreshToken as any).mockReset().mockRejectedValue(new Error('No token'));
+    (apiClient.getProfile as any).mockReset().mockRejectedValue(new Error('No active session'));
   });
 
   it('should initialize with null user and loading state', async () => {
@@ -42,7 +44,9 @@ describe('AuthContext', () => {
       role: 1,
     };
 
-    (apiClient.getProfile as any).mockResolvedValueOnce(mockUser);
+    // Simulate an existing access token so initAuth skips refresh and loads the profile.
+    (apiClient.getAccessToken as any).mockReturnValue('existing-token');
+    (apiClient.getProfile as any).mockResolvedValue(mockUser);
 
     const { result } = renderHook(() => useAuth(), {
       wrapper: AuthProvider,
@@ -131,7 +135,8 @@ describe('AuthContext', () => {
       role: 1,
     };
 
-    (apiClient.getProfile as any).mockResolvedValueOnce(mockUser);
+    (apiClient.getAccessToken as any).mockReturnValue('existing-token');
+    (apiClient.getProfile as any).mockResolvedValue(mockUser);
     (apiClient.logout as any).mockResolvedValueOnce({
       message: 'Logout successful',
     });

@@ -1,7 +1,7 @@
 {
   "pageTitle": "Analysis",
   "pageSubtitle": "Manage your analysis history, run new image workflows, and generate reports",
-  "title": "Medical Image Analysis",
+  "title": "Veterinary Image Analysis",
   "subtitle": "Upload medical images, select an AI model, and run analysis tasks",
   "tabs": {
     "worklist": "Worklist",
@@ -53,8 +53,8 @@
   "uploadedImages": "Uploaded Images ({{count}})",
   "continueToModel": "Continue to Model Selection",
   "selectOtherModel": "Choose another model…",
-  "backToUpload": "\u2190 Back to Upload",
-  "backToModel": "\u2190 Back to Model Selection",
+  "backToUpload": "← Back to Upload",
+  "backToModel": "← Back to Model Selection",
   "selectedModel": "Selected Model",
   "changeModel": "Change Model",
   "startAnalysis": "Start New Analysis",

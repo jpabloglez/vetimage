@@ -1,5 +1,5 @@
 # =============================================================================
-# AI Model Services — External to the core OpenMedLab stack
+# AI Model Services — External to the core VetImage stack
 #
 # Usage:
 #   docker compose -f docker-compose.yml -f docker-compose.services.yml up -d
@@ -10,8 +10,8 @@
 #
 # Prerequisites:
 #   1. Build each model image first (see per-service instructions below)
-#   2. Register models in DB:  docker compose exec backend-openmedlab python manage.py seed_ai_models
-#   3. Rebuild backend if needed: docker compose build backend-openmedlab celery-worker-openmedlab
+#   2. Register models in DB:  docker compose exec backend-vetimage python manage.py seed_ai_models
+#   3. Rebuild backend if needed: docker compose build backend-vetimage celery-worker-vetimage
 #
 # File paths:
 #   Connectors pass image paths as /var/www/app/backend/media/...
@@ -20,14 +20,56 @@
 
 services:
 
+  # ---------------------------------------------------------------------------
+  # VetThorax — Canine/Feline Thoracic Radiograph Screening (REFERENCE FIXTURE)
+  #
+  # Protocol: HTTP REST + webhook callback (Celery mode, USE_ORCHESTRATOR=False)
+  # Connector: ai_analysis.connectors.vet_thorax.VetThoraxConnector
+  # Registered endpoint: http://vet-thorax-service:8000
+  #
+  # CPU-only, no GPU, no ML — returns deterministic fixture findings so the full
+  # analysis lifecycle can be demonstrated end-to-end. Built from source in-repo
+  # (app/services/vet-thorax). See that directory's README.
+  #
+  # Expected API:
+  #   POST /analyze       — Submit job (with callback_url + webhook_secret)
+  #   GET  /jobs/{job_id} — Poll job status (fallback)
+  #   GET  /health        — Health check
+  # ---------------------------------------------------------------------------
+  vet-thorax-service:
+    build: ./app/services/vet-thorax
+    image: vetimage/vet-thorax-service:fixture
+    container_name: vet-thorax-service
+    ports:
+      - "8013:8000"
+    environment:
+      - LOG_LEVEL=INFO
+      - PROCESSING_DELAY=2
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   # Mount fastsurfer_output in backend + celery so result files are accessible
-  backend-openmedlab:
+  backend-vetimage:
     volumes:
       - fastsurfer_output:/fastsurfer_output:ro
 
-  celery-worker-openmedlab:
+  celery-worker-vetimage:
     volumes:
       - fastsurfer_output:/fastsurfer_output:ro
+      # nnU-Net model weights + staging (NNUNetConnector runs in-worker)
+      - nnunet_results:/nnunet_results:ro
+      - nnunet_raw:/nnunet_raw
+    environment:
+      - nnUNet_results=/nnunet_results
+      - nnUNet_raw=/nnunet_raw
+      - NNUNET_RESULTS=/nnunet_results
 
   # ---------------------------------------------------------------------------
   # MIRAGE — Retinal OCT/SLO Foundation Model
@@ -38,7 +80,7 @@ services:
   #
   # Build the image from the MIRAGE repository:
   #   cd /path/to/mirage-repo
-  #   docker build -t openmedlab/mirage-service:latest .
+  #   docker build -t vetimage/mirage-service:latest .
   #
   # Expected API:
   #   POST /analyze            — Submit analysis job
@@ -47,7 +89,7 @@ services:
   #   GET  /health             — Health check
   # ---------------------------------------------------------------------------
   mirage-service:
-    image: openmedlab/mirage-service:latest
+    image: vetimage/mirage-service:latest
     container_name: mirage-service
     ports:
       - "8010:8000"
@@ -85,14 +127,14 @@ services:
   #
   # Build the image:
   #   cd /path/to/chexnet-repo
-  #   docker build -t openmedlab/chexnet-service:latest .
+  #   docker build -t vetimage/chexnet-service:latest .
   #
   # Expected API:
   #   POST /classify — Submit classification (with callback_url + webhook_secret)
   #   GET  /health   — Health check
   # ---------------------------------------------------------------------------
   chexnet-service:
-    image: openmedlab/chexnet-service:latest
+    image: vetimage/chexnet-service:latest
     container_name: chexnet-service
     ports:
       - "8011:8000"
@@ -104,7 +146,7 @@ services:
       - LOG_LEVEL=INFO
       - WORKERS=1
       # Backend URL for webhook delivery (container-to-container)
-      - BACKEND_WEBHOOK_URL=http://backend-openmedlab:3080
+      - BACKEND_WEBHOOK_URL=http://backend-vetimage:3080
     networks:
       - app-network
     restart: unless-stopped
@@ -131,17 +173,17 @@ services:
   #
   # Build the image:
   #   cd /path/to/picai-repo
-  #   docker build -t openmedlab/picai-service:latest .
+  #   docker build -t vetimage/picai-service:latest .
   #
   # Expected gRPC (model_service.proto):
   #   RunInference(InferenceRequest)    — Run detection
   #   GetModelInfo(ModelInfoRequest)    — Model capabilities
   #   HealthCheck(HealthCheckRequest)   — Liveness probe
   #
-  # NOTE: Requires USE_ORCHESTRATOR=True in backend-openmedlab environment
+  # NOTE: Requires USE_ORCHESTRATOR=True in backend-vetimage environment
   # ---------------------------------------------------------------------------
   picai-service:
-    image: juanpablogglez/openmedlab-services:picai-v1.0.0
+    image: juanpablogglez/vetimage-services:picai-v1.0.0
     container_name: picai-service
     ports:
       - "50051:50051"
@@ -179,7 +221,7 @@ services:
   #
   # Build the image:
   #   cd /path/to/medimaging-repo
-  #   docker build -f setup/Dockerfile.fastsurfer -t openmedlab/fastsurfer-service:latest .
+  #   docker build -f setup/Dockerfile.fastsurfer -t vetimage/fastsurfer-service:latest .
   #
   # The connector automatically converts DICOM → NIfTI via dcm2niix before dispatch.
   #
@@ -193,10 +235,10 @@ services:
   #   aseg+DKT.stats        — Region volume statistics
   #   mask.mgz              — Brain mask
   #
-  # NOTE: Requires USE_ORCHESTRATOR=True in backend-openmedlab environment
+  # NOTE: Requires USE_ORCHESTRATOR=True in backend-vetimage environment
   # ---------------------------------------------------------------------------
   fastsurfer-service:
-    image: juanpablogglez/openmedlab-services:fastsurfer-v2.0.0
+    image: juanpablogglez/vetimage-services:fastsurfer-v2.0.0
     container_name: fastsurfer-service
     ports:
       - "8012:8000"    # FastAPI REST (for local testing / health checks)
@@ -243,7 +285,7 @@ services:
   #   2. Or copy pre-downloaded weights:
   #      docker cp /local/path/nnUNet_results/. <container>:/nnunet_results/
   #
-  # Required env vars (set in celery-worker-openmedlab):
+  # Required env vars (set in celery-worker-vetimage):
   #   nnUNet_results=/nnunet_results  — where model weights live
   #   nnUNet_raw=/nnunet_raw         — staging area for raw data (optional)
   #
@@ -254,16 +296,9 @@ services:
   #   misfm-v1     MIS-FM         (8-organ CT/MRI foundation model)
   # ---------------------------------------------------------------------------
 
-  # Mount the nnunet_results volume into celery worker so nnUNetv2_predict
-  # can find pre-downloaded model weights.
-  celery-worker-openmedlab:
-    volumes:
-      - nnunet_results:/nnunet_results:ro
-      - nnunet_raw:/nnunet_raw
-    environment:
-      - nnUNet_results=/nnunet_results
-      - nnUNet_raw=/nnunet_raw
-      - NNUNET_RESULTS=/nnunet_results
+  # NOTE: nnU-Net volumes/env for celery-worker-vetimage are merged into the
+  # single celery-worker-vetimage override near the top of this file (a service
+  # key may only appear once per compose file).
 
 volumes:
   mirage_cache:
@@ -278,4 +313,4 @@ volumes:
 networks:
   app-network:
     external: true
-    name: openmedlab_app-network
+    name: vetimage_app-network

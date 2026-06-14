@@ -134,7 +134,7 @@ const LandingPage: React.FC = () => {
                 <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
                   <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> X-ray Classification</li>
                   <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> CT Segmentation</li>
-                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> MRI Analysis</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> Ultrasound &amp; MRI Analysis</li>
                 </ul>
               </CardContent>
             </Card>
@@ -174,7 +174,7 @@ const LandingPage: React.FC = () => {
                 <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
                   <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> End-to-end encryption</li>
                   <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> Audit trails</li>
-                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> SOC 2 certified</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> Owner-data privacy (GDPR)</li>
                 </ul>
               </CardContent>
             </Card>
@@ -192,9 +192,9 @@ const LandingPage: React.FC = () => {
                   {t('landing:features.clinicalDesc')}
                 </p>
                 <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
-                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> FDA cleared</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> Validated datasets</li>
                   <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> Peer reviewed</li>
-                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> Clinical trials</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-success-500 mr-2" /> Reproducible metrics</li>
                 </ul>
               </CardContent>
             </Card>

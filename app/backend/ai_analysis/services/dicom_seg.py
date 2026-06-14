@@ -138,7 +138,7 @@ def _make_segment_attribute(label_id: int, label_name: str, colour: list) -> dic
         "labelID": label_id,
         "SegmentDescription": label_name,
         "SegmentAlgorithmType": "AUTOMATIC",
-        "SegmentAlgorithmName": "OpenMedLab",
+        "SegmentAlgorithmName": "VetImage",
         "recommendedDisplayRGBValue": colour,
         "SegmentedPropertyCategoryCodeSequence": category,
         "SegmentedPropertyTypeCodeSequence": {
@@ -156,7 +156,7 @@ def _make_segment_attribute(label_id: int, label_name: str, colour: list) -> dic
 def build_dcmqi_metadata(
     label_map: dict,
     series_description: str = "AI Segmentation",
-    algorithm_name: str = "OpenMedLab",
+    algorithm_name: str = "VetImage",
     series_number: int = 300,
 ) -> dict:
     """
@@ -190,7 +190,7 @@ def build_dcmqi_metadata(
             "https://raw.githubusercontent.com/qiicr/dcmqi/master"
             "/doc/schemas/seg-schema.json#"
         ),
-        "ContentCreatorName": "OpenMedLab",
+        "ContentCreatorName": "VetImage",
         "SeriesDescription": series_description,
         "SeriesNumber": str(series_number),
         "InstanceNumber": "1",
@@ -459,7 +459,7 @@ def create_dicom_seg(
     series,
     label_map: dict,
     series_description: str = "AI Segmentation",
-    algorithm_name: str = "OpenMedLab",
+    algorithm_name: str = "VetImage",
 ) -> Path:
     """
     Full pipeline: NIfTI mask + DICOM series + label map → DICOM SEG file.

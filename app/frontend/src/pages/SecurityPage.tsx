@@ -41,10 +41,10 @@ const SecurityPage: React.FC = () => {
       title: t('security.features.hipaa'),
       description: t('security.features.hipaaDesc'),
       details: [
-        'PHI protection and privacy controls',
+        'Owner personal data handled under GDPR principles',
         'Audit logging for all data access',
-        'Breach notification procedures',
-        'Regular compliance audits',
+        'Configurable data retention & deletion',
+        'DICOM de-identification tools built in',
       ],
     },
     {
@@ -93,30 +93,32 @@ const SecurityPage: React.FC = () => {
     },
   ];
 
+  // Honest posture — no fabricated certifications. Veterinary imaging is not
+  // covered by HIPAA, and VetImage is not a regulated medical device.
   const certifications = [
     {
-      icon: Award,
-      title: 'HIPAA Compliant',
-      description: 'Health Insurance Portability and Accountability Act',
-      badge: 'Certified',
-    },
-    {
-      icon: ShieldCheck,
-      title: 'SOC 2 Type II',
-      description: 'Service Organization Control 2',
-      badge: 'In Progress',
+      icon: Lock,
+      title: 'Encryption',
+      description: 'TLS 1.3 in transit · AES-256 at rest',
+      badge: 'Active',
     },
     {
       icon: FileCheck,
-      title: 'GDPR Ready',
-      description: 'General Data Protection Regulation',
-      badge: 'Compliant',
+      title: 'GDPR Principles',
+      description: 'Owner personal data — lawful basis, access & erasure',
+      badge: 'Applied',
     },
     {
-      icon: Lock,
-      title: 'ISO 27001',
-      description: 'Information Security Management',
-      badge: 'Planned',
+      icon: Activity,
+      title: 'Audit Logging',
+      description: 'Full access trail for clinic accountability',
+      badge: 'Active',
+    },
+    {
+      icon: AlertTriangle,
+      title: 'Not a Medical Device',
+      description: 'Not FDA-cleared · veterinary decision support only',
+      badge: 'Disclosure',
     },
   ];
 
@@ -124,7 +126,7 @@ const SecurityPage: React.FC = () => {
     {
       category: t('security.practices.dataProtection'),
       practices: [
-        'De-identification of PHI when possible',
+        'De-identification of owner data when possible',
         'Automatic data retention policies',
         'Secure data export and deletion',
         'Regular security assessments',
@@ -163,7 +165,7 @@ const SecurityPage: React.FC = () => {
     title: t('security.disclosure.title'),
     description: t('security.disclosure.description'),
     steps: [
-      'Email security@medai-platform.com with details',
+      'Email security@vetimage.app with details',
       'Include steps to reproduce (if applicable)',
       'Allow us 90 days to address the issue',
       'Do not publicly disclose until resolved',
@@ -209,6 +211,28 @@ const SecurityPage: React.FC = () => {
                   {t('security.getStartedSecurely')}
                 </Button>
               </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* AI Decision-Support Disclosure */}
+        <Card className="mb-12 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
+          <CardContent className="py-6">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-amber-100 dark:bg-amber-900/50 rounded-lg flex-shrink-0">
+                <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-1">
+                  {t('security.aiTitle')}
+                </h3>
+                <p className="text-amber-800 dark:text-amber-200 mb-2">
+                  {t('security.aiDesc')}
+                </p>
+                <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                  {t('security.notDevice')}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -274,12 +298,12 @@ const SecurityPage: React.FC = () => {
                     </p>
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                        cert.badge === 'Certified'
+                        cert.badge === 'Active'
                           ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : cert.badge === 'In Progress'
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                          : cert.badge === 'Compliant'
+                          : cert.badge === 'Applied'
                           ? 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200'
+                          : cert.badge === 'Disclosure'
+                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200'
                           : 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200'
                       }`}
                     >
@@ -370,7 +394,7 @@ const SecurityPage: React.FC = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <a
-                  href="mailto:security@medai-platform.com"
+                  href="mailto:security@vetimage.app"
                   className="inline-block"
                 >
                   <Button variant="medical" size="lg">

@@ -24,7 +24,7 @@ const ImageUpload: React.FC = () => {
 
       try {
         // Send the formData to the server for image upload
-        const response = await fetch("http://localhost:3080/files/", {
+        const response = await fetch("http://localhost:3081/files/", {
           method: "POST",
           body: formData,
         });

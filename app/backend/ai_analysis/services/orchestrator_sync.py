@@ -1,7 +1,7 @@
 """
 Orchestrator status synchronization service.
 
-Polls orchestrator for job status updates and syncs them to OpenMedLab database.
+Polls orchestrator for job status updates and syncs them to VetImage database.
 """
 
 import logging
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class OrchestratorStatusSync:
-    """Sync job status from orchestrator to OpenMedLab."""
+    """Sync job status from orchestrator to VetImage."""
 
     @staticmethod
     def sync_task_status(task):

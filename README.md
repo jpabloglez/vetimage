@@ -1,38 +1,40 @@
-# OpenMedLab
+# VetImage
 
-OpenMedLab is a comprehensive DICOM Data Management System for medical imaging. This platform provides advanced tools for managing, viewing, and analyzing medical images including CT, MRI, X-ray, and other DICOM-compliant imaging modalities.
+VetImage is a comprehensive DICOM imaging platform for veterinary practice. It provides advanced tools for managing, viewing, and analyzing animal patient imaging — including CT, MRI, X-ray, ultrasound, and other DICOM-compliant modalities — organized around the real-world Owner → Animal Patient → Study workflow.
 
 ## Overview
 
-OpenMedLab is designed to streamline medical imaging workflows by providing:
-- **DICOM Storage & Management**: Upload, organize, and retrieve medical images with complete metadata preservation
-- **Advanced Viewer Integration**: Built-in OHIF viewer integration and Cornerstone.js support for high-quality medical image visualization
-- **Intelligent Search**: Powerful search capabilities with normalized text indexing and saved search queries
+VetImage is designed to streamline veterinary imaging workflows by providing:
+- **Owner & Patient Registry**: Structured Owner → Animal Patient → Study hierarchy with species, breed, microchip ID, and owner contact — multi-pet households supported from day one
+- **DICOM Storage & Management**: Upload, organize, and retrieve studies with complete metadata preservation
+- **Advanced Viewer Integration**: Built-in OHIF viewer integration and Cornerstone.js support for high-quality image visualization
+- **AI-Assisted Analysis**: Pluggable connector architecture (REST or gRPC) for radiology decision support with real-time status via WebSocket
 - **Image Annotations**: Rich annotation system with automatic measurement calculations (distance, area, angles)
-- **Thumbnail Generation**: Automatic thumbnail creation in multiple sizes for quick preview
-- **DICOM Tag Extraction**: Complete metadata extraction and storage for all DICOM tags
-- **RESTful API**: Comprehensive REST API for integration with other medical systems
+- **Structured Reports**: Generate vetted radiology reports from AI findings with PDF export
+- **RESTful API**: Comprehensive REST API for integration with practice management and other systems
 
 ## Disclaimer
 
-This application is intended for educational, research, and development purposes. It should not be used as a substitute for professional medical diagnosis, treatment, or clinical decision-making. All medical imaging analysis and interpretation must be performed by qualified healthcare professionals using certified medical imaging systems.
+This application is intended for veterinary decision support, education, research, and development purposes. It is not a substitute for professional clinical judgement. All imaging analysis and interpretation must be performed by qualified veterinary professionals.
 
-The developers and contributors are not responsible for any clinical decisions, misuse, or misinterpretation of data processed through this system. This platform must be used in compliance with all applicable healthcare regulations including HIPAA, GDPR, and local medical data protection laws.
+The developers and contributors are not responsible for any clinical decisions, misuse, or misinterpretation of data processed through this system. This platform must be used in compliance with all applicable data protection regulations (e.g. GDPR) and local veterinary practice requirements.
 
 ## Features
 
 ### Core Functionality
-- **DICOM Upload & Storage**: Support for all DICOM-compliant medical imaging formats
+- **DICOM Upload & Storage**: Support for all DICOM-compliant imaging formats
 - **Metadata Management**: Complete DICOM tag extraction and JSON storage
-- **Multi-Modality Support**: CT, MRI, X-ray, CR, and other medical imaging modalities
-- **OHIF Viewer**: Integrated medical image viewer with advanced visualization tools
-- **Cornerstone.js Integration**: High-performance medical image rendering
+- **Multi-Modality Support**: CT, MRI, X-ray, CR, ultrasound, and other imaging modalities
+- **OHIF Viewer**: Integrated image viewer with advanced visualization tools
+- **Cornerstone.js Integration**: High-performance image rendering
 
 ### Advanced Features
+- **AI Analysis Pipeline**: Pluggable connectors (REST+webhook or gRPC) dispatch studies to model services; findings stream back to the viewer and pre-fill draft reports — all human-in-the-loop. See [docs/AI-WORKFLOW.md](docs/AI-WORKFLOW.md); try it with `make ai-demo`.
+- **Owner & Animal Patient Records**: Multi-pet owners, species/breed, microchip, and weight tracking
 - **Image Annotations**: 10+ annotation types (rectangle, ellipse, polygon, ruler, angle, arrow, etc.)
 - **Automatic Measurements**: Server-side calculation for distance (mm/pixels), area, and angles
 - **Thumbnail System**: Lazy-loaded thumbnails in small (100px), medium (200px), and large (400px) sizes
-- **Advanced Search**: Multi-criteria search with patient name, study description, date ranges, and modality filters
+- **Advanced Search**: Multi-criteria search by patient name, study description, date ranges, and modality
 - **Saved Searches**: Store and reuse frequently used search queries
 - **User Management**: Authentication and authorization with JWT tokens
 - **Storage Quotas**: Per-user storage limits and tracking
@@ -74,8 +76,8 @@ The developers and contributors are not responsible for any clinical decisions, 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/openmedlab.git
-   cd openmedlab
+   git clone https://github.com/yourusername/vetimage.git
+   cd vetimage
    ```
 
 2. Start the application:
@@ -84,9 +86,9 @@ The developers and contributors are not responsible for any clinical decisions, 
    ```
 
 3. Access the application:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3080
-   - API Documentation: http://localhost:3080/api/docs
+   - Frontend: http://localhost:3001
+   - Backend API: http://localhost:3081
+   - API Documentation: http://localhost:3081/api/docs
 
 ### Using Make Commands
 
@@ -111,6 +113,12 @@ make migrate
 # Run tests
 make test
 
+# Register veterinary AI models
+make models-seed
+
+# Run the AI analysis pipeline end-to-end against the reference service
+make ai-demo
+
 # Stop all services
 make down
 ```
@@ -120,13 +128,17 @@ For a complete list of Make commands, run `make help` or see the Makefile.
 ## Project Structure
 
 ```
-openmedlab/
+vetimage/
 ├── app/
 │   ├── backend/          # Django backend application
 │   │   ├── dicom_images/ # DICOM management app
+│   │   ├── ai_analysis/  # AI model registry, task dispatch, connectors, webhooks
+│   │   ├── patients/     # Veterinary registry, clinical records, portal, messaging
+│   │   ├── reports/      # Structured reports + PDF export
 │   │   ├── core/         # Core Django settings
 │   │   └── manage.py     # Django management script
-│   └── frontend/         # React frontend application
+│   ├── frontend/         # React frontend application
+│   └── services/         # In-repo model services (e.g. vet-thorax reference fixture)
 ├── compose/              # Docker configuration files
 │   ├── Dockerfile.backend
 │   └── Dockerfile.frontend
@@ -134,10 +146,10 @@ openmedlab/
 │   ├── db/              # PostgreSQL data
 │   └── media/           # Uploaded DICOM files
 ├── docs/                # Detailed documentation
-│   ├── IMPLEMENTATION_SUMMARY.md
-│   ├── DICOM_ENHANCEMENTS.md
-│   ├── API_QUICK_REFERENCE.md
-│   └── OHIF-INTEGRATION-COMPLETE.md
+│   ├── AI-WORKFLOW.md            # AI analysis pipeline (dispatch→webhook→findings→report)
+│   ├── VETERINARY_ALIGNMENT_REPORT.md
+│   ├── PENDING_FEATURES.md
+│   └── models/MIRAGE-INTEGRATION.md
 ├── setup/               # Setup scripts and requirements
 ├── docker-compose.yml   # Docker services configuration
 ├── Makefile            # Management commands
@@ -155,7 +167,7 @@ Create a `.env` file in the project root:
 POSTGRES_DB=postgres
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
-DB_HOST=db-openmedlab
+DB_HOST=db-vetimage
 DB_PORT=5432
 
 # Django
@@ -211,7 +223,7 @@ For complete API documentation with examples, see [docs/API_QUICK_REFERENCE.md](
 ### Upload DICOM Files
 
 ```bash
-curl -X POST http://localhost:3080/api/studies/upload/ \
+curl -X POST http://localhost:3081/api/studies/upload/ \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -F "files=@/path/to/dicom/file.dcm"
 ```
@@ -219,11 +231,11 @@ curl -X POST http://localhost:3080/api/studies/upload/ \
 ### Search Studies
 
 ```bash
-curl -X POST http://localhost:3080/api/search/advanced/ \
+curl -X POST http://localhost:3081/api/search/advanced/ \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "patient_name": "John Doe",
+    "patient_name": "Rex",
     "modality": "CT",
     "start_date": "2024-01-01"
   }'
@@ -232,7 +244,7 @@ curl -X POST http://localhost:3080/api/search/advanced/ \
 ### Create Annotation
 
 ```bash
-curl -X POST http://localhost:3080/api/images/{image_uid}/annotations/ \
+curl -X POST http://localhost:3081/api/images/{image_uid}/annotations/ \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{

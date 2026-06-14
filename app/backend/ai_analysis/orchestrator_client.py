@@ -90,7 +90,7 @@ class OrchestratorClient:
         # Build metadata: always include task/user IDs; forward connector-specific
         # runtime params so the gRPC adapter can pass them to the service.
         metadata = {
-            'openmedlab_task_id': str(task.id),
+            'vetimage_task_id': str(task.id),
             'user_id': str(task.created_by_id),
         }
         # Forward any model-specific runtime parameters as string metadata
@@ -151,7 +151,7 @@ class OrchestratorClient:
             raise ConnectionError(f"Failed to get job status: {e.details()}")
 
     def _map_status_from_proto(self, proto_status):
-        """Map orchestrator JobStatus to OpenMedLab status."""
+        """Map orchestrator JobStatus to VetImage status."""
         mapping = {
             orchestrator_pb2.JOB_STATUS_QUEUED: 'QUEUED',
             orchestrator_pb2.JOB_STATUS_PROCESSING: 'PROCESSING',

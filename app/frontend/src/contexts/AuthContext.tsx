@@ -100,7 +100,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const handleTokenExpired = () => {
       console.log('Token expired event received');
       setUser(null);
-      window.location.href = '/login';
+      // Only redirect if not already on an auth page (avoid loops); flag the
+      // reason so the login page can show a friendly "session expired" message.
+      if (!window.location.pathname.startsWith('/auth/')) {
+        window.location.href = '/auth/login?session=expired';
+      }
     };
 
     window.addEventListener('auth:token-expired', handleTokenExpired);

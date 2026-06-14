@@ -15,7 +15,8 @@ import {
   Activity,
   BarChart3,
   ChevronDown,
-  Globe
+  Globe,
+  PawPrint
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -120,10 +121,15 @@ const Navbar: React.FC = () => {
 
   // Navigation items for authenticated users
   const authenticatedNavigation = [
+    { name: t('nav.patients'), href: '/patients', icon: PawPrint },
     { name: t('nav.analysis'), href: '/analyze', icon: FileText },
     { name: t('nav.statistics'), href: '/statistics', icon: BarChart3 },
     { name: t('nav.tools'), href: '/tools', icon: Settings },
     { name: t('nav.monitor'), href: '/monitor', icon: Activity },
+    // Clinic admins / managers / superusers get the audit-log oversight view.
+    ...((user?.role ?? 1) >= 3
+      ? [{ name: t('nav.auditLog'), href: '/audit-log', icon: Shield }]
+      : []),
   ];
 
   // Select navigation based on authentication status
@@ -146,7 +152,7 @@ const Navbar: React.FC = () => {
               <div className="w-8 h-8 bg-medical-500 rounded-lg flex items-center justify-center">
                 <Stethoscope className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold medical-gradient-text">OpenMedLab</span>
+              <span className="text-xl font-bold medical-gradient-text">VetImage</span>
             </Link>
 
             <button
@@ -175,7 +181,7 @@ const Navbar: React.FC = () => {
             <div className="w-8 h-8 bg-medical-500 rounded-lg flex items-center justify-center">
               <Stethoscope className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold medical-gradient-text">OpenMedLab</span>
+            <span className="text-xl font-bold medical-gradient-text">VetImage</span>
           </Link>
 
           {/* Desktop Navigation */}

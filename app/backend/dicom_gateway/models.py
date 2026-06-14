@@ -159,7 +159,7 @@ class PACSConfiguration(models.Model):
         from pynetdicom import AE
         from pynetdicom.sop_class import Verification
 
-        ae = AE(ae_title='OPENMEDLAB_TEST')
+        ae = AE(ae_title='VETIMAGE_TEST')
         ae.add_requested_context(Verification)
 
         try:

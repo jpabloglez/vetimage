@@ -47,6 +47,8 @@ urlpatterns = [
     path('api/ai-analysis/', include('ai_analysis.urls')),  # AI Analysis Orchestrator
     path('api/credentials/', include('credentials.urls')),  # Enhanced Authentication & Session Tracking
     path('api/reports/', include('reports.urls')),  # Structured Reports & PDF Export
+    path('api/patients/', include('patients.urls')),  # Veterinary patient registry
+    path('api/portal/', include('patients.urls_portal')),  # Pet-owner portal (#21)
 ]
 
 from django.conf.urls.static import static

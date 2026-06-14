@@ -55,7 +55,7 @@ class PICAIConnector(BaseAIConnector):
         raise NotImplementedError(
             "PICAI requires Orchestrator mode (gRPC). "
             "Ensure use_orchestrator=True is set on the AIModel record and "
-            "the orchestrator-openmedlab service is running."
+            "the orchestrator-vetimage service is running."
         )
 
     def _validate_modalities(self, task):
@@ -152,7 +152,7 @@ class PICAIConnector(BaseAIConnector):
         output_format = parameters.get('output_format', 'mha')
         output_destination = parameters.get(
             'output_destination',
-            f's3://openmedlab-results/picai/{task.id}'
+            f's3://vetimage-results/picai/{task.id}'
         )
 
         return {

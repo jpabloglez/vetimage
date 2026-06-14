@@ -15,6 +15,8 @@ import enMonitor from './locales/en/monitor.json';
 import enProfile from './locales/en/profile.json';
 import enViewer from './locales/en/viewer.json';
 import enNotifications from './locales/en/notifications.json';
+import enPatients from './locales/en/patients.json';
+import enCalendar from './locales/en/calendar.json';
 
 // Spanish
 import esCommon from './locales/es/common.json';
@@ -29,6 +31,8 @@ import esMonitor from './locales/es/monitor.json';
 import esProfile from './locales/es/profile.json';
 import esViewer from './locales/es/viewer.json';
 import esNotifications from './locales/es/notifications.json';
+import esPatients from './locales/es/patients.json';
+import esCalendar from './locales/es/calendar.json';
 
 // Portuguese
 import ptCommon from './locales/pt/common.json';
@@ -43,6 +47,8 @@ import ptMonitor from './locales/pt/monitor.json';
 import ptProfile from './locales/pt/profile.json';
 import ptViewer from './locales/pt/viewer.json';
 import ptNotifications from './locales/pt/notifications.json';
+import ptPatients from './locales/pt/patients.json';
+import ptCalendar from './locales/pt/calendar.json';
 
 i18n
   .use(LanguageDetector)
@@ -62,6 +68,8 @@ i18n
         profile: enProfile,
         viewer: enViewer,
         notifications: enNotifications,
+        patients: enPatients,
+        calendar: enCalendar,
       },
       es: {
         common: esCommon,
@@ -76,6 +84,8 @@ i18n
         profile: esProfile,
         viewer: esViewer,
         notifications: esNotifications,
+        patients: esPatients,
+        calendar: esCalendar,
       },
       pt: {
         common: ptCommon,
@@ -90,6 +100,8 @@ i18n
         profile: ptProfile,
         viewer: ptViewer,
         notifications: ptNotifications,
+        patients: ptPatients,
+        calendar: ptCalendar,
       },
     },
     fallbackLng: 'en',
@@ -98,7 +110,7 @@ i18n
     ns: [
       'common', 'landing', 'auth', 'analyze', 'models',
       'statistics', 'tools', 'reports', 'monitor', 'profile',
-      'viewer', 'notifications',
+      'viewer', 'notifications', 'patients', 'calendar',
     ],
     interpolation: {
       escapeValue: false, // React already escapes

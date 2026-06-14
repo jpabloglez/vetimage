@@ -115,7 +115,7 @@ const ForgotPasswordPage: React.FC = () => {
                 label={t('forgotPassword.email')}
                 leftIcon={Mail}
                 error={errors.email?.message}
-                placeholder="doctor@hospital.com"
+                placeholder="vet@clinic.com"
                 helper={t('forgotPassword.emailHelp')}
                 required
                 disabled={isSubmitting}

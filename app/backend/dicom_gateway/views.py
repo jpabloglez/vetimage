@@ -18,6 +18,8 @@ from rest_framework.pagination import PageNumberPagination
 
 from .models import DICOMTransaction, PACSConfiguration
 from dicom_images.models import MedicalStudy
+from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
 from .serializers import (
     StudyTransferSerializer,
     TransferStatsSerializer,
@@ -43,6 +45,7 @@ class AllowInternalCreatePermission(BasePermission):
         return request.user and request.user.is_authenticated
 
 
+@extend_schema(tags=['Gateway'])
 class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API ViewSet for DICOM transfer monitoring.
@@ -65,6 +68,10 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
 
     permission_classes = [IsAuthenticated]
     pagination_class = TransferPagination
+    # Aggregation viewset — resolves schema serializer; data is served via the
+    # custom monitor/stats actions below.
+    serializer_class = StudyTransferSerializer
+    queryset = DICOMTransaction.objects.none()
 
     def _parse_date_range(self, request):
         """Parse date_from and date_to query parameters."""
@@ -301,6 +308,7 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
 
         return filtered
 
+    @extend_schema(summary='Paginated study-level transfer list', responses=StudyTransferSerializer(many=True))
     @action(detail=False, methods=['get'])
     def monitor(self, request):
         """
@@ -365,6 +373,7 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
 
         return paginator.get_paginated_response(serializer.data)
 
+    @extend_schema(summary='Transfer statistics', responses=TransferStatsSerializer)
     @action(detail=False, methods=['get'])
     def stats(self, request):
         """
@@ -521,6 +530,7 @@ class DICOMTransactionViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
 
+@extend_schema(summary='PACS configuration lookup (gateway)', responses=OpenApiTypes.OBJECT, tags=['Gateway'], auth=[])
 @api_view(['GET'])
 @permission_classes([AllowAny])  # Allow unauthenticated access from gateway
 def pacs_lookup(request):

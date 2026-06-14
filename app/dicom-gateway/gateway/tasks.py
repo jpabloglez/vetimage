@@ -170,7 +170,7 @@ def anonymize_dicom(file_path: str):
 
         # Set anonymization flag
         ds.PatientIdentityRemoved = 'YES'
-        ds.DeidentificationMethod = 'OpenMedLab Gateway Auto-Anonymization'
+        ds.DeidentificationMethod = 'VetImage Gateway Auto-Anonymization'
 
         # Save anonymized file
         ds.save_as(file_path)

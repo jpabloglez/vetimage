@@ -97,7 +97,7 @@ class StudyTransferSerializer(serializers.Serializer):
         help_text="Department of user who received the transfer (privacy-aware)"
     )
 
-    def get_uploaded_by_name(self, obj):
+    def get_uploaded_by_name(self, obj) -> str:
         """
         Return user name with privacy controls.
 
@@ -127,7 +127,7 @@ class StudyTransferSerializer(serializers.Serializer):
         except:
             return 'Private'
 
-    def get_uploaded_by_department(self, obj):
+    def get_uploaded_by_department(self, obj) -> str:
         """
         Return department with privacy controls.
 

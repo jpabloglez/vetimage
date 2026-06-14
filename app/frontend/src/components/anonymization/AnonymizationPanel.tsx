@@ -38,7 +38,7 @@ const PROFILE_OPTIONS = [
   {
     value: 'full',
     label: 'Full',
-    description: 'Removes all ~30 PHI tags per DICOM PS3.15',
+    description: 'Removes ~30 identifying tags per DICOM PS3.15',
   },
   {
     value: 'research',
@@ -186,7 +186,7 @@ const AnonymizationPanel: React.FC = () => {
           </h3>
         </div>
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-5">
-          Remove Protected Health Information (PHI) from DICOM datasets for research use.
+          Remove identifying information (owner & patient) from DICOM datasets for research and sharing.
         </p>
 
         {/* Input mode tabs */}
@@ -304,7 +304,7 @@ const AnonymizationPanel: React.FC = () => {
           <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 mb-4">
             <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
             <p className="text-xs text-blue-700 dark:text-blue-300">
-              BIDS output requires a complete study. PHI is removed before conversion.
+              BIDS output requires a complete study. Identifying information is removed before conversion.
               Technical parameters are preserved.
             </p>
           </div>

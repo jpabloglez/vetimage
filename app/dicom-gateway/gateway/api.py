@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
-    title="OpenMedLab DICOM Gateway API",
+    title="VetImage DICOM Gateway API",
     description="Monitoring and management API for the DICOM gateway service",
     version=settings.VERSION,
 )

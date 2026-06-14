@@ -30,6 +30,7 @@ from .views_anonymization import AnonymizationJobViewSet
 from .views_tag_editor import DicomTagListView, DicomTagUpdateView
 from .views_conversion import ConversionJobViewSet
 from .views_batch import BatchOperationViewSet
+from .views import StudyShareViewSet, PublicStudyWADOView, StudyCDExportView
 
 app_name = 'dicom_images'
 
@@ -37,6 +38,7 @@ app_name = 'dicom_images'
 router = DefaultRouter()
 router.register('anonymize', AnonymizationJobViewSet, basename='anonymization')
 router.register('convert', ConversionJobViewSet, basename='conversion')
+router.register('share-links', StudyShareViewSet, basename='study-share-link')
 router.register('batch', BatchOperationViewSet, basename='batch')
 
 urlpatterns = [
@@ -64,6 +66,7 @@ urlpatterns = [
          WADORSMetadataRetrieveView.as_view(), name='wadors-metadata-instance'),
 
     # Study management
+    path('studies/<str:study_uid>/export/', StudyCDExportView.as_view(), name='study-cd-export'),
     path('studies/<str:study_uid>', DeleteStudyView.as_view(), name='delete-study'),
 
     # Storage quota
@@ -88,4 +91,7 @@ urlpatterns = [
 
     # Anonymization endpoints
     path('', include(router.urls)),
+
+    # Public study share (unauthenticated, token-gated)
+    path('shared/<uuid:token>/', PublicStudyWADOView.as_view(), name='public-shared-study'),
 ]

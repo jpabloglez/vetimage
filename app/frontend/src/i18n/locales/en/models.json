@@ -1,6 +1,6 @@
 {
   "title": "AI Model Catalog",
-  "subtitle": "Explore our collection of state-of-the-art medical AI models for image analysis",
+  "subtitle": "Explore veterinary AI models for diagnostic imaging analysis",
   "search": "Search Models",
   "searchPlaceholder": "Search by name, description, or tags...",
   "modelType": "Model Type",
@@ -17,13 +17,13 @@
   "retry": "Retry",
   "about": {
     "title": "About AI Models",
-    "description": "Our AI model catalog features cutting-edge machine learning models for medical image analysis. Each model has been validated on clinical datasets and includes performance metrics.",
+    "description": "Our AI model catalog features veterinary imaging models. Each entry lists its supported species, version, datasets, and known limitations — review them before clinical use.",
     "validated": "Validated",
     "openSource": "Open Source",
     "productionReady": "Production Ready"
   },
   "details": {
-    "backToModels": "\u2190 Back to Models",
+    "backToModels": "← Back to Models",
     "version": "Version {{version}}",
     "github": "GitHub",
     "paper": "Paper",

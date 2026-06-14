@@ -12,7 +12,7 @@
  */
 
 // API Base URL from environment or default
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3081';
 
 // Import all types for use within the ApiClient class below
 import type {
@@ -26,6 +26,41 @@ import type {
   Instance,
   UploadResponse,
   StorageInfo,
+  Owner,
+  OwnerWrite,
+  AnimalPatient,
+  AnimalPatientListItem,
+  AnimalPatientWrite,
+  VHSMeasurement,
+  VHSMeasurementWrite,
+  ClinicalVisit,
+  ClinicalVisitWrite,
+  VaccinationRecord,
+  VaccinationRecordWrite,
+  WeightRecord,
+  WeightRecordWrite,
+  Appointment,
+  AppointmentWrite,
+  AppointmentStatus,
+  Prescription,
+  PrescriptionWrite,
+  AllergyRecord,
+  AllergyRecordWrite,
+  LabResult,
+  LabResultWrite,
+  ClinicalPhoto,
+  ReproductiveEvent,
+  ReproductiveEventWrite,
+  ReferringClinic,
+  ReferringClinicWrite,
+  ReferralPackage,
+  ReferralPackageWrite,
+  PublicReferralPackage,
+  PortalDashboard,
+  Message,
+  StudyShareLink,
+  StudyShareLinkWrite,
+  Species,
   AIModel,
   TaskStatus,
   AnalysisTask,
@@ -56,6 +91,8 @@ import type {
   PopulationInsights,
   Notification,
   Report,
+  PublicSharedReport,
+  AuditLogEntry,
   ReportTemplate,
   AnonymizationProfile,
   AnonymizationOutputFormat,
@@ -87,16 +124,20 @@ class ApiClient {
   private baseUrl: string;
   private accessToken: string | null = null;
   private tokenRefreshPromise: Promise<string> | null = null;
+  private proactiveRefreshTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
   }
 
   /**
-   * Set access token (called by AuthContext after login/refresh)
+   * Set access token (called by AuthContext after login/refresh, and internally
+   * after every token update). Also (re)schedules a proactive refresh so the
+   * token is renewed shortly before it expires instead of only reacting to 401s.
    */
   setAccessToken(token: string | null) {
     this.accessToken = token;
+    this.scheduleProactiveRefresh();
   }
 
   /**
@@ -104,6 +145,38 @@ class ApiClient {
    */
   getAccessToken(): string | null {
     return this.accessToken;
+  }
+
+  /** Decode a JWT payload's `exp` (seconds) without a dependency. */
+  private decodeExp(token: string): number | null {
+    try {
+      const payload = token.split('.')[1];
+      const json = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+      return typeof json.exp === 'number' ? json.exp : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Schedule a refresh ~60s before the current access token expires. The
+   * reactive 401 path remains as a fallback. No-op outside the browser (tests).
+   */
+  private scheduleProactiveRefresh() {
+    if (this.proactiveRefreshTimer) {
+      clearTimeout(this.proactiveRefreshTimer);
+      this.proactiveRefreshTimer = null;
+    }
+    if (!this.accessToken || typeof window === 'undefined') return;
+    const exp = this.decodeExp(this.accessToken);
+    if (!exp) return;
+    const msUntilRefresh = exp * 1000 - Date.now() - 60_000; // 60s lead time
+    const delay = Math.max(msUntilRefresh, 5_000); // never busy-loop
+    this.proactiveRefreshTimer = setTimeout(() => {
+      this.refreshToken().catch(() => {
+        window.dispatchEvent(new CustomEvent('auth:token-expired'));
+      });
+    }, delay);
   }
 
   /**
@@ -152,7 +225,7 @@ class ApiClient {
         } catch (refreshError) {
           // Refresh failed - user needs to log in again
           console.error('Token refresh failed:', refreshError);
-          this.accessToken = null;
+          this.setAccessToken(null);
 
           // Dispatch custom event for AuthContext to handle
           window.dispatchEvent(new CustomEvent('auth:token-expired'));
@@ -230,7 +303,7 @@ class ApiClient {
         }
 
         const data = await response.json();
-        this.accessToken = data.access;
+        this.setAccessToken(data.access);
 
         // Notify AuthContext that token has been refreshed
         window.dispatchEvent(new Event('auth:token-refreshed'));
@@ -284,7 +357,7 @@ class ApiClient {
     }
 
     const result = await response.json();
-    this.accessToken = result.access;
+    this.setAccessToken(result.access);
 
     // Notify AuthContext that token has been set
     window.dispatchEvent(new Event('auth:token-refreshed'));
@@ -312,7 +385,7 @@ class ApiClient {
     }
 
     const result = await response.json();
-    this.accessToken = result.access;
+    this.setAccessToken(result.access);
 
     // Notify AuthContext that token has been set
     window.dispatchEvent(new Event('auth:token-refreshed'));
@@ -334,7 +407,7 @@ class ApiClient {
         credentials: 'include', // Send refresh token cookie for blacklisting
       });
     } finally {
-      this.accessToken = null;
+      this.setAccessToken(null);
     }
   }
 
@@ -554,6 +627,486 @@ class ApiClient {
   }
 
   // ============================================================================
+  // VETERINARY PATIENTS ENDPOINTS (Owner → AnimalPatient)
+  // ============================================================================
+
+  /** List owners (optionally filtered by search term). GET /api/patients/owners/ */
+  async getOwners(search?: string): Promise<Owner[]> {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : '';
+    const res = await this.request<PaginatedResponse<Owner> | Owner[]>(`/api/patients/owners/${qs}`);
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  /** Get a single owner (includes nested animals). GET /api/patients/owners/{id}/ */
+  async getOwner(id: number): Promise<Owner> {
+    return this.request<Owner>(`/api/patients/owners/${id}/`);
+  }
+
+  /** Create an owner (organization auto-assigned). POST /api/patients/owners/ */
+  async createOwner(data: OwnerWrite): Promise<Owner> {
+    return this.request<Owner>('/api/patients/owners/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /** Update an owner. PATCH /api/patients/owners/{id}/ */
+  async updateOwner(id: number, data: Partial<OwnerWrite>): Promise<Owner> {
+    return this.request<Owner>(`/api/patients/owners/${id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /** Delete an owner (cascades to their animals). DELETE /api/patients/owners/{id}/ */
+  async deleteOwner(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/owners/${id}/`, { method: 'DELETE' });
+  }
+
+  /** List animal patients, optionally filtered by species/owner/search. */
+  async getAnimals(params?: { species?: Species; owner?: number; search?: string }): Promise<AnimalPatientListItem[]> {
+    const q = new URLSearchParams();
+    if (params?.species) q.set('species', params.species);
+    if (params?.owner) q.set('owner', String(params.owner));
+    if (params?.search) q.set('search', params.search);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    const res = await this.request<PaginatedResponse<AnimalPatientListItem> | AnimalPatientListItem[]>(`/api/patients/animals/${qs}`);
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  /** Get a single animal patient (includes owner + linked studies). */
+  async getAnimal(id: number): Promise<AnimalPatient> {
+    return this.request<AnimalPatient>(`/api/patients/animals/${id}/`);
+  }
+
+  /** Create an animal patient. POST /api/patients/animals/ */
+  async createAnimal(data: AnimalPatientWrite): Promise<AnimalPatient> {
+    return this.request<AnimalPatient>('/api/patients/animals/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /** Update an animal patient. PATCH /api/patients/animals/{id}/ */
+  async updateAnimal(id: number, data: Partial<AnimalPatientWrite>): Promise<AnimalPatient> {
+    return this.request<AnimalPatient>(`/api/patients/animals/${id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /** Delete an animal patient. DELETE /api/patients/animals/{id}/ */
+  async deleteAnimal(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/animals/${id}/`, { method: 'DELETE' });
+  }
+
+  /** Link (or unlink) a study to an animal patient. PATCH /api/dicom/studies/{uid} */
+  async linkStudyToAnimal(studyUID: string, animalPatientId: number | null): Promise<unknown> {
+    return this.request(`/api/dicom/studies/${studyUID}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ animal_patient_id: animalPatientId }),
+    });
+  }
+
+  /** List VHS measurements for an animal patient. GET /api/patients/vhs/?animal={id} */
+  async getVHSMeasurements(animalId: number): Promise<VHSMeasurement[]> {
+    const res = await this.request<PaginatedResponse<VHSMeasurement> | VHSMeasurement[]>(
+      `/api/patients/vhs/?animal=${animalId}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  /** Create a VHS measurement (vhs computed server-side). POST /api/patients/vhs/ */
+  async createVHSMeasurement(data: VHSMeasurementWrite): Promise<VHSMeasurement> {
+    return this.request<VHSMeasurement>('/api/patients/vhs/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /** Delete a VHS measurement. DELETE /api/patients/vhs/{id}/ */
+  async deleteVHSMeasurement(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/vhs/${id}/`, { method: 'DELETE' });
+  }
+
+  // ============================================================================
+  // CLINICAL VISITS  GET/POST /api/patients/visits/?animal=<id>
+  // ============================================================================
+
+  async getVisits(animalId: number): Promise<ClinicalVisit[]> {
+    const res = await this.request<PaginatedResponse<ClinicalVisit> | ClinicalVisit[]>(
+      `/api/patients/visits/?animal=${animalId}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async createVisit(data: ClinicalVisitWrite): Promise<ClinicalVisit> {
+    return this.request<ClinicalVisit>('/api/patients/visits/', {
+      method: 'POST', body: JSON.stringify(data),
+    });
+  }
+
+  async updateVisit(id: number, data: Partial<ClinicalVisitWrite>): Promise<ClinicalVisit> {
+    return this.request<ClinicalVisit>(`/api/patients/visits/${id}/`, {
+      method: 'PATCH', body: JSON.stringify(data),
+    });
+  }
+
+  async deleteVisit(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/visits/${id}/`, { method: 'DELETE' });
+  }
+
+  // ============================================================================
+  // VACCINATION RECORDS  GET/POST /api/patients/vaccinations/?animal=<id>
+  // ============================================================================
+
+  async getVaccinations(animalId: number): Promise<VaccinationRecord[]> {
+    const res = await this.request<PaginatedResponse<VaccinationRecord> | VaccinationRecord[]>(
+      `/api/patients/vaccinations/?animal=${animalId}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async createVaccination(data: VaccinationRecordWrite): Promise<VaccinationRecord> {
+    return this.request<VaccinationRecord>('/api/patients/vaccinations/', {
+      method: 'POST', body: JSON.stringify(data),
+    });
+  }
+
+  async deleteVaccination(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/vaccinations/${id}/`, { method: 'DELETE' });
+  }
+
+  // ============================================================================
+  // WEIGHT RECORDS  GET/POST /api/patients/weights/?animal=<id>
+  // ============================================================================
+
+  async getWeightRecords(animalId: number): Promise<WeightRecord[]> {
+    const res = await this.request<PaginatedResponse<WeightRecord> | WeightRecord[]>(
+      `/api/patients/weights/?animal=${animalId}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async createWeightRecord(data: WeightRecordWrite): Promise<WeightRecord> {
+    return this.request<WeightRecord>('/api/patients/weights/', {
+      method: 'POST', body: JSON.stringify(data),
+    });
+  }
+
+  async deleteWeightRecord(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/weights/${id}/`, { method: 'DELETE' });
+  }
+
+  // ============================================================================
+  // APPOINTMENTS  GET/POST /api/patients/appointments/
+  // ============================================================================
+
+  async getAppointments(params?: {
+    animal?: number;
+    status?: AppointmentStatus;
+    date_from?: string;
+    date_to?: string;
+  }): Promise<Appointment[]> {
+    const q = new URLSearchParams();
+    if (params?.animal)    q.set('animal',    String(params.animal));
+    if (params?.status)    q.set('status',    params.status);
+    if (params?.date_from) q.set('date_from', params.date_from);
+    if (params?.date_to)   q.set('date_to',   params.date_to);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    const res = await this.request<PaginatedResponse<Appointment> | Appointment[]>(
+      `/api/patients/appointments/${qs}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async createAppointment(data: AppointmentWrite): Promise<Appointment> {
+    return this.request<Appointment>('/api/patients/appointments/', {
+      method: 'POST', body: JSON.stringify(data),
+    });
+  }
+
+  async updateAppointment(id: number, data: Partial<AppointmentWrite>): Promise<Appointment> {
+    return this.request<Appointment>(`/api/patients/appointments/${id}/`, {
+      method: 'PATCH', body: JSON.stringify(data),
+    });
+  }
+
+  async deleteAppointment(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/appointments/${id}/`, { method: 'DELETE' });
+  }
+
+  async completeAppointment(id: number): Promise<{ visit_id: number }> {
+    return this.request<{ visit_id: number }>(`/api/patients/appointments/${id}/complete/`, {
+      method: 'POST',
+    });
+  }
+
+  // ============================================================================
+  // PRESCRIPTIONS  GET/POST /api/patients/prescriptions/?animal=<id>
+  // ============================================================================
+
+  async getPrescriptions(animalId: number): Promise<Prescription[]> {
+    const res = await this.request<PaginatedResponse<Prescription> | Prescription[]>(
+      `/api/patients/prescriptions/?animal=${animalId}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async createPrescription(data: PrescriptionWrite): Promise<Prescription> {
+    return this.request<Prescription>('/api/patients/prescriptions/', {
+      method: 'POST', body: JSON.stringify(data),
+    });
+  }
+
+  async deletePrescription(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/prescriptions/${id}/`, { method: 'DELETE' });
+  }
+
+  // ============================================================================
+  // ALLERGIES  GET/POST /api/patients/allergies/?animal=<id>
+  // ============================================================================
+
+  async getAllergies(animalId: number): Promise<AllergyRecord[]> {
+    const res = await this.request<PaginatedResponse<AllergyRecord> | AllergyRecord[]>(
+      `/api/patients/allergies/?animal=${animalId}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async createAllergy(data: AllergyRecordWrite): Promise<AllergyRecord> {
+    return this.request<AllergyRecord>('/api/patients/allergies/', {
+      method: 'POST', body: JSON.stringify(data),
+    });
+  }
+
+  async deleteAllergy(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/allergies/${id}/`, { method: 'DELETE' });
+  }
+
+  // ============================================================================
+  // LAB RESULTS  GET/POST /api/patients/labs/?animal=<id>
+  // ============================================================================
+
+  async getLabResults(animalId: number, resultType?: string): Promise<LabResult[]> {
+    const q = new URLSearchParams({ animal: String(animalId) });
+    if (resultType) q.set('result_type', resultType);
+    const res = await this.request<PaginatedResponse<LabResult> | LabResult[]>(
+      `/api/patients/labs/?${q.toString()}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async createLabResult(data: LabResultWrite): Promise<LabResult> {
+    return this.request<LabResult>('/api/patients/labs/', {
+      method: 'POST', body: JSON.stringify(data),
+    });
+  }
+
+  async deleteLabResult(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/labs/${id}/`, { method: 'DELETE' });
+  }
+
+  /** Import an HL7 v2 ORU^R01 message (raw text) as a LabResult. */
+  async importLabHl7(animalId: number, message: string): Promise<LabResult> {
+    return this.request<LabResult>('/api/patients/labs/import-hl7/', {
+      method: 'POST',
+      body: JSON.stringify({ animal_patient_id: animalId, message }),
+    });
+  }
+
+  /** Import a FHIR R4 DiagnosticReport (JSON) as a LabResult. */
+  async importLabFhir(animalId: number, report: unknown): Promise<LabResult> {
+    return this.request<LabResult>('/api/patients/labs/import-fhir/', {
+      method: 'POST',
+      body: JSON.stringify({ animal_patient_id: animalId, report }),
+    });
+  }
+
+  // ============================================================================
+  // CLINICAL PHOTOS  GET/POST /api/patients/photos/?animal=<id>
+  // ============================================================================
+
+  async getClinicalPhotos(animalId: number): Promise<ClinicalPhoto[]> {
+    const res = await this.request<PaginatedResponse<ClinicalPhoto> | ClinicalPhoto[]>(
+      `/api/patients/photos/?animal=${animalId}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async uploadClinicalPhoto(animalId: number, file: File, caption?: string, bodyRegion?: string, takenOn?: string): Promise<ClinicalPhoto> {
+    const fd = new FormData();
+    fd.append('animal_patient_id', String(animalId));
+    fd.append('photo', file);
+    fd.append('taken_on', takenOn ?? new Date().toISOString().slice(0, 10));
+    if (caption) fd.append('caption', caption);
+    if (bodyRegion) fd.append('body_region', bodyRegion);
+    return this.request<ClinicalPhoto>('/api/patients/photos/', { method: 'POST', body: fd });
+  }
+
+  async deleteClinicalPhoto(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/photos/${id}/`, { method: 'DELETE' });
+  }
+
+  /** Download the pet passport PDF for an animal. GET /api/patients/animals/{id}/passport/ */
+  async downloadPassport(animalId: number, animalName?: string): Promise<void> {
+    const url = `${this.baseUrl}/api/patients/animals/${animalId}/passport/`;
+    const headers: HeadersInit = {};
+    if (this.accessToken) {
+      headers['Authorization'] = `Bearer ${this.accessToken}`;
+    }
+
+    const response = await fetch(url, { headers, credentials: 'include' });
+    if (!response.ok) throw new Error('Passport download failed');
+
+    const blob = await response.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `passport_${(animalName ?? 'pet').replace(/\W+/g, '')}_${animalId}.pdf`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+
+  // ============================================================================
+  // REPRODUCTIVE EVENTS  GET/POST /api/patients/reproductive/?animal=<id>
+  // ============================================================================
+
+  async getReproductiveEvents(animalId: number): Promise<ReproductiveEvent[]> {
+    const res = await this.request<PaginatedResponse<ReproductiveEvent> | ReproductiveEvent[]>(
+      `/api/patients/reproductive/?animal=${animalId}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async createReproductiveEvent(data: ReproductiveEventWrite): Promise<ReproductiveEvent> {
+    return this.request<ReproductiveEvent>('/api/patients/reproductive/', {
+      method: 'POST', body: JSON.stringify(data),
+    });
+  }
+
+  async deleteReproductiveEvent(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/reproductive/${id}/`, { method: 'DELETE' });
+  }
+
+  // ============================================================================
+  // REFERRAL NETWORK (#24)  /api/patients/referring-clinics/ + /referral-packages/
+  // ============================================================================
+
+  async getReferringClinics(): Promise<ReferringClinic[]> {
+    const res = await this.request<PaginatedResponse<ReferringClinic> | ReferringClinic[]>(
+      '/api/patients/referring-clinics/',
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async createReferringClinic(data: ReferringClinicWrite): Promise<ReferringClinic> {
+    return this.request<ReferringClinic>('/api/patients/referring-clinics/', {
+      method: 'POST', body: JSON.stringify(data),
+    });
+  }
+
+  async getReferralPackages(animalId: number): Promise<ReferralPackage[]> {
+    const res = await this.request<PaginatedResponse<ReferralPackage> | ReferralPackage[]>(
+      `/api/patients/referral-packages/?animal=${animalId}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async createReferralPackage(data: ReferralPackageWrite): Promise<ReferralPackage> {
+    return this.request<ReferralPackage>('/api/patients/referral-packages/', {
+      method: 'POST', body: JSON.stringify(data),
+    });
+  }
+
+  async deleteReferralPackage(id: number): Promise<void> {
+    return this.request<void>(`/api/patients/referral-packages/${id}/`, { method: 'DELETE' });
+  }
+
+  /** Public, unauthenticated referral landing fetch (token in URL). */
+  async getPublicReferral(token: string): Promise<PublicReferralPackage> {
+    return this.request<PublicReferralPackage>(`/api/patients/referrals/${token}/`);
+  }
+
+  // ============================================================================
+  // PET-OWNER PORTAL (#21)  /api/portal/
+  // ============================================================================
+
+  /** Owner-scoped dashboard: my pets + shared reports (role=Pet Owner only). */
+  async getPortalDashboard(): Promise<PortalDashboard> {
+    return this.request<PortalDashboard>('/api/portal/dashboard/');
+  }
+
+  /** Clinic-side: provision an owner portal login for an existing Owner. */
+  async provisionOwnerAccount(ownerId: number, password: string): Promise<{ id: number; email: string; role: number }> {
+    return this.request(`/api/portal/owners/${ownerId}/account/`, {
+      method: 'POST', body: JSON.stringify({ password }),
+    });
+  }
+
+  // ============================================================================
+  // OWNER ↔ CLINIC MESSAGING (#22)  /api/patients/messages/?animal=<id>
+  // ============================================================================
+
+  async getMessages(animalId: number): Promise<Message[]> {
+    const res = await this.request<PaginatedResponse<Message> | Message[]>(
+      `/api/patients/messages/?animal=${animalId}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async sendMessage(animalId: number, body: string): Promise<Message> {
+    return this.request<Message>('/api/patients/messages/', {
+      method: 'POST', body: JSON.stringify({ animal_patient_id: animalId, body }),
+    });
+  }
+
+  async markMessagesRead(animalId: number): Promise<{ marked_read: number }> {
+    return this.request('/api/patients/messages/mark_read/', {
+      method: 'POST', body: JSON.stringify({ animal: animalId }),
+    });
+  }
+
+  // ============================================================================
+  // STUDY SHARE LINKS  GET/POST /api/dicom/share-links/
+  // ============================================================================
+
+  async getStudyShareLinks(studyUid: string): Promise<StudyShareLink[]> {
+    const res = await this.request<PaginatedResponse<StudyShareLink> | StudyShareLink[]>(
+      `/api/dicom/share-links/?study=${encodeURIComponent(studyUid)}`,
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  async createStudyShareLink(data: StudyShareLinkWrite): Promise<StudyShareLink> {
+    return this.request<StudyShareLink>('/api/dicom/share-links/', {
+      method: 'POST', body: JSON.stringify(data),
+    });
+  }
+
+  async deleteStudyShareLink(id: number): Promise<void> {
+    return this.request<void>(`/api/dicom/share-links/${id}/`, { method: 'DELETE' });
+  }
+
+  /** Export a study as a DICOM CD/USB ZIP. GET /api/dicom/studies/{uid}/export/ */
+  async exportStudyCD(studyUid: string): Promise<void> {
+    const url = `${this.baseUrl}/api/dicom/studies/${encodeURIComponent(studyUid)}/export/`;
+    const headers: HeadersInit = {};
+    if (this.accessToken) {
+      headers['Authorization'] = `Bearer ${this.accessToken}`;
+    }
+
+    const response = await fetch(url, { headers, credentials: 'include' });
+    if (!response.ok) throw new Error('CD export failed');
+
+    const blob = await response.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `dicom_cd_${studyUid.slice(-12).replace(/\./g, '_')}.zip`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+
+  // ============================================================================
   // AI ANALYSIS ENDPOINTS
   // ============================================================================
 
@@ -710,7 +1263,7 @@ class ApiClient {
               .catch(reject);
           } catch (refreshError) {
             // Refresh failed
-            this.accessToken = null;
+            this.setAccessToken(null);
             window.dispatchEvent(new CustomEvent('auth:token-expired'));
             reject(new Error('Session expired. Please log in again.'));
           }
@@ -1122,6 +1675,47 @@ class ApiClient {
     link.download = `report_${reportId.slice(0, 8)}.pdf`;
     link.click();
     URL.revokeObjectURL(link.href);
+  }
+
+  /** Veterinarian sign-off: approve a report (marks FINAL). POST .../approve/ */
+  async approveReport(reportId: string): Promise<Report> {
+    return this.request<Report>(`/api/reports/${reportId}/approve/`, { method: 'POST' });
+  }
+
+  /** Revert a report to DRAFT. POST .../unapprove/ */
+  async unapproveReport(reportId: string): Promise<Report> {
+    return this.request<Report>(`/api/reports/${reportId}/unapprove/`, { method: 'POST' });
+  }
+
+  /** Create an owner share link (approved reports only). POST .../share/ */
+  async shareReport(reportId: string): Promise<{ share_token: string; share_path: string }> {
+    return this.request(`/api/reports/${reportId}/share/`, { method: 'POST' });
+  }
+
+  /** Revoke an owner share link. POST .../unshare/ */
+  async unshareReport(reportId: string): Promise<{ success: boolean }> {
+    return this.request(`/api/reports/${reportId}/unshare/`, { method: 'POST' });
+  }
+
+  /** Public, read-only owner view of a shared report (no auth). */
+  async getSharedReport(token: string): Promise<PublicSharedReport> {
+    return this.request<PublicSharedReport>(`/api/reports/shared/${token}/`);
+  }
+
+  /** Audit log entries (org-wide for admins). GET /api/credentials/audit-logs/ */
+  async getAuditLogs(params?: {
+    event_type?: string; suspicious_only?: boolean; start_date?: string; end_date?: string;
+  }): Promise<AuditLogEntry[]> {
+    const q = new URLSearchParams();
+    if (params?.event_type) q.set('event_type', params.event_type);
+    if (params?.suspicious_only) q.set('suspicious_only', 'true');
+    if (params?.start_date) q.set('start_date', params.start_date);
+    if (params?.end_date) q.set('end_date', params.end_date);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    const res = await this.request<PaginatedResponse<AuditLogEntry> | AuditLogEntry[]>(
+      `/api/credentials/audit-logs/${qs}`,
+    );
+    return Array.isArray(res) ? res : res.results;
   }
 
   // ============================================================================

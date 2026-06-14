@@ -26,7 +26,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 // WebSocket base URL from environment
-const WS_BASE_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3080';
+const WS_BASE_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3081';
 
 /**
  * WebSocket message types that can be received from the server

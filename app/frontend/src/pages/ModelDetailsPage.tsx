@@ -18,6 +18,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { apiClient, AIModel } from '../utils/api';
 import Card, { CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import AiDisclaimer from '../components/AiDisclaimer';
 
 const ModelDetailsPage: React.FC = () => {
   const { t } = useTranslation('models');
@@ -145,6 +146,30 @@ const ModelDetailsPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Transparency & responsible-use banner */}
+        <div className="mb-6 space-y-3">
+          <AiDisclaimer />
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="font-medium text-slate-700 dark:text-slate-300">{t('species', 'Species')}:</span>
+            {model.supported_species && model.supported_species.length > 0 ? (
+              model.supported_species.map((sp) => (
+                <span key={sp} className="px-2.5 py-0.5 rounded-full bg-medical-100 dark:bg-medical-900/40 text-medical-800 dark:text-medical-200 capitalize">
+                  {sp}
+                </span>
+              ))
+            ) : (
+              <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                Species-agnostic
+              </span>
+            )}
+            {(model.metadata as { experimental?: boolean } | undefined)?.experimental && (
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 font-medium">
+                Experimental
+              </span>
+            )}
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content - Left Column (2/3) */}

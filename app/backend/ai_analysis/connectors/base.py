@@ -108,7 +108,7 @@ class BaseAIConnector(ABC):
         Returns:
             Full webhook URL including task ID
         """
-        base_url = settings.BACKEND_BASE_URL or "http://backend-openmedlab:3080"
+        base_url = settings.BACKEND_BASE_URL or "http://backend-vetimage:3080"
         return f"{base_url}/api/ai-analysis/webhook/{task.id}/"
 
     def build_file_path(self, file_field) -> str:

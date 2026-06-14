@@ -61,8 +61,32 @@ class Report(models.Model):
         default='DRAFT',
     )
 
+    # Veterinarian sign-off (human-in-the-loop). A report is only clinically
+    # valid once a qualified veterinarian has reviewed and approved it.
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='approved_reports',
+        help_text="Veterinarian who reviewed and approved the report",
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+
+    # Owner sharing: an unguessable token grants read-only access to a plain-language
+    # view of the report. Only APPROVED reports can be shared (human-in-the-loop).
+    share_token = models.UUIDField(null=True, blank=True, unique=True, db_index=True)
+    shared_at = models.DateTimeField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def is_approved(self):
+        return self.approved_at is not None
+
+    @property
+    def is_shared(self):
+        return self.share_token is not None
 
     class Meta:
         ordering = ['-created_at']
@@ -87,6 +111,18 @@ class ReportTemplate(models.Model):
         ('pathology', 'Pathology'),
         ('general', 'General'),
         ('custom', 'Custom'),
+        # Veterinary-specific templates
+        ('thoracic_canine', 'Thoracic Radiograph — Canine'),
+        ('thoracic_feline', 'Thoracic Radiograph — Feline'),
+        ('thoracic_equine', 'Thoracic Radiograph — Equine'),
+        ('abdominal_us', 'Abdominal Ultrasound'),
+        ('orthopedic', 'Orthopedic Assessment'),
+        ('dental', 'Dental Radiograph'),
+        ('cardiac_vhs', 'Cardiac / VHS Report'),
+        ('discharge_summary', 'Discharge Summary'),
+        ('vaccination_certificate', 'Vaccination Certificate'),
+        ('referral_letter', 'Specialist Referral'),
+        ('soap_note', 'SOAP Clinical Note'),
     ]
 
     id = models.UUIDField(
@@ -96,13 +132,23 @@ class ReportTemplate(models.Model):
     )
     name = models.CharField(max_length=255)
     template_type = models.CharField(
-        max_length=20,
+        max_length=30,
         choices=TEMPLATE_TYPE_CHOICES,
         default='custom',
     )
     layout = models.JSONField(
         default=dict,
         help_text="Template layout with sections, disclaimer, header_fields",
+    )
+    species_filter = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Empty list = all species. Example: ['canine', 'feline']",
+    )
+    modality_filter = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="DICOM modality codes this template applies to. Example: ['CR', 'DX', 'US']",
     )
     is_default = models.BooleanField(
         default=False,

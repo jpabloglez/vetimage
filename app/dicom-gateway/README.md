@@ -1,6 +1,6 @@
 # DICOM Gateway Service
 
-DICOM networking gateway for receiving medical images from PACS/modalities and integrating with OpenMedLab backend for AI analysis.
+DICOM networking gateway for receiving medical images from PACS/modalities and integrating with VetImage backend for AI analysis.
 
 ## Features
 
@@ -25,10 +25,10 @@ PACS/Modality → [DICOM SCP:11112] → Celery Queue → Backend API → AI Anal
 
 ```bash
 # From repository root
-docker-compose up -d dicom-gateway-openmedlab
+docker-compose up -d dicom-gateway-vetimage
 
 # Check logs
-docker logs -f dicom-gateway-openmedlab
+docker logs -f dicom-gateway-vetimage
 ```
 
 ### 2. Verify Health
@@ -57,7 +57,7 @@ curl http://localhost:8001/api/status
 
 ```bash
 # C-ECHO test (from another container or machine with DICOM tools)
-echoscu -aec OPENMEDLAB localhost 11112
+echoscu -aec VETIMAGE localhost 11112
 
 # Or use internal test endpoint
 curl -X POST http://localhost:8001/api/test-echo
@@ -67,7 +67,7 @@ curl -X POST http://localhost:8001/api/test-echo
 
 ```bash
 # Using storescu (DICOM toolkit)
-storescu -aec OPENMEDLAB localhost 11112 /path/to/dicom/file.dcm
+storescu -aec VETIMAGE localhost 11112 /path/to/dicom/file.dcm
 
 # Or use the provided test script
 python tests/send_dicom_test.py
@@ -79,7 +79,7 @@ Configuration is managed via environment variables (see `.env.example`):
 
 ### Core Settings
 
-- `DICOM_AE_TITLE`: Application Entity title (default: OPENMEDLAB)
+- `DICOM_AE_TITLE`: Application Entity title (default: VETIMAGE)
 - `DICOM_PORT`: DICOM SCP port (default: 11112)
 - `BACKEND_API_URL`: Backend API endpoint
 - `STORAGE_PATH`: Temporary DICOM storage path
@@ -128,14 +128,14 @@ Add to `prometheus.yml`:
 scrape_configs:
   - job_name: 'dicom-gateway'
     static_configs:
-      - targets: ['dicom-gateway-openmedlab:9090']
+      - targets: ['dicom-gateway-vetimage:9090']
 ```
 
 ### Logs
 
 View real-time logs:
 ```bash
-docker logs -f dicom-gateway-openmedlab
+docker logs -f dicom-gateway-vetimage
 ```
 
 ## Development
@@ -172,8 +172,8 @@ cp .env.example .env
 
 1. Check firewall: Port 11112 must be open
 2. Verify AE title matches PACS configuration
-3. Check PACS destination AE title = `OPENMEDLAB`
-4. Review logs: `docker logs dicom-gateway-openmedlab`
+3. Check PACS destination AE title = `VETIMAGE`
+4. Review logs: `docker logs dicom-gateway-vetimage`
 
 ### Backend Upload Failures
 
@@ -203,8 +203,8 @@ open http://localhost:8042
 # Configure Orthanc to send to gateway:
 # Go to: Configuration > Modalities
 # Add modality:
-#   AET: OPENMEDLAB
-#   Host: dicom-gateway-openmedlab
+#   AET: VETIMAGE
+#   Host: dicom-gateway-vetimage
 #   Port: 11112
 ```
 
@@ -249,7 +249,7 @@ dicom-gateway:
 ## Support
 
 For issues or questions:
-- GitHub Issues: https://github.com/your-org/openmedlab/issues
+- GitHub Issues: https://github.com/your-org/vetimage/issues
 - Documentation: `/docs/DICOM-Gateway-Evaluation.md`
 
 ## License

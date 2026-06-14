@@ -25,8 +25,8 @@ AIModel.metadata keys consumed by this connector:
 
 References:
   - nnU-Net v2: https://github.com/MIC-DKFZ/nnUNet
-  - STU-Net:    https://github.com/openmedlab/STU-Net
-  - MIS-FM:     https://github.com/openmedlab/MIS-FM
+  - STU-Net:    https://github.com/vetimage/STU-Net
+  - MIS-FM:     https://github.com/vetimage/MIS-FM
 """
 
 import logging

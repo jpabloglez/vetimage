@@ -114,7 +114,7 @@ def _dataset_description(anon_prefix: str) -> dict:
     return {
         "Name": f"Anonymized study {anon_prefix}",
         "BIDSVersion": "1.8.0",
-        "GeneratedBy": [{"Name": "OpenMedLab", "Version": "1.0"}],
+        "GeneratedBy": [{"Name": "VetImage", "Version": "1.0"}],
     }
 
 

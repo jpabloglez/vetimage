@@ -25,6 +25,7 @@ import GenerateReportModal from '../components/reports/GenerateReportModal';
 import ComparisonSelector from '../components/reports/ComparisonSelector';
 import ReportComparison from '../components/reports/ReportComparison';
 import ModelCard from '../components/models/ModelCard';
+import AiDisclaimer from '../components/AiDisclaimer';
 import Card, { CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 
 import {
@@ -167,14 +168,23 @@ const WorklistTab: React.FC = () => {
     setPage(1);
   }, [fetchTasks]);
 
-  // Client-side: search by filename, date range
-  const filtered = tasks.filter((task) => {
-    const filename = (task.input_image as any)?.filename ?? '';
-    if (search && !filename.toLowerCase().includes(search.toLowerCase())) return false;
-    if (dateFrom && new Date(task.created_at) < new Date(dateFrom)) return false;
-    if (dateTo   && new Date(task.created_at) > new Date(`${dateTo}T23:59:59`)) return false;
-    return true;
-  });
+  // Client-side: search by filename, date range — then triage so STAT/urgent
+  // cases surface at the top of the worklist.
+  const PRIORITY_RANK: Record<string, number> = { stat: 0, urgent: 1, routine: 2 };
+  const filtered = tasks
+    .filter((task) => {
+      const filename = (task.input_image as any)?.filename ?? '';
+      if (search && !filename.toLowerCase().includes(search.toLowerCase())) return false;
+      if (dateFrom && new Date(task.created_at) < new Date(dateFrom)) return false;
+      if (dateTo   && new Date(task.created_at) > new Date(`${dateTo}T23:59:59`)) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      const pa = PRIORITY_RANK[a.priority ?? 'routine'] ?? 2;
+      const pb = PRIORITY_RANK[b.priority ?? 'routine'] ?? 2;
+      if (pa !== pb) return pa - pb;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -314,9 +324,20 @@ const WorklistTab: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <FileText className="w-4 h-4 text-medical-500 flex-shrink-0" />
                           <div className="min-w-0">
-                            <p className="font-medium text-slate-900 dark:text-slate-100 truncate max-w-[180px]">
-                              {filename}
-                            </p>
+                            <div className="flex items-center gap-1.5">
+                              <p className="font-medium text-slate-900 dark:text-slate-100 truncate max-w-[180px]">
+                                {filename}
+                              </p>
+                              {task.priority && task.priority !== 'routine' && (
+                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                  task.priority === 'stat'
+                                    ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+                                }`}>
+                                  {task.priority}
+                                </span>
+                              )}
+                            </div>
                             {img?.format && (
                               <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">{img.format}</p>
                             )}
@@ -928,6 +949,8 @@ export const AnalyzePage: React.FC = () => {
         </h1>
         <p className="text-slate-600 dark:text-slate-400">{t('pageSubtitle')}</p>
       </div>
+
+      <AiDisclaimer className="mb-6" />
 
       {/* Tab Navigation */}
       <div className="mb-6 border-b border-slate-200 dark:border-slate-700">

@@ -10,7 +10,7 @@
 
   // The logical name of this instance of Orthanc. This one is
   // displayed in Orthanc Explorer and at the URI "/system".
-  "Name" : "OpenMedLab Test PACS",
+  "Name" : "VetImage Test PACS",
 
   // Path to the directory that holds the heavyweight files (i.e. the
   // raw DICOM instances). Backslashes must be either escaped by
@@ -478,7 +478,7 @@
      **/
     // "vitrea" : [ "VITREA", "192.168.1.1", 104, "Vitrea" ]
 
-    "OPENMEDLAB" : [ "OPENMEDLAB", "dicom-gateway-openmedlab", 11112 ]
+    "VETIMAGE" : [ "VETIMAGE", "dicom-gateway-vetimage", 11112 ]
 
     /**
      * By default, the Orthanc SCP accepts all DICOM commands (C-ECHO,

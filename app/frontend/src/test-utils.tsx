@@ -8,18 +8,16 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { vi } from 'vitest';
 
-// Mock apiClient by default so AuthProvider doesn't make real requests
-vi.mock('./utils/api', () => ({
-  apiClient: {
-    login: vi.fn(),
-    register: vi.fn(),
-    logout: vi.fn(),
-    getProfile: vi.fn().mockRejectedValue(new Error('No session')),
-    refreshToken: vi.fn().mockRejectedValue(new Error('No token')),
-    getAccessToken: vi.fn().mockReturnValue(null),
-    createAnalysisTask: vi.fn(),
-  },
-}));
+// Mock apiClient with the COMPLETE surface so AuthProvider (and any rendered
+// component) never crashes on a missing method. Tests needing custom return
+// values should define their own vi.mock with createApiClientMock(overrides).
+vi.mock('./utils/api', async () => {
+  const { createApiClientMock } = await import('./test/mockApiClient');
+  return { apiClient: createApiClientMock() };
+});
+
+// Re-export the factory so test files can build their own customised mocks.
+export { createApiClientMock } from './test/mockApiClient';
 
 // Mock react-hot-toast
 vi.mock('react-hot-toast', () => ({

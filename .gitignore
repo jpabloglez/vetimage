@@ -50,4 +50,6 @@ env/
 # (uncomment and modify as needed)
 # config/
 # secrets/
-tests/
+# Only ignore a top-level scratch tests/ dir — NOT the app test suites
+# (app/backend/**/tests/, app/frontend/**/__tests__/) which must be tracked + run in CI.
+/tests/

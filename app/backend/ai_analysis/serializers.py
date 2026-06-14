@@ -62,6 +62,7 @@ class AIModelSerializer(serializers.ModelSerializer):
             'tags',
             'medical_domains',
             'anatomical_regions',
+            'supported_species',
 
             # Performance Metrics
             'performance_metrics',
@@ -106,6 +107,7 @@ class AIModelListSerializer(serializers.ModelSerializer):
             'key', 'name', 'model_type', 'version', 'is_active',
             'description', 'organization',
             'supported_modalities', 'anatomical_regions', 'medical_domains',
+            'supported_species',
             'tags', 'performance_metrics', 'license_name', 'download_count',
             'required_parameters', 'default_parameters',
             'metadata', 'requires_anonymization',
@@ -134,6 +136,12 @@ class CreateTaskSerializer(serializers.Serializer):
     parameters = serializers.JSONField(
         default=dict,
         help_text="Model-specific parameters (for multi-image models, include adc_image_id, hbv_image_id, etc.)"
+    )
+    priority = serializers.ChoiceField(
+        choices=['routine', 'urgent', 'stat'],
+        default='routine',
+        required=False,
+        help_text="Triage priority (routine / urgent / stat)"
     )
 
     def validate_model_key(self, value):
@@ -233,6 +241,7 @@ class AnalysisTaskSerializer(serializers.ModelSerializer):
             'model',
             'input_image',
             'status',
+            'priority',
             'parameters',
             'created_at',
             'dispatched_at',
@@ -247,11 +256,11 @@ class AnalysisTaskSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
-    def get_processing_duration(self, obj):
+    def get_processing_duration(self, obj) -> float:
         """Calculate time spent in AI processing (seconds)"""
         return obj.processing_duration
 
-    def get_total_duration(self, obj):
+    def get_total_duration(self, obj) -> float:
         """Calculate total time from creation to completion (seconds)"""
         return obj.total_duration
 
@@ -272,6 +281,7 @@ class AnalysisTaskListSerializer(serializers.ModelSerializer):
             'model_key',
             'model_name',
             'status',
+            'priority',
             'created_at',
             'completed_at',
             'error_message',
@@ -314,7 +324,7 @@ class AnalysisTaskMonitorSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
-    def get_processing_duration(self, obj):
+    def get_processing_duration(self, obj) -> float:
         """Calculate time spent in AI processing (seconds)"""
         return obj.processing_duration
 

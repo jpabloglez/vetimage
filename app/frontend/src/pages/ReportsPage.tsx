@@ -7,13 +7,14 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FileText, Download, Plus, ChevronDown, ChevronUp, RefreshCw, GitCompare } from 'lucide-react';
+import { FileText, Download, Plus, ChevronDown, ChevronUp, RefreshCw, GitCompare, CheckCircle2, Share2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { apiClient, type Report, type AnalysisTask } from '../utils/api';
 import ReportViewer from '../components/reports/ReportViewer';
 import GenerateReportModal from '../components/reports/GenerateReportModal';
 import ComparisonSelector from '../components/reports/ComparisonSelector';
 import ReportComparison from '../components/reports/ReportComparison';
+import AiDisclaimer from '../components/AiDisclaimer';
 
 const ReportsPage: React.FC = () => {
   const { t } = useTranslation('reports');
@@ -53,6 +54,33 @@ const ReportsPage: React.FC = () => {
     }
   };
 
+  const handleToggleApprove = async (report: Report) => {
+    try {
+      if (report.is_approved) {
+        await apiClient.unapproveReport(report.id);
+        toast.success('Report reverted to draft');
+      } else {
+        await apiClient.approveReport(report.id);
+        toast.success('Report approved');
+      }
+      fetchReports();
+    } catch {
+      toast.error('Failed to update approval');
+    }
+  };
+
+  const handleShare = async (report: Report) => {
+    try {
+      const { share_path } = await apiClient.shareReport(report.id);
+      const url = `${window.location.origin}${share_path}`;
+      try { await navigator.clipboard.writeText(url); toast.success('Owner link copied to clipboard'); }
+      catch { toast.success(`Owner link: ${url}`); }
+      fetchReports();
+    } catch {
+      toast.error('Could not create share link');
+    }
+  };
+
   const handleReportCreated = () => {
     setShowModal(false);
     fetchReports();
@@ -62,6 +90,7 @@ const ReportsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-20">
       <div className="container mx-auto px-4 py-8">
+        <AiDisclaimer className="mb-6" />
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -169,6 +198,30 @@ const ReportsPage: React.FC = () => {
                     >
                       {report.status}
                     </span>
+
+                    <button
+                      onClick={() => handleToggleApprove(report)}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+                        report.is_approved
+                          ? 'border-green-300 text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20'
+                          : 'border-medical-500 text-medical-600 dark:text-medical-400 hover:bg-medical-50 dark:hover:bg-medical-900/20'
+                      }`}
+                      title={report.is_approved && report.approved_by_email ? `Approved by ${report.approved_by_email}` : 'Veterinarian sign-off'}
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      {report.is_approved ? 'Approved' : 'Approve'}
+                    </button>
+
+                    {report.is_approved && (
+                      <button
+                        onClick={() => handleShare(report)}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        title={report.is_shared ? 'Copy owner share link' : 'Create owner share link'}
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        {report.is_shared ? 'Copy link' : 'Share'}
+                      </button>
+                    )}
 
                     <button
                       onClick={() => handleDownloadPdf(report.id)}

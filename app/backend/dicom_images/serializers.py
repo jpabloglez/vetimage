@@ -5,6 +5,10 @@ DRF serializers for DICOM data with DICOMweb-compatible output.
 """
 
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
+from patients.models import AnimalPatient
+from patients.serializers import AnimalPatientListSerializer
 from .models import (
     MedicalStudy,
     MedicalSeries,
@@ -70,6 +74,14 @@ class MedicalStudySerializer(serializers.ModelSerializer):
     number_of_series = serializers.ReadOnlyField()
     number_of_instances = serializers.ReadOnlyField()
     uploaded_by_email = serializers.EmailField(source='uploaded_by.email', read_only=True)
+    animal_patient = AnimalPatientListSerializer(read_only=True)
+    animal_patient_id = serializers.PrimaryKeyRelatedField(
+        source='animal_patient',
+        write_only=True,
+        required=False,
+        allow_null=True,
+        queryset=AnimalPatient.objects.all(),
+    )
 
     class Meta:
         model = MedicalStudy
@@ -80,6 +92,8 @@ class MedicalStudySerializer(serializers.ModelSerializer):
             'patient_name',
             'patient_birth_date',
             'patient_sex',
+            'animal_patient',
+            'animal_patient_id',
             'study_date',
             'study_time',
             'study_description',
@@ -133,6 +147,19 @@ class DICOMwebStudySerializer(serializers.Serializer):
     AccessionNumber = serializers.CharField(source='accession_number', allow_blank=True, required=False)
     NumberOfStudyRelatedSeries = serializers.IntegerField(source='number_of_series', read_only=True)
     NumberOfStudyRelatedInstances = serializers.IntegerField(source='number_of_instances', read_only=True)
+    # Veterinary extension: the linked animal patient (non-standard QIDO fields,
+    # used by the UI to show/assign the owner→patient→study link).
+    AnimalPatientID = serializers.SerializerMethodField()
+    AnimalPatientName = serializers.SerializerMethodField()
+
+    @extend_schema_field(OpenApiTypes.INT)
+    def get_AnimalPatientID(self, obj):
+        return obj.animal_patient_id
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_AnimalPatientName(self, obj):
+        ap = obj.animal_patient
+        return ap.name if ap else None
 
 
 class DICOMwebSeriesSerializer(serializers.Serializer):
@@ -446,3 +473,44 @@ class AnnotationTemplateSerializer(serializers.ModelSerializer):
         if not isinstance(value, dict):
             raise serializers.ValidationError("default_properties must be a dictionary")
         return value
+
+
+class StudyShareLinkSerializer(serializers.ModelSerializer):
+    from .models import StudyShareLink
+    # Read: the source study's UID and PK. Write: clients pass the UID they have
+    # from the DICOMweb browser (study_instance_uid), not the numeric PK.
+    study = serializers.PrimaryKeyRelatedField(read_only=True)
+    study_instance_uid = serializers.CharField(source='study.study_instance_uid', read_only=True)
+    study_uid = serializers.CharField(write_only=True)
+    is_valid = serializers.BooleanField(read_only=True)
+    share_url = serializers.SerializerMethodField()
+
+    class Meta:
+        from .models import StudyShareLink
+        model = StudyShareLink
+        fields = [
+            'id', 'study', 'study_instance_uid', 'study_uid', 'recipient_email',
+            'token', 'expires_at', 'access_count', 'max_accesses',
+            'is_valid', 'share_url', 'created_at',
+        ]
+        read_only_fields = ['id', 'study', 'token', 'access_count', 'is_valid', 'share_url', 'created_at']
+
+    def validate_study_uid(self, value):
+        from .models import MedicalStudy
+        try:
+            self._study = MedicalStudy.objects.get(study_instance_uid=value)
+        except MedicalStudy.DoesNotExist:
+            raise serializers.ValidationError('No study found with that StudyInstanceUID.')
+        return value
+
+    def create(self, validated_data):
+        validated_data.pop('study_uid', None)
+        validated_data['study'] = self._study
+        return super().create(validated_data)
+
+    def get_share_url(self, obj):
+        request = self.context.get('request')
+        path = f'/api/dicom/shared/{obj.token}/'
+        if request:
+            return request.build_absolute_uri(path)
+        return path

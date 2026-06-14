@@ -133,15 +133,33 @@ class PDFReportGenerator:
             story.append(Paragraph('Summary', self.styles['SectionHeading']))
             story.append(Paragraph(summary, self.styles['Normal']))
 
-        # Disclaimer
-        disclaimer = content.get('disclaimer', '')
-        if disclaimer:
-            story.append(HRFlowable(
-                width="100%", thickness=0.5,
-                color=colors.lightgrey,
-                spaceBefore=6 * mm, spaceAfter=2 * mm,
-            ))
-            story.append(Paragraph(disclaimer, self.styles['Disclaimer']))
+        # Veterinarian sign-off block (human-in-the-loop)
+        story.append(HRFlowable(
+            width="100%", thickness=0.5,
+            color=colors.lightgrey,
+            spaceBefore=6 * mm, spaceAfter=2 * mm,
+        ))
+        if getattr(report, 'approved_at', None):
+            approver = getattr(report.approved_by, 'email', 'veterinarian')
+            signoff = (
+                f"Reviewed &amp; approved by {approver} on "
+                f"{report.approved_at.strftime('%Y-%m-%d %H:%M')}."
+            )
+        else:
+            signoff = (
+                'DRAFT — awaiting veterinarian review. Not valid until reviewed '
+                'and approved by a qualified veterinarian.'
+            )
+        story.append(Paragraph(signoff, self.styles['Disclaimer']))
+
+        # Disclaimer — always include a veterinary decision-support notice.
+        disclaimer = content.get('disclaimer') or (
+            'Veterinary decision support — not a diagnosis. AI-derived findings '
+            'must be reviewed and approved by a qualified veterinarian and '
+            'interpreted with clinical context. AI may miss findings. '
+            'Not a medical device; not FDA-cleared.'
+        )
+        story.append(Paragraph(disclaimer, self.styles['Disclaimer']))
 
         doc.build(story)
         buffer.seek(0)

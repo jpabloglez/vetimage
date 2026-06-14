@@ -10,7 +10,7 @@
   },
   "anonymizer": {
     "title": "Anonimizador",
-    "description": "Elimine información de salud del paciente (PHI) de archivos DICOM para investigación y cumplimiento normativo.",
+    "description": "Elimine información identificativa (propietario y paciente) de archivos DICOM para investigación y uso compartido.",
     "inputMode": { "library": "Desde Biblioteca", "upload": "Subir Archivos" },
     "outputFormat": {
       "label": "Formato de Salida",
@@ -21,7 +21,7 @@
       "nifti_bids_desc": "Volúmenes NIfTI + sidecars JSON en estructura de carpetas BIDS",
       "png_bids_desc": "Cortes PNG + sidecars JSON en estructura de carpetas BIDS"
     },
-    "bidsInfo": "El formato BIDS requiere un estudio completo. El PHI se elimina antes de la conversión. Los parámetros técnicos se conservan.",
+    "bidsInfo": "El formato BIDS requiere un estudio completo. La información identificativa se elimina antes de la conversión. Los parámetros técnicos se conservan.",
     "uploadComplete": "Archivos subidos — estudio seleccionado"
   },
   "converter": {

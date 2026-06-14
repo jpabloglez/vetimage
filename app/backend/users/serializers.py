@@ -56,7 +56,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         exclude = ('id',)
         # fields = '__all__'
 
-    def get_time_since_joined(self, object):
+    def get_time_since_joined(self, object) -> str:
         join_data = object.created_at
         return timesince(join_data, timezone.now())
 
@@ -157,13 +157,13 @@ class UserAuthSerializer(serializers.ModelSerializer):
         fields = ('id', 'email', 'role', 'language', 'image_url')
         read_only_fields = ('id',)
 
-    def get_language(self, obj):
+    def get_language(self, obj) -> str:
         try:
             return obj.userprofile.language
         except Exception:
             return 'en'
 
-    def get_image_url(self, obj):
+    def get_image_url(self, obj) -> str:
         try:
             if obj.userprofile.image:
                 request = self.context.get('request')

@@ -31,7 +31,7 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: openmedlab_test
+          POSTGRES_DB: vetimage_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
@@ -51,7 +51,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      POSTGRES_DB: openmedlab_test
+      POSTGRES_DB: vetimage_test
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_HOST: localhost
@@ -107,6 +107,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build backend image
-        run: docker build -f compose/Dockerfile.backend -t openmedlab-backend:ci .
+        run: docker build -f compose/Dockerfile.backend -t vetimage-backend:ci .
       - name: Build frontend image
-        run: docker build -f compose/Dockerfile.frontend -t openmedlab-frontend:ci .
+        run: docker build -f compose/Dockerfile.frontend -t vetimage-frontend:ci .

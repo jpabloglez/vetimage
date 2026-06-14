@@ -3,6 +3,8 @@ DRF Serializers for credentials app
 """
 
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 from django.contrib.auth import get_user_model
 
 from .models import (
@@ -77,7 +79,7 @@ class UserSessionSerializer(serializers.ModelSerializer):
             'session_duration',
         ]
 
-    def get_is_current(self, obj):
+    def get_is_current(self, obj) -> bool:
         """Check if this is the current session"""
         request = self.context.get('request')
         if not request or not hasattr(request, 'auth'):
@@ -91,7 +93,7 @@ class UserSessionSerializer(serializers.ModelSerializer):
 
         return False
 
-    def get_session_duration(self, obj):
+    def get_session_duration(self, obj) -> int:
         """Calculate session duration in seconds"""
         if obj.terminated_at:
             return int((obj.terminated_at - obj.created_at).total_seconds())
@@ -167,7 +169,7 @@ class APIKeyScopeSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'api_keys_count']
 
-    def get_api_keys_count(self, obj):
+    def get_api_keys_count(self, obj) -> int:
         """Count how many API keys use this scope"""
         return obj.api_keys.count()
 
@@ -218,6 +220,7 @@ class EnhancedAPIKeySerializer(serializers.ModelSerializer):
             'updated_at',
         ]
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_current_usage(self, obj):
         """Get current usage counts"""
         return {
@@ -227,6 +230,7 @@ class EnhancedAPIKeySerializer(serializers.ModelSerializer):
             'quota_reset_at': obj.quota_reset_at,
         }
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_rate_limit_status(self, obj):
         """Check rate limit status"""
         allowed, reason = obj.check_rate_limit()

@@ -12,7 +12,9 @@
     "profile": "Perfil",
     "signIn": "Entrar",
     "getStarted": "Começar",
-    "signOut": "Sair"
+    "signOut": "Sair",
+    "patients": "Pacientes",
+    "auditLog": "Registro de auditoria"
   },
   "userMenu": {
     "aiModels": "Modelos de IA",
@@ -90,7 +92,7 @@
     "returnHome": "Voltar ao Início"
   },
   "dashboard": {
-    "title": "Painel de IA Médica",
+    "title": "Painel de Imagens Veterinárias",
     "recentAnalyses": "Análises Recentes",
     "recentAnalysesDesc": "Visualize suas análises recentes de imagens médicas",
     "availableModels": "Modelos Disponíveis",
@@ -99,15 +101,15 @@
     "quickAnalysisDesc": "Iniciar uma nova análise de imagem"
   },
   "footer": {
-    "tagline": "Plataforma avançada de imagens médicas baseada em padrões DICOMweb e modelos de análise por IA.",
-    "compliance": "Compatível com DICOM • Seguro • Preparado para HIPAA",
+    "tagline": "Plataforma de imagens veterinárias baseada em padrões DICOMweb e modelos de análise por IA.",
+    "compliance": "Compatível com DICOM • Seguro • Privacidade em Primeiro Lugar",
     "platform": "Plataforma",
     "tools": "Ferramentas",
     "resources": "Recursos",
-    "allRightsReserved": "© {{year}} OpenMedLab. Todos os direitos reservados.",
-    "builtFor": "Desenvolvido para profissionais de saúde.",
+    "allRightsReserved": "© {{year}} VetImage. Todos os direitos reservados.",
+    "builtFor": "Desenvolvido para profissionais veterinários.",
     "poweredBy": "Desenvolvido com Cornerstone.js • DICOMweb • OHIF Viewer • Django REST Framework",
-    "madeWith": "Feito com ❤ para inovação na saúde",
+    "madeWith": "Feito com ❤ para inovação veterinária",
     "analysis": "Análise",
     "monitor": "Monitoramento",
     "viewer": "Visualizador",
@@ -147,7 +149,7 @@
   },
   "documentation": {
     "title": "Documentação",
-    "subtitle": "Tudo o que você precisa para integrar, usar e construir com o OpenMedLab. Guias completos, referências de API e exemplos.",
+    "subtitle": "Tudo o que você precisa para integrar, usar e construir com o VetImage. Guias completos, referências de API e exemplos.",
     "searchPlaceholder": "Buscar na documentação...",
     "viewDocumentation": "Ver Documentação",
     "externalResources": "Recursos Externos",
@@ -157,7 +159,7 @@
     "contactSupport": "Contatar Suporte",
     "sections": {
       "gettingStarted": "Primeiros Passos",
-      "gettingStartedDesc": "Guia de início rápido para começar a usar o OpenMedLab",
+      "gettingStartedDesc": "Guia de início rápido para começar a usar o VetImage",
       "apiReference": "Referência da API",
       "apiReferenceDesc": "Documentação completa da API REST com exemplos",
       "dicomStandards": "Padrões DICOMweb",
@@ -165,7 +167,7 @@
       "aiModels": "Modelos de AI",
       "aiModelsDesc": "Documentação dos modelos de AI disponíveis",
       "integration": "Guias de Integração",
-      "integrationDesc": "Integre o OpenMedLab ao seu fluxo de trabalho",
+      "integrationDesc": "Integre o VetImage ao seu fluxo de trabalho",
       "tutorials": "Tutoriais e Exemplos",
       "tutorialsDesc": "Guias passo a passo e exemplos de código"
     },
@@ -178,12 +180,12 @@
   },
   "security": {
     "title": "Segurança e Conformidade",
-    "subtitle": "A segurança dos seus dados é nossa prioridade máxima. Conheça nossas medidas de segurança abrangentes, certificações de conformidade e melhores práticas.",
-    "hipaaCompliant": "Plataforma Compatível com HIPAA",
-    "hipaaCompliantDesc": "Segurança de nível empresarial para informações de saúde protegidas",
+    "subtitle": "A segurança dos seus dados importa. Saiba como o VetImage protege os dados da sua clínica e dos tutores, e como nossa IA deve ser usada.",
+    "hipaaCompliant": "Plataforma Veterinária com Foco na Privacidade",
+    "hipaaCompliantDesc": "Criptografia, controle de acesso e registro de auditoria para os dados da sua clínica e tutores.",
     "getStartedSecurely": "Comece com Segurança",
     "securityFeatures": "Recursos de Segurança",
-    "certificationsTitle": "Certificações e Padrões",
+    "certificationsTitle": "Nossa Postura Honesta",
     "securityPractices": "Práticas de Segurança",
     "howToReport": "Como Reportar:",
     "bugBounty": "Recompensa por Bugs:",
@@ -194,8 +196,8 @@
     "features": {
       "encryption": "Criptografia de Ponta a Ponta",
       "encryptionDesc": "Todos os dados são criptografados em trânsito usando TLS 1.3 e em repouso usando criptografia AES-256.",
-      "hipaa": "Conformidade HIPAA",
-      "hipaaDesc": "Conformidade total com HIPAA com Acordos de Associado Comercial (BAA) disponíveis.",
+      "hipaa": "Privacidade de Dados e LGPD/GDPR",
+      "hipaaDesc": "Os dados pessoais dos tutores são tratados segundo princípios de proteção de dados. A imagem veterinária não está sujeita à HIPAA (que cobre apenas dados de saúde humana).",
       "auth": "Autenticação e Autorização",
       "authDesc": "Segurança em múltiplas camadas com tokens JWT e chaves de API com permissões granulares.",
       "isolation": "Isolamento de Dados",
@@ -215,6 +217,12 @@
       "title": "Divulgação Responsável",
       "description": "Levamos a segurança a sério. Se você descobrir uma vulnerabilidade de segurança, por favor reporte de forma responsável.",
       "reward": "Pesquisadores elegíveis podem receber reconhecimento e recompensas através do nosso programa de recompensas por bugs."
-    }
+    },
+    "aiTitle": "Uso Responsável de IA",
+    "aiDesc": "A IA do VetImage é apoio à decisão clínica, não um diagnóstico. Cada resultado de IA é um rascunho para um veterinário qualificado revisar e aprovar. A IA pode não detectar achados; nunca substitui o julgamento profissional.",
+    "notDevice": "Não é um dispositivo médico. Não tem autorização da FDA. Apenas para apoio à decisão veterinária e pesquisa."
+  },
+  "aiDisclaimer": {
+    "short": "Apoio à decisão, não um diagnóstico. Um veterinário qualificado deve revisar e aprovar todos os resultados de IA. A IA pode não detectar achados."
   }
 }

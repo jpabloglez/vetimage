@@ -12,7 +12,9 @@
     "profile": "Profile",
     "signIn": "Sign In",
     "getStarted": "Get Started",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "patients": "Patients",
+    "auditLog": "Audit Log"
   },
   "userMenu": {
     "aiModels": "AI Models",
@@ -90,24 +92,24 @@
     "returnHome": "Return Home"
   },
   "dashboard": {
-    "title": "Medical AI Dashboard",
+    "title": "Veterinary Imaging Dashboard",
     "recentAnalyses": "Recent Analyses",
-    "recentAnalysesDesc": "View your recent medical image analyses",
+    "recentAnalysesDesc": "View your recent veterinary image analyses",
     "availableModels": "Available Models",
-    "availableModelsDesc": "Browse AI models for different medical imaging tasks",
+    "availableModelsDesc": "Browse AI models for different veterinary imaging tasks",
     "quickAnalysis": "Quick Analysis",
     "quickAnalysisDesc": "Start a new image analysis"
   },
   "footer": {
-    "tagline": "Advanced medical imaging platform powered by DICOMweb standards and AI analysis models.",
-    "compliance": "DICOM Compliant \u2022 Secure \u2022 HIPAA-Ready",
+    "tagline": "Veterinary imaging platform powered by DICOMweb standards and AI analysis models.",
+    "compliance": "DICOM Compliant • Secure • Privacy-First",
     "platform": "Platform",
     "tools": "Tools",
     "resources": "Resources",
-    "allRightsReserved": "\u00a9 {{year}} OpenMedLab. All rights reserved.",
-    "builtFor": "Built for medical professionals.",
-    "poweredBy": "Powered by Cornerstone.js \u2022 DICOMweb \u2022 OHIF Viewer \u2022 Django REST Framework",
-    "madeWith": "Made with \u2764 for healthcare innovation",
+    "allRightsReserved": "© {{year}} VetImage. All rights reserved.",
+    "builtFor": "Built for veterinary professionals.",
+    "poweredBy": "Powered by Cornerstone.js • DICOMweb • OHIF Viewer • Django REST Framework",
+    "madeWith": "Made with ❤ for veterinary innovation",
     "analysis": "Analysis",
     "monitor": "Monitor",
     "viewer": "Viewer",
@@ -147,7 +149,7 @@
   },
   "documentation": {
     "title": "Documentation",
-    "subtitle": "Everything you need to integrate, use, and build with OpenMedLab. Comprehensive guides, API references, and examples.",
+    "subtitle": "Everything you need to integrate, use, and build with VetImage. Comprehensive guides, API references, and examples.",
     "searchPlaceholder": "Search documentation...",
     "viewDocumentation": "View Documentation",
     "externalResources": "External Resources",
@@ -157,7 +159,7 @@
     "contactSupport": "Contact Support",
     "sections": {
       "gettingStarted": "Getting Started",
-      "gettingStartedDesc": "Quick start guide to begin using OpenMedLab",
+      "gettingStartedDesc": "Quick start guide to begin using VetImage",
       "apiReference": "API Reference",
       "apiReferenceDesc": "Complete REST API documentation with examples",
       "dicomStandards": "DICOMweb Standards",
@@ -165,7 +167,7 @@
       "aiModels": "AI Models",
       "aiModelsDesc": "Documentation for available AI models",
       "integration": "Integration Guides",
-      "integrationDesc": "Integrate OpenMedLab into your workflow",
+      "integrationDesc": "Integrate VetImage into your workflow",
       "tutorials": "Tutorials & Examples",
       "tutorialsDesc": "Step-by-step guides and code examples"
     },
@@ -178,12 +180,12 @@
   },
   "security": {
     "title": "Security & Compliance",
-    "subtitle": "Your data security is our top priority. Learn about our comprehensive security measures, compliance certifications, and best practices.",
-    "hipaaCompliant": "HIPAA Compliant Platform",
-    "hipaaCompliantDesc": "Enterprise-grade security for protected health information",
+    "subtitle": "Your data security matters. Learn how VetImage protects your clinic and pet-owner data — and how our AI is meant to be used.",
+    "hipaaCompliant": "Privacy-First Veterinary Platform",
+    "hipaaCompliantDesc": "Encryption, access control, and audit logging for your clinic and owner data.",
     "getStartedSecurely": "Get Started Securely",
     "securityFeatures": "Security Features",
-    "certificationsTitle": "Certifications & Standards",
+    "certificationsTitle": "Our Honest Posture",
     "securityPractices": "Security Practices",
     "howToReport": "How to Report:",
     "bugBounty": "Bug Bounty:",
@@ -194,8 +196,8 @@
     "features": {
       "encryption": "End-to-End Encryption",
       "encryptionDesc": "All data is encrypted in transit using TLS 1.3 and at rest using AES-256 encryption.",
-      "hipaa": "HIPAA Compliance",
-      "hipaaDesc": "Full HIPAA compliance with Business Associate Agreements (BAA) available.",
+      "hipaa": "Data Privacy & GDPR",
+      "hipaaDesc": "Owner personal data is handled following GDPR principles. Veterinary imaging is not subject to HIPAA (which covers human health data only).",
       "auth": "Authentication & Authorization",
       "authDesc": "Multi-layered security with JWT tokens and API keys with granular permissions.",
       "isolation": "Data Isolation",
@@ -215,6 +217,12 @@
       "title": "Responsible Disclosure",
       "description": "We take security seriously. If you discover a security vulnerability, please report it to us responsibly.",
       "reward": "Eligible researchers may receive acknowledgment and rewards through our bug bounty program."
-    }
+    },
+    "aiTitle": "Responsible AI Use",
+    "aiDesc": "VetImage AI is clinical decision support — not a diagnosis. Every AI result is a draft for a qualified veterinarian to review and approve. AI may miss findings; it never replaces professional judgement.",
+    "notDevice": "Not a medical device. Not FDA-cleared. For veterinary decision support and research only."
+  },
+  "aiDisclaimer": {
+    "short": "Decision support — not a diagnosis. A qualified veterinarian must review and approve all AI results. AI may miss findings."
   }
 }

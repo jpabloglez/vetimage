@@ -237,7 +237,7 @@ export function generateImageId(
   sopUID: string,
   frameNumber: number = 1
 ): string {
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3080';
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3081';
 
   // WADO-RS URL format (returns JPEG/PNG from backend)
   const wadoUrl = `${baseUrl}/api/dicom/dicom-web/studies/${studyUID}/series/${seriesUID}/instances/${sopUID}/frames/${frameNumber}`;

@@ -293,7 +293,7 @@ const DocumentationPage: React.FC = () => {
                   </Button>
                 </Link>
                 <a
-                  href="mailto:support@medai-platform.com"
+                  href="mailto:support@vetimage.app"
                   className="inline-block"
                 >
                   <Button variant="outline" size="lg">

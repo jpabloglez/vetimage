@@ -52,14 +52,35 @@ class ReportBuilder:
         }
 
     def _build_patient_info(self, study):
-        """Extract patient info from the study."""
-        return {
+        """
+        Build the report header info from the study, enriched with veterinary
+        signalment when the study is linked to an AnimalPatient (Owner →
+        AnimalPatient → Study). Falls back to DICOM patient_* fields otherwise.
+        """
+        info = {
             'patient_id': study.patient_id or 'N/A',
             'patient_name': study.patient_name or 'N/A',
             'study_date': str(study.study_date) if study.study_date else 'N/A',
             'study_description': study.study_description or 'N/A',
             'study_uid': study.study_instance_uid,
         }
+
+        animal = getattr(study, 'animal_patient', None)
+        if animal is not None:
+            # Veterinary signalment overrides the generic DICOM patient fields.
+            info['patient_name'] = animal.name
+            info['species'] = animal.get_species_display()
+            if animal.breed:
+                info['breed'] = animal.breed
+            if animal.sex:
+                info['sex'] = animal.get_sex_display()
+            if animal.date_of_birth:
+                info['date_of_birth'] = str(animal.date_of_birth)
+            if animal.weight_kg is not None:
+                info['weight'] = f'{animal.weight_kg} kg'
+            info['owner'] = f'{animal.owner.first_name} {animal.owner.last_name}'
+
+        return info
 
     def _build_sections(self, task):
         """

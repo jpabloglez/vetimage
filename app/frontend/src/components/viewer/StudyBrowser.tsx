@@ -10,13 +10,16 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Search, Eye, Trash2, Calendar, User, Activity, Folder } from 'lucide-react';
+import { Search, Eye, Trash2, Calendar, User, Activity, Folder, PawPrint, Share2, Disc3, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { apiClient, formatDicomDateDisplay, type Study } from '../../utils/api';
+import { apiClient, formatDicomDateDisplay, type Study, type AnimalPatientListItem } from '../../utils/api';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import { StudyTableView } from '../studies/StudyTableView';
 import { ViewToggle, type ViewMode } from '../studies/ViewToggle';
+import AssignPatientModal from '../patients/AssignPatientModal';
+import StudyShareModal from './StudyShareModal';
+import ReferralModal from './ReferralModal';
 
 interface StudyBrowserProps {
   onStudySelect?: (studyUID: string) => void;
@@ -29,6 +32,18 @@ export const StudyBrowser: React.FC<StudyBrowserProps> = ({ onStudySelect, refre
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredStudies, setFilteredStudies] = useState<Study[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [assignTarget, setAssignTarget] = useState<Study | null>(null);
+  const [shareTarget, setShareTarget] = useState<Study | null>(null);
+  const [referralTarget, setReferralTarget] = useState<Study | null>(null);
+
+  // Optimistically reflect a new patient link without a full reload.
+  const applyLink = (studyUID: string, animal: AnimalPatientListItem | null) => {
+    const patch = (s: Study) => s.StudyInstanceUID === studyUID
+      ? { ...s, AnimalPatientID: animal?.id ?? null, AnimalPatientName: animal?.name ?? null }
+      : s;
+    setStudies((prev) => prev.map(patch));
+    setFilteredStudies((prev) => prev.map(patch));
+  };
 
   // Load studies
   const loadStudies = async () => {
@@ -180,6 +195,47 @@ export const StudyBrowser: React.FC<StudyBrowserProps> = ({ onStudySelect, refre
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      setAssignTarget(study);
+                    }}
+                    className="p-2 hover:bg-medical-100 dark:hover:bg-medical-900 rounded transition-colors"
+                    title="Assign to patient"
+                  >
+                    <PawPrint className="w-4 h-4 text-medical-600 dark:text-medical-400" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShareTarget(study);
+                    }}
+                    className="p-2 hover:bg-medical-100 dark:hover:bg-medical-900 rounded transition-colors"
+                    title="Share study"
+                  >
+                    <Share2 className="w-4 h-4 text-medical-600 dark:text-medical-400" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      apiClient.exportStudyCD(study.StudyInstanceUID)
+                        .catch(() => toast.error('CD export failed'));
+                    }}
+                    className="p-2 hover:bg-medical-100 dark:hover:bg-medical-900 rounded transition-colors"
+                    title="Export DICOM CD"
+                  >
+                    <Disc3 className="w-4 h-4 text-medical-600 dark:text-medical-400" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setReferralTarget(study);
+                    }}
+                    className="p-2 hover:bg-medical-100 dark:hover:bg-medical-900 rounded transition-colors"
+                    title="Refer to specialist"
+                  >
+                    <Send className="w-4 h-4 text-medical-600 dark:text-medical-400" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
                       handleDeleteStudy(study.StudyInstanceUID);
                     }}
                     className="p-2 hover:bg-error-100 dark:hover:bg-error-900 rounded transition-colors"
@@ -209,6 +265,23 @@ export const StudyBrowser: React.FC<StudyBrowserProps> = ({ onStudySelect, refre
                     {study.NumberOfStudyRelatedInstances || 0} images
                   </span>
                 </div>
+
+                {/* Linked veterinary patient */}
+                <div className="flex items-center gap-2 text-sm">
+                  <PawPrint className="w-4 h-4 text-medical-500" />
+                  {study.AnimalPatientName ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-medical-100 text-medical-800 dark:bg-medical-900/40 dark:text-medical-200">
+                      {study.AnimalPatientName}
+                    </span>
+                  ) : (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setAssignTarget(study); }}
+                      className="text-xs text-medical-600 dark:text-medical-400 hover:underline"
+                    >
+                      + Assign patient
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* View Button (Mobile) */}
@@ -230,6 +303,25 @@ export const StudyBrowser: React.FC<StudyBrowserProps> = ({ onStudySelect, refre
           ))}
         </div>
       )}
+
+      <AssignPatientModal
+        studyUID={assignTarget?.StudyInstanceUID ?? null}
+        currentPatientName={assignTarget?.AnimalPatientName ?? null}
+        onClose={() => setAssignTarget(null)}
+        onAssigned={(animal) => {
+          if (assignTarget) applyLink(assignTarget.StudyInstanceUID, animal);
+        }}
+      />
+
+      <StudyShareModal
+        study={shareTarget}
+        onClose={() => setShareTarget(null)}
+      />
+
+      <ReferralModal
+        study={referralTarget}
+        onClose={() => setReferralTarget(null)}
+      />
     </div>
   );
 };

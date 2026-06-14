@@ -6,13 +6,11 @@ import LoginPage from '../LoginPage';
 import { AuthProvider } from '../../../contexts/AuthContext';
 import { apiClient } from '../../../utils/api';
 
-// Mock the API client
-vi.mock('../../../utils/api', () => ({
-  apiClient: {
-    login: vi.fn(),
-    getProfile: vi.fn(),
-  },
-}));
+// Mock the API client with the complete surface so AuthProvider mounts cleanly.
+vi.mock('../../../utils/api', async () => {
+  const { createApiClientMock } = await import('../../../test/mockApiClient');
+  return { apiClient: createApiClientMock() };
+});
 
 // Mock react-router-dom navigation
 const mockNavigate = vi.fn();
@@ -54,7 +52,7 @@ describe('LoginPage', () => {
     renderLoginPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Sign In')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Sign In/i })).toBeInTheDocument();
     });
 
     expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
@@ -69,7 +67,7 @@ describe('LoginPage', () => {
     renderLoginPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Sign In')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Sign In/i })).toBeInTheDocument();
     });
 
     const submitButton = screen.getByRole('button', { name: /Sign In/i });
@@ -97,7 +95,7 @@ describe('LoginPage', () => {
     renderLoginPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Sign In')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Sign In/i })).toBeInTheDocument();
     });
 
     const emailInput = screen.getByLabelText(/Email Address/i);
@@ -109,11 +107,11 @@ describe('LoginPage', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(apiClient.login).toHaveBeenCalledWith(
-        'test@example.com',
-        'password123'
-      );
-      expect(mockNavigate).toHaveBeenCalledWith('/tools');
+      expect(apiClient.login).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'password123',
+      });
+      expect(mockNavigate).toHaveBeenCalledWith('/models');
     });
   });
 
@@ -127,7 +125,7 @@ describe('LoginPage', () => {
     renderLoginPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Sign In')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Sign In/i })).toBeInTheDocument();
     });
 
     const emailInput = screen.getByLabelText(/Email Address/i);
@@ -148,7 +146,7 @@ describe('LoginPage', () => {
     renderLoginPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Sign In')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Sign In/i })).toBeInTheDocument();
     });
 
     const passwordInput = screen.getByLabelText(/Password/i);
@@ -175,7 +173,7 @@ describe('LoginPage', () => {
     renderLoginPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Sign In')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Sign In/i })).toBeInTheDocument();
     });
 
     const signUpLink = screen.getByText(/Sign up/i);

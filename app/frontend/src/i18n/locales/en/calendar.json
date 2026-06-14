@@ -1,0 +1,60 @@
+{
+  "title": "Appointments",
+  "subtitle": "Clinic schedule",
+  "month": "Month",
+  "week": "Week",
+  "today": "Today",
+  "newAppointment": "New appointment",
+  "noAppointments": "No appointments scheduled",
+  "loading": "Loading…",
+  "types": {
+    "consultation": "Consultation",
+    "follow_up": "Follow-up",
+    "vaccination": "Vaccination",
+    "surgery": "Surgery",
+    "imaging": "Imaging",
+    "emergency": "Emergency"
+  },
+  "statuses": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "no_show": "No show"
+  },
+  "detail": {
+    "animal": "Patient",
+    "owner": "Owner",
+    "type": "Type",
+    "scheduled": "Scheduled",
+    "duration": "Duration",
+    "status": "Status",
+    "notes": "Notes",
+    "complete": "Complete & create visit",
+    "completing": "Completing…",
+    "edit": "Edit",
+    "cancel": "Cancel appointment",
+    "completed": "Visit created successfully",
+    "completeFailed": "Failed to complete appointment"
+  },
+  "form": {
+    "title": "New Appointment",
+    "editTitle": "Edit Appointment",
+    "animal": "Patient",
+    "searchAnimal": "Search patient…",
+    "type": "Type",
+    "scheduled": "Date & time",
+    "duration": "Duration (minutes)",
+    "notes": "Notes (optional)",
+    "save": "Book appointment",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "created": "Appointment booked",
+    "updated": "Appointment updated",
+    "failed": "Failed to save appointment"
+  },
+  "nav": {
+    "prev": "Previous",
+    "next": "Next"
+  }
+}

@@ -19,6 +19,12 @@ const ToolsPage        = lazy(() => import('./pages/ToolsPage'));
 const ModelsPage       = lazy(() => import('./pages/ModelsPage'));
 const ModelDetailsPage = lazy(() => import('./pages/ModelDetailsPage'));
 const AnalyzePage      = lazy(() => import('./pages/AnalyzePage'));
+const PatientsPage     = lazy(() => import('./pages/PatientsPage'));
+const CalendarPage     = lazy(() => import('./pages/CalendarPage'));
+const OwnerPortalPage  = lazy(() => import('./pages/OwnerPortalPage'));
+const OwnerReportPage  = lazy(() => import('./pages/OwnerReportPage'));
+const ReferralPackagePage = lazy(() => import('./pages/ReferralPackagePage'));
+const AuditLogPage     = lazy(() => import('./pages/AuditLogPage'));
 const MonitorPage      = lazy(() => import('./pages/MonitorPage'));
 const StatisticsPage   = lazy(() => import('./pages/StatisticsPage'));
 const DocumentationPage = lazy(() => import('./pages/DocumentationPage'));
@@ -129,6 +135,10 @@ function App() {
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<LandingPage />} />
+                {/* Public owner-facing shared report (no auth — token in URL) */}
+                <Route path="/shared/:token" element={<OwnerReportPage />} />
+                {/* Public specialist-facing referral package (no auth — token in URL) */}
+                <Route path="/referral/:token" element={<ReferralPackagePage />} />
 
                 {/* Authentication Routes (redirect if already authenticated) */}
                 <Route
@@ -182,6 +192,30 @@ function App() {
                   }
                 />
                 <Route
+                  path="/patients"
+                  element={
+                    <ProtectedRoute>
+                      <PatientsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/calendar"
+                  element={
+                    <ProtectedRoute>
+                      <CalendarPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/portal"
+                  element={
+                    <ProtectedRoute>
+                      <OwnerPortalPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/analyze"
                   element={
                     <ProtectedRoute>
@@ -222,7 +256,15 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route path="/audit-report" element={<Navigate to="/monitor" replace />} />
+                <Route path="/audit-report" element={<Navigate to="/audit-log" replace />} />
+                <Route
+                  path="/audit-log"
+                  element={
+                    <ProtectedRoute>
+                      <AuditLogPage />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Role-based Protected Routes */}
                 <Route

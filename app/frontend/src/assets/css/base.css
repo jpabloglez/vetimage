@@ -1,5 +1,5 @@
 html, body, #app, #app>div {
     min-height: 100vh;
-    background: linear-gradient(135deg, #f1edfe 0%, rgb(194, 225, 254) 100%);
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
     justify-content: center;
 }

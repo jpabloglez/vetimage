@@ -12,12 +12,16 @@ from django.contrib.auth.models import (
 from django.contrib.auth.models import User
 
 ROLES = (
-    (1, 'User'),
+    (1, 'Veterinarian'),
     (2, 'Guest'),
-    (3, 'Admin'),
-    (4, 'Manager'),
-    (5, 'Superuser')
+    (3, 'Clinic Admin'),
+    (4, 'Veterinary Radiologist'),
+    (5, 'Superuser'),
+    (6, 'Pet Owner'),
 )
+
+# Role id for pet-owner portal accounts (see patients/views_portal.py).
+PET_OWNER_ROLE = 6
 
 
 class UserManager(BaseUserManager):

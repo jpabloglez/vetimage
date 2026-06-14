@@ -1,7 +1,7 @@
 {
   "pageTitle": "Análisis",
   "pageSubtitle": "Gestione su historial de análisis, ejecute nuevos flujos de trabajo y genere informes",
-  "title": "Análisis de Imágenes Médicas",
+  "title": "Análisis de Imágenes Veterinarias",
   "subtitle": "Suba imágenes médicas, seleccione un modelo de AI y ejecute tareas de análisis",
   "tabs": {
     "worklist": "Lista de Trabajo",
@@ -53,8 +53,8 @@
   "uploadedImages": "Imágenes Subidas ({{count}})",
   "continueToModel": "Continuar a Selección de Modelo",
   "selectOtherModel": "Elige otro modelo…",
-  "backToUpload": "\u2190 Volver a Subir",
-  "backToModel": "\u2190 Volver a Selección de Modelo",
+  "backToUpload": "← Volver a Subir",
+  "backToModel": "← Volver a Selección de Modelo",
   "selectedModel": "Modelo Seleccionado",
   "changeModel": "Cambiar Modelo",
   "startAnalysis": "Iniciar Nuevo Análisis",

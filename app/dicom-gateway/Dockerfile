@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-LABEL maintainer="OpenMedLab Team"
+LABEL maintainer="VetImage Team"
 LABEL description="DICOM Gateway Service for PACS integration"
 
 # Set working directory

@@ -66,6 +66,29 @@ class AIModelViewSet(viewsets.ReadOnlyModelViewSet):
             return AIModelListSerializer
         return AIModelSerializer
 
+    def get_queryset(self):
+        """
+        Active models, optionally filtered by veterinary species and/or modality.
+
+        ?species=canine  → models validated for canine (or species-agnostic models
+                           with an empty supported_species list).
+        ?modality=CR     → models that support the given DICOM modality.
+        """
+        qs = AIModel.objects.filter(is_active=True)
+
+        species = self.request.query_params.get('species')
+        if species:
+            # JSONField array containment; also include species-agnostic models.
+            qs = qs.filter(
+                Q(supported_species__contains=[species]) | Q(supported_species=[])
+            )
+
+        modality = self.request.query_params.get('modality')
+        if modality:
+            qs = qs.filter(supported_modalities__contains=[modality])
+
+        return qs
+
 
 class AnalysisTaskViewSet(viewsets.ModelViewSet):
     """
@@ -157,7 +180,8 @@ class AnalysisTaskViewSet(viewsets.ModelViewSet):
             model=model,
             input_image=input_image,
             created_by=request.user,
-            parameters=serializer.validated_data['parameters']
+            parameters=serializer.validated_data['parameters'],
+            priority=serializer.validated_data.get('priority', 'routine'),
         )
 
         logger.info(

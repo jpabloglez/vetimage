@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
@@ -23,6 +23,13 @@ const LoginPage: React.FC = () => {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
+  // Friendly notice when redirected here by an expired session.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('session') === 'expired') {
+      toast.error(t('login.sessionExpired', 'Your session expired. Please sign in again.'));
+    }
+  }, [t]);
 
   const onSubmit = async (data: LoginFormData) => {
     try {
@@ -66,7 +73,7 @@ const LoginPage: React.FC = () => {
                 label={t('login.email')}
                 leftIcon={Mail}
                 error={errors.email?.message}
-                placeholder="doctor@hospital.com"
+                placeholder="vet@clinic.com"
                 required
                 disabled={isSubmitting}
               />

@@ -195,12 +195,18 @@ class AIModel(models.Model):
     medical_domains = models.JSONField(
         default=list,
         blank=True,
-        help_text="Medical domains (e.g., ['neurology', 'radiology', 'oncology'])"
+        help_text="Clinical domains (e.g., ['cardiology', 'radiology', 'orthopedics'])"
     )
     anatomical_regions = models.JSONField(
         default=list,
         blank=True,
-        help_text="Anatomical regions (e.g., ['brain', 'chest', 'abdomen'])"
+        help_text="Anatomical regions (e.g., ['thorax', 'abdomen', 'limb'])"
+    )
+    supported_species = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Veterinary species the model is validated for "
+                  "(e.g., ['canine', 'feline']). Empty = species-agnostic / unspecified."
     )
 
     # Performance Metrics
@@ -347,6 +353,14 @@ class AnalysisTask(models.Model):
         ('CANCELLED', 'Cancelled'),
     ]
 
+    # Triage priority for the worklist. STAT cases surface first, mirroring the
+    # turnaround tiers veterinary teleradiology workflows use.
+    PRIORITY_CHOICES = [
+        ('routine', 'Routine'),
+        ('urgent', 'Urgent'),
+        ('stat', 'STAT'),
+    ]
+
     # Identity (UUID for security - prevents enumeration attacks)
     id = models.UUIDField(
         primary_key=True,
@@ -392,6 +406,13 @@ class AnalysisTask(models.Model):
         choices=STATUS_CHOICES,
         default='PENDING',
         db_index=True
+    )
+    priority = models.CharField(
+        max_length=10,
+        choices=PRIORITY_CHOICES,
+        default='routine',
+        db_index=True,
+        help_text="Triage priority for the worklist (routine / urgent / STAT)"
     )
 
     # Job IDs for tracking

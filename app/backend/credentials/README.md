@@ -1,6 +1,6 @@
 # Credentials App - Enhanced Authentication System
 
-Comprehensive authentication enhancement for OpenMedLab with session tracking, audit trails, and enhanced API key management.
+Comprehensive authentication enhancement for VetImage with session tracking, audit trails, and enhanced API key management.
 
 ## Table of Contents
 
@@ -470,8 +470,8 @@ Required for rate limiting and brute force protection:
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://redis-openmedlab:6379/1',
-        'KEY_PREFIX': 'openmedlab',
+        'LOCATION': 'redis://redis-vetimage:6379/1',
+        'KEY_PREFIX': 'vetimage',
         'TIMEOUT': 300,
     }
 }
@@ -683,8 +683,8 @@ AUDIT_LOG_RETENTION_DAYS = 90  # Reduce from 365
 **Solution:** Verify Redis is running and accessible:
 
 ```bash
-docker-compose ps redis-openmedlab
-redis-cli -h redis-openmedlab ping
+docker-compose ps redis-vetimage
+redis-cli -h redis-vetimage ping
 ```
 
 ---
@@ -692,12 +692,12 @@ redis-cli -h redis-openmedlab ping
 ## Support
 
 For issues or questions:
-- **GitHub Issues**: https://github.com/yourusername/openmedlab/issues
+- **GitHub Issues**: https://github.com/yourusername/vetimage/issues
 - **Documentation**: `/docs/credentials/`
-- **Email**: support@openmedlab.com
+- **Email**: support@vetimage.com
 
 ---
 
 ## License
 
-Proprietary - OpenMedLab
+Proprietary - VetImage

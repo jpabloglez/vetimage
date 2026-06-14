@@ -66,7 +66,7 @@ class MirageConnector(BaseAIConnector):
         modality = task.parameters.get('modality', 'bscan')
         output_destination = task.parameters.get(
             'output_destination',
-            f's3://openmedlab-results/mirage/{task.id}'
+            f's3://vetimage-results/mirage/{task.id}'
         )
 
         # Get image file path (from container perspective)

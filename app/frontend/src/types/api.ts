@@ -1,5 +1,5 @@
 /**
- * Shared TypeScript types for OpenMedLab API responses and requests.
+ * Shared TypeScript types for VetImage API responses and requests.
  *
  * All types are re-exported from utils/api.ts for backward compatibility.
  * New code should import directly from this file:
@@ -67,6 +67,9 @@ export interface Study {
   Modality?: string;
   NumberOfStudyRelatedSeries?: number;
   NumberOfStudyRelatedInstances?: number;
+  // Veterinary link (Owner → AnimalPatient → Study)
+  AnimalPatientID?: number | null;
+  AnimalPatientName?: string | null;
 }
 
 export interface Series {
@@ -97,6 +100,415 @@ export interface StorageInfo {
   quota: number;
   remaining: number;
   percentage: number;
+}
+
+// ---------------------------------------------------------------------------
+// Veterinary patients (Owner → AnimalPatient → Study)
+// ---------------------------------------------------------------------------
+
+export type Species =
+  | 'canine' | 'feline' | 'equine' | 'bovine' | 'avian' | 'exotic' | 'other';
+
+export type AnimalSex = 'M' | 'F' | 'MN' | 'FS' | 'U' | '';
+
+export interface OwnerSummary {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone?: string;
+}
+
+export interface AnimalPatientListItem {
+  id: number;
+  name: string;
+  species: Species;
+  breed?: string;
+  sex?: AnimalSex;
+  owner_name: string;
+  profile_photo?: string | null;
+}
+
+export interface AnimalPatientStudyRef {
+  study_instance_uid: string;
+  study_description?: string;
+  study_date?: string | null;
+}
+
+export type VHSInterpretation = 'within_range' | 'above_range' | 'below_range' | 'unknown';
+
+export interface VHSTrendPoint {
+  id: number;
+  measured_on: string;
+  vhs: number;
+  long_axis_vertebrae: number;
+  short_axis_vertebrae: number;
+  interpretation: VHSInterpretation;
+  method: 'manual' | 'ai_assisted';
+  notes?: string;
+}
+
+export interface VHSMeasurement {
+  id: number;
+  study_instance_uid?: string;
+  sop_instance_uid?: string;
+  measured_on: string;
+  long_axis_vertebrae: string;
+  short_axis_vertebrae: string;
+  vhs: string;
+  method: 'manual' | 'ai_assisted';
+  landmark_points?: Record<string, unknown>;
+  notes?: string;
+  interpretation: VHSInterpretation;
+  reference_range?: { low: number; high: number } | null;
+  created_by_email?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface VHSMeasurementWrite {
+  animal_patient_id: number;
+  study_instance_uid?: string;
+  sop_instance_uid?: string;
+  measured_on: string;
+  long_axis_vertebrae: number | string;
+  short_axis_vertebrae: number | string;
+  method?: 'manual' | 'ai_assisted';
+  notes?: string;
+}
+
+export type VisitType =
+  | 'consultation' | 'follow_up' | 'vaccination' | 'surgery' | 'imaging' | 'emergency';
+
+export type AppointmentStatus =
+  | 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+
+export interface WeightTrendPoint {
+  id: number;
+  measured_on: string;
+  weight_kg: number;
+  bcs?: number | null;
+  notes?: string;
+}
+
+export interface VaccinationSummary {
+  id: number;
+  vaccine_name: string;
+  administered_on: string;
+  next_due_on?: string | null;
+  batch_number?: string;
+  notes?: string;
+}
+
+export interface AppointmentSummary {
+  id: number;
+  appointment_type: VisitType;
+  scheduled_at: string;
+  status: AppointmentStatus;
+  duration_minutes: number;
+}
+
+export type ReproductiveEventType =
+  | 'heat' | 'mating' | 'pregnancy_confirmed' | 'whelping'
+  | 'litter_registration' | 'spay_neuter' | 'other';
+
+export interface ReproductiveEvent {
+  id: number;
+  event_type: ReproductiveEventType;
+  event_date: string;
+  partner_id?: string;
+  litter_count?: number | null;
+  notes?: string;
+  created_at?: string;
+}
+
+export interface ReproductiveEventWrite {
+  animal_patient_id: number;
+  event_type: ReproductiveEventType;
+  event_date: string;
+  partner_id?: string;
+  litter_count?: number | null;
+  notes?: string;
+}
+
+export interface AnimalPatient {
+  id: number;
+  owner: OwnerSummary;
+  name: string;
+  species: Species;
+  breed?: string;
+  date_of_birth?: string | null;
+  sex?: AnimalSex;
+  weight_kg?: string | null;
+  microchip_id?: string;
+  color?: string;
+  profile_photo?: string | null;
+  insurance_provider?: string;
+  insurance_policy_number?: string;
+  insurance_expiry?: string | null;
+  visits_count?: number;
+  studies?: AnimalPatientStudyRef[];
+  vhs_trend?: VHSTrendPoint[];
+  weight_trend?: WeightTrendPoint[];
+  vaccinations?: VaccinationSummary[];
+  upcoming_appointments?: AppointmentSummary[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface AnimalPatientWrite {
+  owner_id: number;
+  name: string;
+  species: Species;
+  breed?: string;
+  date_of_birth?: string | null;
+  sex?: AnimalSex;
+  weight_kg?: string | null;
+  microchip_id?: string;
+  color?: string;
+  insurance_provider?: string;
+  insurance_policy_number?: string;
+  insurance_expiry?: string | null;
+}
+
+export interface Owner {
+  id: number;
+  organization?: number;
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  animals_count?: number;
+  animals?: AnimalPatientListItem[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface OwnerWrite {
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+}
+
+export interface ClinicalVisit {
+  id: number;
+  visit_date: string;
+  visit_type: VisitType;
+  attending_vet_email?: string;
+  chief_complaint?: string;
+  subjective?: string;
+  objective?: string;
+  assessment?: string;
+  plan?: string;
+  weight_kg?: string | null;
+  temperature_celsius?: string | null;
+  heart_rate_bpm?: number | null;
+  respiratory_rate?: number | null;
+  linked_study?: number | null;
+  linked_report?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ClinicalVisitWrite {
+  animal_patient_id: number;
+  visit_date: string;
+  visit_type: VisitType;
+  chief_complaint?: string;
+  subjective?: string;
+  objective?: string;
+  assessment?: string;
+  plan?: string;
+  weight_kg?: string | null;
+  temperature_celsius?: string | null;
+  heart_rate_bpm?: number | null;
+  respiratory_rate?: number | null;
+  linked_study?: number | null;
+  linked_report?: string | null;
+}
+
+export interface VaccinationRecord {
+  id: number;
+  vaccine_name: string;
+  administered_on: string;
+  next_due_on?: string | null;
+  batch_number?: string;
+  administered_by_email?: string;
+  notes?: string;
+  created_at?: string;
+}
+
+export interface VaccinationRecordWrite {
+  animal_patient_id: number;
+  vaccine_name: string;
+  administered_on: string;
+  next_due_on?: string | null;
+  batch_number?: string;
+  notes?: string;
+}
+
+export interface WeightRecord {
+  id: number;
+  measured_on: string;
+  weight_kg: string;
+  bcs?: number | null;
+  notes?: string;
+  created_at?: string;
+}
+
+export interface WeightRecordWrite {
+  animal_patient_id: number;
+  measured_on: string;
+  weight_kg: string;
+  bcs?: number | null;
+  notes?: string;
+}
+
+export interface Appointment {
+  id: number;
+  animal_name: string;
+  owner_name: string;
+  appointment_type: VisitType;
+  scheduled_at: string;
+  duration_minutes: number;
+  status: AppointmentStatus;
+  notes?: string;
+  linked_visit?: number | null;
+  created_at?: string;
+}
+
+export interface AppointmentWrite {
+  animal_patient_id: number;
+  appointment_type: VisitType;
+  scheduled_at: string;
+  duration_minutes?: number;
+  attending_vet?: number | null;
+  notes?: string;
+}
+
+// ---------------------------------------------------------------------------
+// P2: Prescription, AllergyRecord, LabResult, ClinicalPhoto, StudyShareLink
+// ---------------------------------------------------------------------------
+
+export type AllergenType = 'drug' | 'food' | 'environmental' | 'contact';
+export type AllergySeverity = 'mild' | 'moderate' | 'severe' | 'life_threatening';
+export type LabResultType =
+  | 'hematology' | 'biochemistry' | 'urinalysis' | 'cytology'
+  | 'serology' | 'microbiology' | 'other';
+
+export interface Prescription {
+  id: number;
+  visit?: number | null;
+  prescribed_on: string;
+  medication_name: string;
+  dose?: string;
+  route?: string;
+  frequency?: string;
+  duration_days?: number | null;
+  refills_remaining?: number;
+  notes?: string;
+  prescribed_by_email?: string;
+  created_at?: string;
+}
+
+export interface PrescriptionWrite {
+  animal_patient_id: number;
+  visit?: number | null;
+  prescribed_on: string;
+  medication_name: string;
+  dose?: string;
+  route?: string;
+  frequency?: string;
+  duration_days?: number | null;
+  notes?: string;
+}
+
+export interface AllergyRecord {
+  id: number;
+  allergen: string;
+  allergen_type: AllergenType;
+  reaction?: string;
+  severity: AllergySeverity;
+  first_observed?: string | null;
+  is_high_severity: boolean;
+  created_at?: string;
+}
+
+export interface AllergyRecordWrite {
+  animal_patient_id: number;
+  allergen: string;
+  allergen_type: AllergenType;
+  reaction?: string;
+  severity: AllergySeverity;
+  first_observed?: string | null;
+}
+
+export interface LabAnalyte {
+  value: number;
+  unit: string;
+  ref_low?: number | null;
+  ref_high?: number | null;
+  flag?: 'N' | 'H' | 'L' | 'CRITICAL' | string;
+}
+
+export interface LabResult {
+  id: number;
+  visit?: number | null;
+  result_type: LabResultType;
+  panel_name: string;
+  result_date: string;
+  result_data: Record<string, LabAnalyte>;
+  lab_name?: string;
+  pdf_url?: string | null;
+  created_at?: string;
+}
+
+export interface LabResultWrite {
+  animal_patient_id: number;
+  visit?: number | null;
+  result_type: LabResultType;
+  panel_name: string;
+  result_date: string;
+  result_data: Record<string, LabAnalyte>;
+  lab_name?: string;
+}
+
+export interface ClinicalPhoto {
+  id: number;
+  visit?: number | null;
+  photo_url?: string | null;
+  caption?: string;
+  body_region?: string;
+  taken_on: string;
+  created_at?: string;
+}
+
+export interface StudyShareLink {
+  id: number;
+  study: number;
+  study_instance_uid?: string;
+  recipient_email?: string;
+  token: string;
+  expires_at?: string | null;
+  access_count: number;
+  max_accesses?: number | null;
+  is_valid: boolean;
+  share_url?: string;
+  created_at?: string;
+}
+
+export interface StudyShareLinkWrite {
+  study_uid: string;
+  recipient_email?: string;
+  expires_at?: string | null;
+  max_accesses?: number | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -145,9 +557,10 @@ export interface AIModel {
   tags?: string[];
   medical_domains?: string[];
   anatomical_regions?: string[];
+  supported_species?: string[];
 
   // Performance
-  performance_metrics?: Record<string, number>;
+  performance_metrics?: Record<string, number | string>;
   validation_dataset?: string;
   training_dataset?: string;
 
@@ -167,6 +580,7 @@ export interface AIModel {
 
   // Data Governance
   requires_anonymization?: boolean;
+  metadata?: Record<string, unknown>;
 
   // Timestamps
   created_at?: string;
@@ -194,6 +608,7 @@ export interface AnalysisTask {
   };
   input_image: any;
   status: TaskStatus;
+  priority?: TaskPriority;
   parameters: Record<string, any>;
   created_at: string;
   dispatched_at?: string;
@@ -208,10 +623,13 @@ export interface AnalysisTask {
   warning?: string;
 }
 
+export type TaskPriority = 'routine' | 'urgent' | 'stat';
+
 export interface CreateTaskRequest {
   model_key: string;
   input_image_id: number;
   parameters: Record<string, any>;
+  priority?: TaskPriority;
 }
 
 export interface ScoredModel {
@@ -517,8 +935,37 @@ export interface Report {
   analysis_task_id?: string;
   study_uid?: string;
   model_name?: string;
+  is_approved?: boolean;
+  approved_by_email?: string;
+  approved_at?: string | null;
+  is_shared?: boolean;
   created_at: string;
   updated_at?: string;
+}
+
+export interface AuditLogEntry {
+  id: number;
+  user_email?: string | null;
+  username_attempted?: string;
+  event_type: string;
+  event_type_display: string;
+  event_timestamp: string;
+  ip_address: string;
+  user_agent?: string;
+  request_path?: string;
+  request_method?: string;
+  is_suspicious: boolean;
+  risk_score?: number;
+}
+
+export interface PublicSharedReport {
+  title: string;
+  patient_info: Record<string, string>;
+  findings: string[];
+  summary: string;
+  disclaimer: string;
+  approved_at: string | null;
+  clinic: string | null;
 }
 
 export interface ReportTemplate {
@@ -529,6 +976,135 @@ export interface ReportTemplate {
   is_default: boolean;
   created_at: string;
   updated_at: string;
+}
+
+// ---------------------------------------------------------------------------
+// Referral network (#24)
+// ---------------------------------------------------------------------------
+
+export type ReferralUrgency = 'routine' | 'urgent' | 'emergency';
+
+export interface ReferringClinic {
+  id: number;
+  name: string;
+  contact_name?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  address?: string;
+  notes?: string;
+  created_at?: string;
+}
+
+export interface ReferringClinicWrite {
+  name: string;
+  contact_name?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  address?: string;
+  notes?: string;
+}
+
+export interface ReferralPackage {
+  id: number;
+  animal_name: string;
+  referring_clinic?: number | null;
+  referring_clinic_name?: string | null;
+  study_instance_uid?: string | null;
+  report?: number | null;
+  report_title?: string | null;
+  reason?: string;
+  history_summary?: string;
+  urgency: ReferralUrgency;
+  token: string;
+  recipient_email?: string;
+  expires_at?: string | null;
+  access_count: number;
+  share_path: string;
+  is_valid: boolean;
+  created_at?: string;
+}
+
+export interface ReferralPackageWrite {
+  animal_patient_id: number;
+  referring_clinic?: number | null;
+  study_uid?: string;
+  report?: number | null;
+  reason?: string;
+  history_summary?: string;
+  urgency?: ReferralUrgency;
+  recipient_email?: string;
+  expires_at?: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Owner ↔ clinic messaging (#22)
+// ---------------------------------------------------------------------------
+
+export interface Message {
+  id: number;
+  sender_email?: string;
+  from_owner: boolean;
+  body: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+// ---------------------------------------------------------------------------
+// Pet-owner portal (#21)
+// ---------------------------------------------------------------------------
+
+export interface PortalPet {
+  id: number;
+  name: string;
+  species: string;
+  breed: string;
+  sex: string;
+  date_of_birth: string | null;
+  profile_photo: string | null;
+  clinic: string | null;
+  vaccinations: Array<{
+    vaccine_name: string;
+    administered_on: string;
+    next_due_on: string | null;
+    overdue: boolean;
+  }>;
+  upcoming_appointments: Array<{
+    appointment_type: string;
+    scheduled_at: string;
+    status: string;
+  }>;
+}
+
+export interface PortalSharedReport {
+  title: string;
+  pet_name: string;
+  approved_at: string | null;
+  share_path: string;
+}
+
+export interface PortalDashboard {
+  owner: { email: string; pet_count: number };
+  pets: PortalPet[];
+  shared_reports: PortalSharedReport[];
+}
+
+export interface PublicReferralPackage {
+  patient: {
+    name: string;
+    species: string;
+    breed: string;
+    sex: string;
+    date_of_birth: string | null;
+    microchip_id: string;
+  };
+  referring_clinic_name: string | null;
+  reason: string;
+  history_summary: string;
+  urgency: ReferralUrgency;
+  study_instance_uid: string | null;
+  report: { title: string; findings: string[]; summary: string } | null;
+  disclaimer: string;
+  created_at: string;
 }
 
 // ---------------------------------------------------------------------------

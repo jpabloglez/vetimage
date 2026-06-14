@@ -322,23 +322,57 @@ export const TaskMonitor: React.FC<TaskMonitorProps> = ({
         )}
 
         {/* Result Metadata */}
-        {isCompleted && task.result_metadata && Object.keys(task.result_metadata).length > 0 && (
-          <div className="p-3 bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 rounded-lg">
-            <p className="text-sm font-semibold text-success-900 dark:text-success-100 mb-2">
-              Analysis Complete
-            </p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              {Object.entries(task.result_metadata).slice(0, 4).map(([key, value]) => (
-                <div key={key}>
-                  <p className="text-success-700 dark:text-success-400">{key}</p>
-                  <p className="font-semibold text-success-900 dark:text-success-100">
-                    {String(value)}
-                  </p>
+        {isCompleted && task.result_metadata && Object.keys(task.result_metadata).length > 0 && (() => {
+          const meta = task.result_metadata as Record<string, any>;
+          const findings: Array<Record<string, any>> = Array.isArray(meta.findings) ? meta.findings : [];
+          // Scalar metadata entries (skip the findings array, rendered separately).
+          const scalars = Object.entries(meta).filter(
+            ([k, v]) => k !== 'findings' && v !== null && typeof v !== 'object',
+          );
+          return (
+            <div className="p-3 bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 rounded-lg">
+              <p className="text-sm font-semibold text-success-900 dark:text-success-100 mb-2">
+                Analysis Complete
+              </p>
+
+              {/* Structured findings (label · region · confidence) */}
+              {findings.length > 0 && (
+                <ul className="space-y-1 mb-3">
+                  {findings.map((f, i) => (
+                    <li key={i} className="flex items-center justify-between gap-2 text-xs bg-white/60 dark:bg-slate-800/40 rounded px-2 py-1">
+                      <span className="font-medium text-success-900 dark:text-success-100">
+                        {String(f.label ?? f.description ?? 'finding').replace(/_/g, ' ')}
+                        {f.region ? <span className="text-success-700 dark:text-success-400"> · {String(f.region).replace(/_/g, ' ')}</span> : null}
+                      </span>
+                      {f.confidence != null && (
+                        <span className="font-mono text-success-700 dark:text-success-300">
+                          {Math.round(Number(f.confidence) * 100)}%
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {scalars.length > 0 && (
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {scalars.slice(0, 4).map(([key, value]) => (
+                    <div key={key}>
+                      <p className="text-success-700 dark:text-success-400">{key.replace(/_/g, ' ')}</p>
+                      <p className="font-semibold text-success-900 dark:text-success-100">{String(value)}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
+
+              {findings.length > 0 && (
+                <p className="mt-2 text-[11px] text-success-700/80 dark:text-success-400/80">
+                  Draft findings — must be reviewed and confirmed by a veterinarian. Not a diagnosis.
+                </p>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Action Buttons */}
         <div className="flex gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">

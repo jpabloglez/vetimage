@@ -26,7 +26,7 @@ class FilePathHandler:
         '/app/MIRAGE/_test_data',
         '/tmp',
         '/app/local_images',
-        '/var/www/app/backend/media',  # OpenMedLab shared media volume (DICOM input + AI results)
+        '/var/www/app/backend/media',  # VetImage shared media volume (DICOM input + AI results)
     ]
 
     @staticmethod

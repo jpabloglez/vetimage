@@ -1,0 +1,60 @@
+{
+  "title": "Citas",
+  "subtitle": "Agenda de la clínica",
+  "month": "Mes",
+  "week": "Semana",
+  "today": "Hoy",
+  "newAppointment": "Nueva cita",
+  "noAppointments": "No hay citas programadas",
+  "loading": "Cargando…",
+  "types": {
+    "consultation": "Consulta",
+    "follow_up": "Revisión",
+    "vaccination": "Vacunación",
+    "surgery": "Cirugía",
+    "imaging": "Imagen",
+    "emergency": "Urgencia"
+  },
+  "statuses": {
+    "pending": "Pendiente",
+    "confirmed": "Confirmada",
+    "completed": "Completada",
+    "cancelled": "Cancelada",
+    "no_show": "No presentado"
+  },
+  "detail": {
+    "animal": "Paciente",
+    "owner": "Propietario",
+    "type": "Tipo",
+    "scheduled": "Programada",
+    "duration": "Duración",
+    "status": "Estado",
+    "notes": "Notas",
+    "complete": "Completar y crear visita",
+    "completing": "Completando…",
+    "edit": "Editar",
+    "cancel": "Cancelar cita",
+    "completed": "Visita creada",
+    "completeFailed": "No se pudo completar la cita"
+  },
+  "form": {
+    "title": "Nueva cita",
+    "editTitle": "Editar cita",
+    "animal": "Paciente",
+    "searchAnimal": "Buscar paciente…",
+    "type": "Tipo",
+    "scheduled": "Fecha y hora",
+    "duration": "Duración (minutos)",
+    "notes": "Notas (opcional)",
+    "save": "Reservar cita",
+    "saving": "Guardando…",
+    "cancel": "Cancelar",
+    "created": "Cita reservada",
+    "updated": "Cita actualizada",
+    "failed": "No se pudo guardar la cita"
+  },
+  "nav": {
+    "prev": "Anterior",
+    "next": "Siguiente"
+  }
+}

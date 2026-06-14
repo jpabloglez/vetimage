@@ -410,7 +410,7 @@ class StudyListView(APIView):
             )
 
         # Get user's studies (user-scoped access)
-        studies = MedicalStudy.objects.filter(uploaded_by=user)
+        studies = MedicalStudy.objects.filter(uploaded_by=user).select_related('animal_patient')
 
         # Apply filters from query parameters
         patient_id = request.query_params.get('PatientID')
@@ -564,12 +564,85 @@ class StorageQuotaView(APIView):
         return Response(serializer.data)
 
 
+@extend_schema(tags=['DICOM'])
 class DeleteStudyView(APIView):
     """
-    Delete a study and all associated data
+    Delete a study and all associated data, or link it to an animal patient.
     DELETE /api/dicom/studies/{study_uid}
+    PATCH  /api/dicom/studies/{study_uid}   body: {"animal_patient_id": <id|null>}
     """
 
+    @extend_schema(
+        summary='Link/unlink a study to an animal patient',
+        request=OpenApiTypes.OBJECT,
+        responses={200: OpenApiTypes.OBJECT, 404: OpenApiTypes.OBJECT},
+        examples=[OpenApiExample('Link', value={'animal_patient_id': 12})],
+    )
+    def patch(self, request, study_uid):
+        """
+        Link (or unlink) a study to a veterinary AnimalPatient.
+
+        Only animal patients within the requesting user's organization may be
+        linked. Pass animal_patient_id=null to unlink.
+        """
+        from patients.models import AnimalPatient
+
+        user = request.user if request.user.is_authenticated else None
+        if not user:
+            return Response(
+                {'error': 'Authentication required'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        try:
+            study = MedicalStudy.objects.get(
+                study_instance_uid=study_uid,
+                uploaded_by=user
+            )
+        except MedicalStudy.DoesNotExist:
+            return Response(
+                {'error': 'Study not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if 'animal_patient_id' not in request.data:
+            return Response(
+                {'error': 'animal_patient_id is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        animal_id = request.data.get('animal_patient_id')
+        if animal_id is None:
+            study.animal_patient = None
+        else:
+            from patients.views import get_or_create_organization
+            org = get_or_create_organization(user)
+            try:
+                animal = AnimalPatient.objects.get(
+                    id=animal_id,
+                    owner__organization=org,
+                )
+            except AnimalPatient.DoesNotExist:
+                return Response(
+                    {'error': 'Animal patient not found in your organization'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            study.animal_patient = animal
+
+        study.save(update_fields=['animal_patient', 'updated_at'])
+        return Response(
+            {
+                'success': True,
+                'study_instance_uid': study.study_instance_uid,
+                'animal_patient_id': study.animal_patient_id,
+            },
+            status=status.HTTP_200_OK
+        )
+
+    @extend_schema(
+        summary='Delete a study (cascades to series/images)',
+        responses={204: OpenApiTypes.NONE, 404: OpenApiTypes.OBJECT},
+    )
     def delete(self, request, study_uid):
         """
         Delete a study (and cascade to series/images)
@@ -2001,3 +2074,98 @@ class MedicalImageUploadView(APIView):
                 {'error': f'Upload failed: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+# ---------------------------------------------------------------------------
+# Study sharing (StudyShareLink)
+# ---------------------------------------------------------------------------
+
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
+from .models import StudyShareLink
+from .serializers import StudyShareLinkSerializer
+
+
+class StudyShareViewSet(viewsets.ModelViewSet):
+    """Create and manage share links for DICOM studies."""
+    serializer_class = StudyShareLinkSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        profile = getattr(self.request.user, 'userprofile', None)
+        if profile is None or profile.organization is None:
+            return StudyShareLink.objects.none()
+        qs = StudyShareLink.objects.filter(
+            study__uploaded_by__userprofile__organization=profile.organization
+        ).select_related('study', 'created_by')
+        study_uid = self.request.query_params.get('study')
+        if study_uid:
+            qs = qs.filter(study__study_instance_uid=study_uid)
+        return qs
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+
+class PublicStudyWADOView(APIView):
+    """
+    Token-gated public DICOM metadata endpoint for shared studies.
+    Returns basic study metadata; actual image bytes are served via OHIF/WADO-RS
+    (the client uses the token to authenticate downstream requests).
+    No authentication required — access is controlled solely by the unguessable token.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request, token):
+        from django.utils import timezone
+        try:
+            link = StudyShareLink.objects.select_related('study').get(token=token)
+        except StudyShareLink.DoesNotExist:
+            return Response({'error': 'Invalid or expired share link.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not link.is_valid():
+            return Response({'error': 'This share link has expired or reached its access limit.'}, status=status.HTTP_403_FORBIDDEN)
+
+        link.access_count += 1
+        link.save(update_fields=['access_count'])
+
+        study = link.study
+        return Response({
+            'study_instance_uid': study.study_instance_uid,
+            'study_description': study.study_description,
+            'study_date': study.study_date,
+            'patient_id': study.patient_id,
+            'modality': study.modality,
+            'expires_at': link.expires_at,
+            'accesses_remaining': (link.max_accesses - link.access_count) if link.max_accesses else None,
+        })
+
+
+class StudyCDExportView(APIView):
+    """
+    Export a study as a DICOM CD/USB ZIP (DICOMDIR layout when the instances
+    are conformant; plain DICOM/ folder fallback otherwise).
+    Org-scoped: the study must belong to the requesting user's organization.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, study_uid):
+        from .models import MedicalStudy
+        from .services.cd_export import build_cd_zip
+        from patients.views import get_or_create_organization
+
+        org = get_or_create_organization(request.user)
+        try:
+            study = MedicalStudy.objects.get(
+                study_instance_uid=study_uid,
+                uploaded_by__userprofile__organization=org,
+            )
+        except MedicalStudy.DoesNotExist:
+            return Response({'error': 'Study not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        zip_buffer = build_cd_zip(study)
+        response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = (
+            f'attachment; filename="dicom_cd_{study_uid[-12:].replace(".", "_")}.zip"'
+        )
+        return response

@@ -13,6 +13,7 @@ class ReportTemplateSerializer(serializers.ModelSerializer):
         model = ReportTemplate
         fields = [
             'id', 'name', 'template_type', 'layout',
+            'species_filter', 'modality_filter',
             'is_default', 'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'is_default', 'created_at', 'updated_at']
@@ -23,11 +24,4 @@ class CreateReportTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ReportTemplate
-        fields = ['name', 'template_type', 'layout']
-
-    def validate_template_type(self, value):
-        if value not in ('radiology', 'pathology', 'general', 'custom'):
-            raise serializers.ValidationError(
-                f"Invalid template type: {value}"
-            )
-        return value
+        fields = ['name', 'template_type', 'layout', 'species_filter', 'modality_filter']

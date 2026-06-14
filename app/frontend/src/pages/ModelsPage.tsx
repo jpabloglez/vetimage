@@ -22,6 +22,9 @@ const ModelsPage: React.FC = () => {
   const [retryKey, setRetryKey] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedSpecies, setSelectedSpecies] = useState<string>('all');
+
+  const SPECIES_OPTIONS = ['canine', 'feline', 'equine', 'bovine', 'avian', 'exotic'];
 
   useEffect(() => {
     const fetchModels = async () => {
@@ -56,6 +59,14 @@ const ModelsPage: React.FC = () => {
       filtered = filtered.filter(model => model.model_type === selectedType);
     }
 
+    // Filter by species (species-agnostic models — empty list — always match)
+    if (selectedSpecies !== 'all') {
+      filtered = filtered.filter(model => {
+        const sp = model.supported_species ?? [];
+        return sp.length === 0 || sp.includes(selectedSpecies);
+      });
+    }
+
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -68,7 +79,7 @@ const ModelsPage: React.FC = () => {
     }
 
     setFilteredModels(filtered);
-  }, [models, searchQuery, selectedType]);
+  }, [models, searchQuery, selectedType, selectedSpecies]);
 
   // Get unique model types
   const modelTypes = Array.from(new Set(models.map(m => m.model_type)));
@@ -126,7 +137,7 @@ const ModelsPage: React.FC = () => {
         {/* Search and Filters */}
         <Card variant="medical" className="mb-6">
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Search */}
               <div>
                 <label htmlFor="search" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -164,6 +175,26 @@ const ModelsPage: React.FC = () => {
                   {modelTypes.map(type => (
                     <option key={type} value={type}>
                       {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Species Filter */}
+              <div>
+                <label htmlFor="species" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  {t('species', 'Species')}
+                </label>
+                <select
+                  id="species"
+                  value={selectedSpecies}
+                  onChange={(e) => setSelectedSpecies(e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-medical-500 focus:border-transparent"
+                >
+                  <option value="all">{t('allSpecies', 'All species')}</option>
+                  {SPECIES_OPTIONS.map(sp => (
+                    <option key={sp} value={sp}>
+                      {sp.charAt(0).toUpperCase() + sp.slice(1)}
                     </option>
                   ))}
                 </select>
@@ -221,7 +252,7 @@ const ModelsPage: React.FC = () => {
                     {t('about.validated')}
                   </h4>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
-                    All models are validated on clinical datasets with published performance metrics
+                    Each model lists its species, version, datasets, and known limitations — review them before clinical use
                   </p>
                 </div>
               </div>

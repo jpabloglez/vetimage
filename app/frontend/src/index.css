@@ -2,13 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Medical AI Platform Theme Variables */
+/* VetImage Theme Variables — Emerald + Amber */
 :root {
   /* Light theme colors */
   --color-bg-primary: 248 250 252; /* slate-50 */
   --color-bg-secondary: 241 245 249; /* slate-100 */
   --color-bg-tertiary: 255 255 255; /* white */
-  --color-bg-accent: 240 249 255; /* medical-50 */
+  --color-bg-accent: 236 253 245; /* medical-50 emerald */
 
   --color-text-primary: 15 23 42; /* slate-900 */
   --color-text-secondary: 51 65 85; /* slate-700 */
@@ -18,9 +18,9 @@
   --color-border-primary: 226 232 240; /* slate-200 */
   --color-border-secondary: 203 213 225; /* slate-300 */
 
-  --color-medical-primary: 14 165 233; /* medical-500 */
+  --color-medical-primary: 16 185 129; /* emerald-500 */
   --color-medical-secondary: 20 184 166; /* teal-500 */
-  --color-medical-accent: 56 189 248; /* medical-400 */
+  --color-medical-accent: 52 211 153; /* emerald-400 */
 
   --color-success: 34 197 94; /* success-500 */
   --color-warning: 245 158 11; /* warning-500 */
@@ -30,11 +30,11 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-medical: 0 4px 6px -1px rgb(14 165 233 / 0.1), 0 2px 4px -1px rgb(14 165 233 / 0.06);
+  --shadow-medical: 0 4px 6px -1px rgb(16 185 129 / 0.1), 0 2px 4px -1px rgb(16 185 129 / 0.06);
 
   /* Gradients */
-  --gradient-medical: linear-gradient(135deg, rgb(240 249 255), rgb(224 242 254));
-  --gradient-hero: linear-gradient(135deg, rgb(240 249 255) 0%, rgb(224 242 254) 50%, rgb(186 230 253) 100%);
+  --gradient-medical: linear-gradient(135deg, rgb(236 253 245), rgb(209 250 229));
+  --gradient-hero: linear-gradient(135deg, rgb(236 253 245) 0%, rgb(209 250 229) 50%, rgb(167 243 208) 100%);
 
   /* Spacing */
   --space-px: 1px;
@@ -60,7 +60,7 @@
   --color-bg-primary: 15 23 42; /* slate-900 */
   --color-bg-secondary: 30 41 59; /* slate-800 */
   --color-bg-tertiary: 51 65 85; /* slate-700 */
-  --color-bg-accent: 12 74 110; /* medical-900 */
+  --color-bg-accent: 6 78 59; /* emerald-900 */
 
   --color-text-primary: 248 250 252; /* slate-50 */
   --color-text-secondary: 226 232 240; /* slate-200 */
@@ -73,7 +73,7 @@
   --gradient-medical: linear-gradient(135deg, rgb(15 23 42), rgb(30 41 59));
   --gradient-hero: linear-gradient(135deg, rgb(15 23 42) 0%, rgb(30 41 59) 50%, rgb(51 65 85) 100%);
 
-  --shadow-medical: 0 4px 6px -1px rgb(14 165 233 / 0.3), 0 2px 4px -1px rgb(14 165 233 / 0.2);
+  --shadow-medical: 0 4px 6px -1px rgb(16 185 129 / 0.3), 0 2px 4px -1px rgb(16 185 129 / 0.2);
 }
 
 /* Base styles */

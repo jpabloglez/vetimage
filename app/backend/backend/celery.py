@@ -35,6 +35,10 @@ app.conf.beat_schedule = {
         'task': 'ai_analysis.tasks.sync_orchestrator_status',
         'schedule': 5.0,  # Every 5 seconds (polling interval)
     },
+    'send-vaccination-reminders': {
+        'task': 'patients.tasks.send_vaccination_reminders',
+        'schedule': crontab(hour=8, minute=0),  # Daily at 08:00 UTC
+    },
 }
 
 

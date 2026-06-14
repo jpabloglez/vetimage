@@ -1,8 +1,8 @@
 {
   "hero": {
-    "titleLine1": "IA Médica Avançada",
-    "titleLine2": "para Análise de Imagens",
-    "subtitle": "Revolucionando a saúde com modelos de aprendizado profundo de última geração para análise automatizada de imagens médicas. Nativo DICOM, privacidade em primeiro lugar, validado clinicamente.",
+    "titleLine1": "Análise Veterinária",
+    "titleLine2": "de Imagens com IA",
+    "subtitle": "Imagens DICOM modernas para a prática veterinária: armazenamento, análise assistida por IA e laudos estruturados, construídos em torno do fluxo Tutor → Paciente → Estudo que sua clínica realmente usa. Nativo DICOM, privacidade em primeiro lugar, adaptado a cada espécie.",
     "openDashboard": "Abrir Painel",
     "startAnalysis": "Iniciar Análise",
     "getStarted": "Comece Gratuitamente",
@@ -10,49 +10,49 @@
   },
   "stats": {
     "accuracy": "Precisão",
-    "imagesAnalyzed": "Imagens Analisadas",
+    "imagesAnalyzed": "Estudos Analisados",
     "analysisTime": "Tempo de Análise",
-    "healthcarePartners": "Parceiros de Saúde"
+    "healthcarePartners": "Clínicas Veterinárias"
   },
   "features": {
-    "heading": "Modelos de IA Médica de Ponta",
-    "subtitle": "Modelos de aprendizado profundo desenvolvidos especificamente e validados em grandes conjuntos de dados clínicos",
-    "multiModal": "Análise Multimodal",
-    "multiModalDesc": "Suporte para raio-X, TC, RM e outras modalidades de imagem médica com modelos especializados.",
+    "heading": "Desenvolvido para Imagens Veterinárias",
+    "subtitle": "Ferramentas de imagem e IA criadas especificamente para animais de companhia, equinos e exóticos",
+    "multiModal": "Imagens Multimodais",
+    "multiModalDesc": "Suporte para raio-X, TC, RM e ultrassom em pacientes caninos, felinos, equinos e exóticos.",
     "realTime": "Processamento em Tempo Real",
-    "realTimeDesc": "Obtenha resultados de análise em segundos com nosso pipeline de inferência otimizado e aceleração por GPU.",
-    "hipaa": "Conformidade HIPAA",
-    "hipaaDesc": "Segurança de nível empresarial com criptografia de ponta a ponta, registro de auditoria e anonimização de dados.",
+    "realTimeDesc": "Obtenha resultados de análise em segundos com um pipeline de inferência otimizado e aceleração por GPU.",
+    "hipaa": "Seguro e Privado",
+    "hipaaDesc": "Segurança de nível clínico com criptografia de ponta a ponta, registro de auditoria e anonimização de dados do paciente.",
     "clinical": "Validação Clínica",
-    "clinicalDesc": "Modelos validados com conjuntos de dados clínicos com métricas de precisão publicadas e revisão por pares.",
-    "precision": "Medicina de Precisão",
-    "precisionDesc": "Análise personalizada considerando dados demográficos do paciente e contexto clínico.",
+    "clinicalDesc": "Modelos validados com conjuntos de dados de imagens veterinárias e métricas transparentes e reproduzíveis.",
+    "precision": "Centrado no Paciente",
+    "precisionDesc": "Análise que considera a espécie, a raça e o contexto individual de cada paciente.",
     "continuousLearning": "Aprendizado Contínuo",
-    "continuousLearningDesc": "Modelos melhoram continuamente por meio de aprendizado federado, preservando a privacidade do paciente."
+    "continuousLearningDesc": "Os modelos melhoram continuamente preservando a privacidade do paciente e da clínica."
   },
   "useCases": {
-    "heading": "Desenvolvido para Profissionais de Saúde",
-    "radiologists": "Radiologistas",
+    "heading": "Desenvolvido para Equipes Veterinárias",
+    "radiologists": "Radiologistas Veterinários",
     "radiologistsDesc": "Leituras preliminares automatizadas, detecção de anomalias e laudos estruturados para diagnóstico mais rápido.",
-    "emergency": "Médicos de Emergência",
-    "emergencyDesc": "Triagem rápida de achados críticos, incluindo detecção de hemorragia, fraturas e pneumotórax.",
-    "researchers": "Pesquisadores",
-    "researchersDesc": "Processamento em lote, análise estatística e ferramentas de comparação de modelos para pesquisa clínica."
+    "emergency": "Emergência e Cuidados Críticos",
+    "emergencyDesc": "Triagem rápida de achados urgentes para apoiar decisões críticas em tempo na emergência.",
+    "researchers": "Pesquisadores e Centros de Referência",
+    "researchersDesc": "Processamento em lote, análise estatística e ferramentas de comparação de modelos para estudos veterinários."
   },
   "testimonials": {
-    "quote1": "A precisão e a velocidade do OpenMedLab transformaram nosso fluxo de trabalho em radiologia. Agora podemos oferecer diagnósticos mais rápidos sem comprometer a qualidade.",
+    "quote1": "A precisão e a velocidade do VetImage transformaram nosso fluxo de trabalho em radiologia. Agora oferecemos diagnósticos mais rápidos sem comprometer a qualidade.",
     "author1": "Dra. Sarah Chen",
-    "position1": "Radiologista-Chefe, Metro General Hospital",
-    "quote2": "Como médico emergencista, ter insights de IA instantâneos em casos críticos mudou completamente os resultados dos pacientes.",
+    "position1": "Radiologista Veterinária-Chefe, Metro Animal Hospital",
+    "quote2": "Ter insights de IA instantâneos em casos de emergência mudou completamente os resultados dos nossos pacientes.",
     "author2": "Dr. Michael Rodriguez",
-    "position2": "Medicina de Emergência, City Medical Center",
+    "position2": "Emergência e Cuidados Críticos, City Veterinary Center",
     "quote3": "As capacidades de pesquisa e a transparência do modelo tornam esta plataforma indispensável para nossos estudos clínicos.",
     "author3": "Prof. Lisa Thompson",
-    "position3": "Diretora de Pesquisa em IA Médica, University Hospital"
+    "position3": "Diretora de Pesquisa em Imagem Veterinária, University Veterinary Hospital"
   },
   "cta": {
-    "heading": "Pronto para Transformar seu Fluxo de Trabalho em Imagens Médicas?",
-    "subtitle": "Junte-se a instituições de saúde em todo o mundo usando análise por IA.",
+    "heading": "Pronto para Modernizar o Fluxo de Trabalho de Imagens da sua Clínica Veterinária?",
+    "subtitle": "Junte-se às clínicas veterinárias que usam análise por IA.",
     "startTrial": "Iniciar Teste Gratuito",
     "contactSales": "Falar com Vendas"
   }

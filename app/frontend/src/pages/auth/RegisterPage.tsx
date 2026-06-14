@@ -95,18 +95,19 @@ const RegisterPage: React.FC = () => {
                 label={t('register.email')}
                 leftIcon={Mail}
                 error={errors.email?.message}
-                placeholder="doctor@hospital.com"
+                placeholder="vet@clinic.com"
                 required
                 disabled={isSubmitting}
               />
 
               {/* Role Selection */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label htmlFor="role" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                   {t('register.role')} <span className="text-error-500">*</span>
                 </label>
                 <select
                   {...register('role')}
+                  id="role"
                   className="medical-input"
                   disabled={isSubmitting}
                 >
@@ -128,7 +129,7 @@ const RegisterPage: React.FC = () => {
                 label={t('register.institution')}
                 leftIcon={Building}
                 error={errors.institution?.message}
-                placeholder="General Hospital"
+                placeholder="Your veterinary clinic"
                 helper={t('register.institutionPlaceholder')}
                 disabled={isSubmitting}
               />

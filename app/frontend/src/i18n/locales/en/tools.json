@@ -10,7 +10,7 @@
   },
   "anonymizer": {
     "title": "Anonymizer",
-    "description": "Remove patient health information (PHI) from DICOM files for research and compliance.",
+    "description": "Remove identifying information (owner & patient) from DICOM files for research and sharing.",
     "inputMode": { "library": "From Library", "upload": "Upload Files" },
     "outputFormat": {
       "label": "Output Format",
@@ -21,7 +21,7 @@
       "nifti_bids_desc": "NIfTI volumes + JSON sidecars in BIDS folder structure",
       "png_bids_desc": "PNG slices + JSON sidecars in BIDS folder structure"
     },
-    "bidsInfo": "BIDS output requires a complete study. PHI is removed before conversion. Technical parameters are preserved.",
+    "bidsInfo": "BIDS output requires a complete study. Identifying information is removed before conversion. Technical parameters are preserved.",
     "uploadComplete": "Files uploaded — study selected"
   },
   "converter": {

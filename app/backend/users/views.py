@@ -23,6 +23,8 @@ from users.serializers import (
 )
 
 from rest_framework import status, generics
+from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.decorators import action, api_view, permission_classes
@@ -40,6 +42,7 @@ from users.permissions import IsAdminUserOrReadOnly
 #class UserViewSet(viewsets.ModelViewSet):
 
    
+@extend_schema(tags=['Auth'], responses=OpenApiTypes.OBJECT)
 class UserListView(APIView):
     __doc__ = """ User List View """
 
@@ -55,6 +58,7 @@ class UserListView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+@extend_schema(tags=['Auth'], responses=OpenApiTypes.OBJECT)
 class UserDetailView(APIView):
     __doc__ = """ User Detail View """
 
@@ -169,6 +173,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
         return Response(colleague_data, status=status.HTTP_200_OK)
 
+@extend_schema(tags=['Auth'], responses=OpenApiTypes.OBJECT)
 class UserProfileListView(APIView):
     __doc__ = """ User Profile List View """
     permission_classes = [IsAuthenticated]
@@ -187,6 +192,7 @@ class UserProfileListView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@extend_schema(tags=['Auth'], responses=OpenApiTypes.OBJECT)
 class UserProfileDetailView(APIView):
     __doc__ = """ User Profile Detail View """
 
@@ -229,6 +235,7 @@ class UserProfileDetailView(APIView):
         #return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@extend_schema(tags=['Auth'], responses=OpenApiTypes.OBJECT)
 class AvatarUploadView(APIView):
     """
     Upload user avatar image.
@@ -262,6 +269,7 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = UserRegistrationSerializer
+    throttle_scope = 'register'
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -306,6 +314,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     permission_classes = [AllowAny]
     authentication_classes = []  # No authentication required for login
+    throttle_scope = 'login'
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -344,6 +353,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         return response
 
 
+@extend_schema(tags=['Auth'], responses=OpenApiTypes.OBJECT)
 class CustomTokenRefreshView(APIView):
     """
     Custom token refresh endpoint that reads refresh token from cookie
@@ -353,6 +363,7 @@ class CustomTokenRefreshView(APIView):
     """
     permission_classes = [AllowAny]
     authentication_classes = []  # No authentication required for refresh
+    throttle_scope = 'token_refresh'
 
     def post(self, request):
         # Get refresh token from cookie
@@ -407,6 +418,7 @@ class CustomTokenRefreshView(APIView):
             )
 
 
+@extend_schema(tags=['Auth'], responses=OpenApiTypes.OBJECT)
 class LogoutView(APIView):
     """
     Logout endpoint - blacklists refresh token
@@ -540,6 +552,7 @@ def api_key_auth(request):
         )
 
 
+@extend_schema(tags=['Auth'], responses=OpenApiTypes.OBJECT)
 class ChangePasswordView(APIView):
     """
     Change password endpoint
@@ -571,6 +584,7 @@ class ChangePasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=['Auth'], responses=OpenApiTypes.OBJECT)
 class PasswordResetRequestView(APIView):
     """
     Request a password reset email
@@ -581,6 +595,7 @@ class PasswordResetRequestView(APIView):
     """
     permission_classes = [AllowAny]
     authentication_classes = []
+    throttle_scope = 'password_reset'
 
     def post(self, request):
         from django.contrib.auth.tokens import default_token_generator
@@ -612,7 +627,7 @@ class PasswordResetRequestView(APIView):
 
         # Send email
         send_mail(
-            subject='Password Reset Request — OpenMedLab',
+            subject='Password Reset Request — VetImage',
             message=f'Click the link below to reset your password:\n\n{reset_link}\n\nIf you did not request this, please ignore this email.',
             from_email=None,  # Uses DEFAULT_FROM_EMAIL
             recipient_list=[email],
@@ -637,6 +652,7 @@ class PasswordResetRequestView(APIView):
         )
 
 
+@extend_schema(tags=['Auth'], responses=OpenApiTypes.OBJECT)
 class PasswordResetConfirmView(APIView):
     """
     Confirm password reset with token
@@ -645,6 +661,7 @@ class PasswordResetConfirmView(APIView):
     """
     permission_classes = [AllowAny]
     authentication_classes = []
+    throttle_scope = 'password_reset'
 
     def post(self, request):
         from django.contrib.auth.tokens import default_token_generator
