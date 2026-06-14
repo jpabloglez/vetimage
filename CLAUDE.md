@@ -222,7 +222,8 @@ Other:
 
 - `Message` (`patients`) — append-only thread keyed on `AnimalPatient` (audit-preserving); `from_owner` records the sending side, `is_read` tracks unread. (patients migration 0008)
 - `MessageViewSet` — accessible to **both** staff (org-scoped) and the pet owner (email-scoped); `?animal=<id>` filters the thread; POST sets `sender`/`from_owner` from the caller's role and notifies the counterpart via `credentials.Notification`. `POST mark_read/` marks the *other* side's messages read. No edit/delete (append-only).
-- Frontend: shared `MessageThread` component (bubbles flip via `isOwner`) — staff "Messages" tab in `AnimalDetailModal` (now 11 tabs), owner-side collapsible thread per pet on `OwnerPortalPage`. i18n `patients.messages.*`. Real-time WS delivery deferred; relies on the existing 30s `NotificationBell` poll.
+- Frontend: shared `MessageThread` component (bubbles flip via `isOwner`) — staff "Messages" tab in `AnimalDetailModal` (now 11 tabs), owner-side collapsible thread per pet on `OwnerPortalPage`. i18n `patients.messages.*`.
+- **Real-time:** `MessageConsumer` (`patients/consumers.py`, `ws/messages/`, JWT-authed, per-user group `messages_user_{id}`) wired in `backend/asgi.py`. `MessageViewSet.perform_create` broadcasts `message_created` to the recipient's + sender's groups (best-effort `try/except` — a channel-layer failure never breaks the POST). `MessageThread` subscribes via `useWebSocket('/ws/messages/')` and appends live (deduped by id; the REST API stays source of truth).
 
 ### Pet-Owner Portal (`/api/portal/`)
 

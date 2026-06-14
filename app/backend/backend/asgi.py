@@ -19,6 +19,7 @@ django_asgi_app = get_asgi_application()
 from channels.routing import ProtocolTypeRouter, URLRouter
 from ai_analysis.routing import websocket_urlpatterns as ai_websockets
 from dicom_gateway.routing import websocket_urlpatterns as dicom_websockets
+from patients.routing import websocket_urlpatterns as patients_websockets
 from backend.middleware import JWTAuthMiddleware
 
 application = ProtocolTypeRouter({
@@ -28,6 +29,6 @@ application = ProtocolTypeRouter({
     # WebSocket handler with JWT authentication
     # Note: AllowedHostsOriginValidator removed as JWT auth provides sufficient security
     'websocket': JWTAuthMiddleware(
-        URLRouter(ai_websockets + dicom_websockets)
+        URLRouter(ai_websockets + dicom_websockets + patients_websockets)
     ),
 })

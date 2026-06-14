@@ -111,3 +111,44 @@ class TestMessagingOwnerAndNotifications:
         assert resp.status_code == 200
         assert resp.data['marked_read'] == 1  # only the clinic message
         assert Message.objects.get(body='from clinic').is_read is True
+
+
+@pytest.mark.django_db
+class TestMessageBroadcast:
+    """A new message is pushed over the channel layer to the recipient (and the
+    sender's other sessions) — best-effort real-time on top of the REST write."""
+
+    BASE = '/api/patients/messages/'
+
+    def test_create_broadcasts_to_recipient_group(self, owner_client, animal_patient, organization, monkeypatch):
+        from unittest.mock import AsyncMock, MagicMock
+        import channels.layers as layers
+        from patients.consumers import user_message_group
+
+        fake_layer = MagicMock()
+        fake_layer.group_send = AsyncMock()
+        monkeypatch.setattr(layers, 'get_channel_layer', lambda: fake_layer)
+
+        resp = owner_client.post(self.BASE, {
+            'animal_patient_id': animal_patient.id, 'body': 'Live ping',
+        }, format='json')
+        assert resp.status_code == 201, resp.content
+
+        # group_send called; one target is the clinic staff user's group.
+        sent_groups = [c.args[0] for c in fake_layer.group_send.call_args_list]
+        assert user_message_group(organization.user.id) in sent_groups
+        payload = fake_layer.group_send.call_args_list[0].args[1]
+        assert payload['type'] == 'message_created'
+        assert payload['animal_patient_id'] == animal_patient.id
+        assert payload['message']['body'] == 'Live ping'
+
+    def test_broadcast_failure_does_not_break_post(self, owner_client, animal_patient, monkeypatch):
+        import channels.layers as layers
+        def boom():
+            raise RuntimeError('redis down')
+        monkeypatch.setattr(layers, 'get_channel_layer', boom)
+        # Message must still be created (real-time is best-effort).
+        resp = owner_client.post(self.BASE, {
+            'animal_patient_id': animal_patient.id, 'body': 'still saved',
+        }, format='json')
+        assert resp.status_code == 201, resp.content

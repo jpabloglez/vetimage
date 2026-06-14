@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -15,6 +17,8 @@ from .serializers import (
     ClinicalVisitSerializer, VaccinationRecordSerializer,
     WeightRecordSerializer, AppointmentSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def get_or_create_organization(user):
@@ -719,30 +723,56 @@ class MessageViewSet(viewsets.ModelViewSet):
         animal = serializer.validated_data['animal_patient']
         self._check_access(animal)
         msg = serializer.save(sender=self.request.user, from_owner=self._is_owner())
-        self._notify_counterpart(msg)
+        recipient, link, text = self._resolve_counterpart(msg)
+        self._notify_counterpart(msg, recipient, link, text)
+        self._broadcast_message(msg, recipient)
 
-    def _notify_counterpart(self, msg):
-        """Notify the other side of the thread that a new message arrived."""
-        from credentials.models import Notification
+    def _resolve_counterpart(self, msg):
+        """Return (recipient_user, link, notification_text) for the other side."""
         from users.models import User
         animal = msg.animal_patient
         if msg.from_owner:
-            # Owner messaged the clinic → notify the org's owning staff user.
-            org = animal.owner.organization
-            recipient = getattr(org, 'user', None)
-            link = f'/patients?animal={animal.id}'
-            text = f"New message from {animal.owner} about {animal.name}."
-        else:
-            # Clinic messaged the owner → notify the owner's portal account.
-            recipient = User.objects.filter(
-                email__iexact=animal.owner.email, role=PET_OWNER_ROLE,
-            ).first()
-            link = '/portal'
-            text = f"New message from your clinic about {animal.name}."
+            # Owner messaged the clinic → the org's owning staff user.
+            recipient = getattr(animal.owner.organization, 'user', None)
+            return recipient, f'/patients?animal={animal.id}', \
+                f"New message from {animal.owner} about {animal.name}."
+        # Clinic messaged the owner → the owner's portal account.
+        recipient = User.objects.filter(
+            email__iexact=animal.owner.email, role=PET_OWNER_ROLE,
+        ).first()
+        return recipient, '/portal', f"New message from your clinic about {animal.name}."
+
+    def _notify_counterpart(self, msg, recipient, link, text):
+        """Persist an in-app notification for the other side."""
+        from credentials.models import Notification
         if recipient and recipient != msg.sender:
             Notification.objects.create(
                 user=recipient, message=text, notification_type='info', link=link,
             )
+
+    def _broadcast_message(self, msg, recipient):
+        """Best-effort real-time push of the new message to the recipient (and
+        the sender's other sessions). A channel-layer failure must never break
+        the POST — the message is already saved and a notification queued."""
+        try:
+            from asgiref.sync import async_to_sync
+            from channels.layers import get_channel_layer
+            from .consumers import user_message_group
+
+            channel_layer = get_channel_layer()
+            if channel_layer is None:
+                return
+            payload = {
+                'type': 'message_created',
+                'animal_patient_id': msg.animal_patient_id,
+                'message': MessageSerializer(msg).data,
+            }
+            targets = {msg.sender_id, getattr(recipient, 'id', None)}
+            for uid in targets:
+                if uid:
+                    async_to_sync(channel_layer.group_send)(user_message_group(uid), payload)
+        except Exception as exc:  # noqa: BLE001 — real-time is best-effort
+            logger.warning('Message broadcast failed for msg %s: %s', msg.id, exc)
 
     @action(detail=False, methods=['post'])
     def mark_read(self, request):

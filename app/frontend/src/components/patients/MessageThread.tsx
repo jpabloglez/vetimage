@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { Send } from 'lucide-react';
 import { apiClient, type Message } from '../../utils/api';
+import { useWebSocket } from '../../hooks/useWebSocket';
 import Button from '../ui/Button';
 
 interface MessageThreadProps {
@@ -37,6 +38,20 @@ const MessageThread: React.FC<MessageThreadProps> = ({ animalId, isOwner = false
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => { endRef.current?.scrollIntoView?.({ block: 'end' }); }, [messages]);
+
+  // Live updates: append new messages for this animal as they arrive, deduped
+  // by id (our own sent message is echoed back to us). Polling is no longer the
+  // only path, but the REST API remains the source of truth.
+  const onSocketMessage = useCallback((m: any) => {
+    if (m?.type !== 'message_created' || m.animal_patient_id !== animalId || !m.message) return;
+    setMessages((prev) => (prev.some((x) => x.id === m.message.id) ? prev : [...prev, m.message]));
+    // If it came from the other side, mark the thread read (it's open).
+    if (m.message.from_owner !== isOwner) {
+      apiClient.markMessagesRead(animalId).catch(() => {});
+    }
+  }, [animalId, isOwner]);
+
+  useWebSocket('/ws/messages/', { onMessage: onSocketMessage });
 
   const send = async () => {
     if (!body.trim()) return;

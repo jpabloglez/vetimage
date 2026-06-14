@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MessageThread from '../MessageThread';
 import { apiClient } from '../../../utils/api';
@@ -11,6 +11,15 @@ vi.mock('../../../utils/api', async () => {
 vi.mock('react-hot-toast', () => ({
   default: { success: vi.fn(), error: vi.fn() },
   toast: { success: vi.fn(), error: vi.fn() },
+}));
+
+// Capture the onMessage callback so tests can push a live WS event.
+const wsHandlers: { onMessage?: (m: any) => void } = {};
+vi.mock('../../../hooks/useWebSocket', () => ({
+  useWebSocket: (_path: string, opts: any) => {
+    wsHandlers.onMessage = opts?.onMessage;
+    return { connected: true, lastMessage: null, send: vi.fn(), disconnect: vi.fn(), reconnect: vi.fn() };
+  },
 }));
 
 const thread = [
@@ -52,5 +61,35 @@ describe('MessageThread', () => {
     (apiClient.getMessages as any).mockResolvedValue([]);
     render(<MessageThread animalId={10} />);
     expect(await screen.findByText(/No messages yet/i)).toBeInTheDocument();
+  });
+
+  it('appends a live message pushed over the WebSocket for this animal', async () => {
+    (apiClient.getMessages as any).mockResolvedValue([]);
+    render(<MessageThread animalId={10} isOwner />);
+    await waitFor(() => expect(apiClient.getMessages).toHaveBeenCalledWith(10));
+
+    act(() => {
+      wsHandlers.onMessage?.({
+        type: 'message_created',
+        animal_patient_id: 10,
+        message: { id: 77, from_owner: false, body: 'Live from clinic', is_read: false, created_at: '2026-06-14T12:00:00Z' },
+      });
+    });
+    expect(await screen.findByText('Live from clinic')).toBeInTheDocument();
+  });
+
+  it('ignores live messages for a different animal', async () => {
+    (apiClient.getMessages as any).mockResolvedValue([]);
+    render(<MessageThread animalId={10} />);
+    await waitFor(() => expect(apiClient.getMessages).toHaveBeenCalled());
+
+    act(() => {
+      wsHandlers.onMessage?.({
+        type: 'message_created',
+        animal_patient_id: 999,
+        message: { id: 88, from_owner: true, body: 'Other animal', is_read: false, created_at: '2026-06-14T12:00:00Z' },
+      });
+    });
+    expect(screen.queryByText('Other animal')).not.toBeInTheDocument();
   });
 });
