@@ -44,6 +44,14 @@ _FINDING_CATALOGUE = [
     {"label": "bronchial_pattern", "region": "lung"},
 ]
 
+# Normalized bounding box per region: [x, y, w, h] in [0,1] image coordinates.
+# Fixture geometry only — illustrative regions, not derived from pixels.
+_REGION_BBOX = {
+    "cardiac": [0.38, 0.45, 0.30, 0.35],
+    "lung": [0.10, 0.28, 0.32, 0.45],
+    "pleural_space": [0.58, 0.55, 0.30, 0.32],
+}
+
 # In-memory job store (single-worker reference service).
 _JOBS: Dict[str, dict] = {}
 
@@ -75,6 +83,8 @@ def _deterministic_findings(task_id: str) -> list[dict]:
             "label": item["label"],
             "region": item["region"],
             "confidence": round(conf, 2),
+            # Normalized [x, y, w, h] box for viewer overlay (fixture geometry).
+            "bbox": _REGION_BBOX.get(item["region"]),
             # Human-readable line consumed by report_builder / owner + referral views.
             "description": f"Possible {label_text} ({item['region'].replace('_', ' ')}), "
                            f"confidence {round(conf * 100)}%.",

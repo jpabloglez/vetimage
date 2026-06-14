@@ -20,6 +20,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 from django.conf import settings
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
@@ -122,6 +124,38 @@ class AnalysisTaskViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return AnalysisTaskListSerializer
         return AnalysisTaskSerializer
+
+    @extend_schema(
+        summary='AI findings for a study',
+        description='Flattened decision-support findings from this user\'s '
+                    'completed analysis tasks for a study, for overlay on the '
+                    'viewer. Each finding may include a normalized bbox [x,y,w,h].',
+        parameters=[OpenApiParameter('study', OpenApiTypes.STR, required=True,
+                                     description='study_instance_uid')],
+        tags=['AI Analysis'],
+    )
+    @action(detail=False, methods=['get'], url_path='study-findings')
+    def study_findings(self, request):
+        """Return findings (with optional bbox) for a study's completed tasks."""
+        study_uid = request.query_params.get('study')
+        if not study_uid:
+            return Response({'error': 'study query param is required.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        tasks = self.get_queryset().filter(
+            input_image__series__study__study_instance_uid=study_uid,
+            status='COMPLETED',
+        )
+        findings = []
+        for task in tasks:
+            for f in (task.result_metadata or {}).get('findings', []):
+                if not isinstance(f, dict):
+                    continue
+                findings.append({
+                    **f,
+                    'task_id': str(task.id),
+                    'model': task.model.name if task.model else None,
+                })
+        return Response({'study_instance_uid': study_uid, 'findings': findings})
 
     def create(self, request):
         """

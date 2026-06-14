@@ -105,6 +105,7 @@ Payload shape:
     "findings": [
       { "label": "cardiomegaly", "region": "cardiac",
         "confidence": 0.83,
+        "bbox": [0.38, 0.45, 0.30, 0.35],   // optional; normalized [x,y,w,h] for viewer overlay
         "description": "Possible cardiomegaly (cardiac), confidence 83%." }
     ],
     "model_version": "…"
@@ -123,7 +124,7 @@ Payload shape:
 
 - **`TaskMonitor`** (`components/analysis/TaskMonitor.tsx`) renders `result_metadata.findings` as `label · region · confidence%` with a "draft findings — must be reviewed by a veterinarian" disclaimer.
 - **Reports.** `POST /api/reports/` with `{ analysis_task_id }` → `ReportBuilder.build_from_task` reads `result_metadata.findings` (also accepts `results`) into a `findings` section of a draft report. The vet then edits, approves, and optionally shares it (owner share link / referral package).
-- **Viewer overlay** of bounding-box regions on Cornerstone is a planned follow-up (not yet implemented).
+- **Viewer overlay.** `GET /api/ai-analysis/tasks/study-findings/?study=<uid>` returns the user's completed-task findings for a study (each with `task_id`, `model`, and optional `bbox`). `FindingsOverlay` (`components/viewer/FindingsOverlay.tsx`) draws boxes over the Cornerstone canvas for findings that carry a normalized `bbox` ([x, y, w, h] in [0,1] image coords), recomputing on every `cornerstoneimagerendered` event via `cornerstone.pixelToCanvas` so they track zoom/pan/window-level. Toggle via the **AI findings** button in the `OHIFViewer` header. Findings without a `bbox` still appear in `TaskMonitor` and the report draft.
 
 ---
 

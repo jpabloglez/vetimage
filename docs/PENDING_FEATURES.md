@@ -1,7 +1,7 @@
 # VetImage — Pending Features for Veterinary Use Cases
 
 **Date:** 2026-06-07 (status updated 2026-06-14)  
-**Status:** Historical planning reference. **All three phases (29 features) are now implemented**, and the AI analysis pipeline runs end-to-end against an in-repo reference model service — see [AI-WORKFLOW.md](AI-WORKFLOW.md). Remaining follow-ups: Cornerstone bounding-box overlay of AI findings, real (non-fixture) model weights, and a production-deployment hardening pass. This document is retained for the original rationale and acceptance notes per feature.  
+**Status:** Historical planning reference. **All three phases (29 features) are now implemented**, and the AI analysis pipeline runs end-to-end against an in-repo reference model service, including a Cornerstone bounding-box overlay of AI findings — see [AI-WORKFLOW.md](AI-WORKFLOW.md). Remaining follow-ups: real (non-fixture) model weights, and a production-deployment hardening pass. This document is retained for the original rationale and acceptance notes per feature.  
 **Audience:** Engineering, product, and clinical stakeholders
 
 ---

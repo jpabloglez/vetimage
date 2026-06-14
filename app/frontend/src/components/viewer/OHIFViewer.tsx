@@ -7,10 +7,11 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, ScanSearch } from 'lucide-react';
 import Button from '../ui/Button';
 import { AIToolbarButton } from './AIToolbarButton';
-import { apiClient, type Study, type Series, type Instance } from '../../utils/api';
+import { FindingsOverlay } from './FindingsOverlay';
+import { apiClient, type Study, type Series, type Instance, type Finding } from '../../utils/api';
 import toast from 'react-hot-toast';
 import {
   initializeCornerstone,
@@ -42,6 +43,8 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
   const [instances, setInstances] = useState<Instance[]>([]);
   const [viewportInitialized, setViewportInitialized] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
+  const [findings, setFindings] = useState<Finding[]>([]);
+  const [showFindings, setShowFindings] = useState(true);
 
   // Initialize Cornerstone on component mount
   useEffect(() => {
@@ -115,6 +118,11 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
       }
 
       setStudy(foundStudy);
+
+      // Load any AI findings for this study (best-effort; overlay only).
+      apiClient.getStudyFindings(foundStudy.StudyInstanceUID)
+        .then((f) => setFindings(f.filter((x) => Array.isArray(x.bbox))))
+        .catch(() => setFindings([]));
 
       // Get series for this study
       const seriesData = await apiClient.getSeries(foundStudy.StudyInstanceUID);
@@ -363,6 +371,18 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
             {imageLoading && (
               <Loader2 className="w-4 h-4 animate-spin text-medical-400" />
             )}
+            {findings.length > 0 && (
+              <Button
+                size="sm"
+                variant={showFindings ? 'medical' : 'ghost'}
+                leftIcon={ScanSearch}
+                onClick={() => setShowFindings((v) => !v)}
+                className={showFindings ? '' : 'text-slate-300 hover:text-slate-100'}
+                title="Toggle AI findings overlay (decision-support — vet-confirmed)"
+              >
+                AI findings ({findings.length})
+              </Button>
+            )}
             {study && (
               <AIToolbarButton studyInstanceUID={study.StudyInstanceUID} />
             )}
@@ -382,6 +402,15 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
               minHeight: '500px',
             }}
           />
+
+          {/* AI findings overlay (decision-support; tracks zoom/pan) */}
+          {viewportInitialized && (
+            <FindingsOverlay
+              element={viewerContainerRef.current}
+              findings={findings}
+              visible={showFindings}
+            />
+          )}
 
           {/* Tool Info Overlay */}
           <div className="absolute top-4 left-4 bg-slate-800/80 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-slate-300">

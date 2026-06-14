@@ -64,6 +64,7 @@ import type {
   AIModel,
   TaskStatus,
   AnalysisTask,
+  Finding,
   CreateTaskRequest,
   ScoredModel,
   ModelRecommendationResponse,
@@ -1151,6 +1152,17 @@ class ApiClient {
 
     const res = await this.request<PaginatedResponse<AnalysisTask> | AnalysisTask[]>(endpoint);
     return Array.isArray(res) ? res : res.results;
+  }
+
+  /**
+   * Get AI findings (with optional bbox) for a study's completed tasks.
+   * GET /api/ai-analysis/tasks/study-findings/?study=<uid>
+   */
+  async getStudyFindings(studyUid: string): Promise<Finding[]> {
+    const res = await this.request<{ findings: Finding[] }>(
+      `/api/ai-analysis/tasks/study-findings/?study=${encodeURIComponent(studyUid)}`,
+    );
+    return res.findings ?? [];
   }
 
   /**

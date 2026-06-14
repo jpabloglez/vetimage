@@ -625,6 +625,18 @@ export interface AnalysisTask {
 
 export type TaskPriority = 'routine' | 'urgent' | 'stat';
 
+/** A single AI decision-support finding (from result_metadata.findings). */
+export interface Finding {
+  label?: string;
+  region?: string;
+  confidence?: number;
+  description?: string;
+  /** Normalized [x, y, w, h] in [0,1] image coordinates, when the model provides it. */
+  bbox?: [number, number, number, number] | null;
+  task_id?: string;
+  model?: string | null;
+}
+
 export interface CreateTaskRequest {
   model_key: string;
   input_image_id: number;

@@ -65,6 +65,7 @@ const API_METHODS = [
   'getAIModels', 'getAIModel', 'getAnalysisTasks', 'getAnalysisTask',
   'createAnalysisTask', 'cancelAnalysisTask', 'retryAnalysisTask',
   'getTaskResultFiles', 'getModelRecommendations', 'getModelRecommendationsByMetadata',
+  'getStudyFindings',
   // Reports
   'getReports', 'createReport', 'downloadReportPdf', 'approveReport',
   'unapproveReport', 'shareReport', 'unshareReport', 'getSharedReport',

@@ -92,3 +92,44 @@ class TestWebhookLifecycle:
         assert r.status_code == 200
         dispatched_task.refresh_from_db()
         assert dispatched_task.result_metadata['findings'] == FINDINGS  # unchanged
+
+
+@pytest.mark.django_db
+class TestStudyFindingsEndpoint:
+    """GET /api/ai-analysis/tasks/study-findings/?study=<uid> — for viewer overlay."""
+
+    def test_returns_findings_for_completed_task(self, auth_client, image, ai_model, user):
+        study_uid = image.series.study.study_instance_uid
+        AnalysisTask.objects.create(
+            input_image=image, model=ai_model, created_by=user, status='COMPLETED',
+            result_metadata={'findings': [
+                {'label': 'cardiomegaly', 'region': 'cardiac', 'confidence': 0.8,
+                 'bbox': [0.38, 0.45, 0.30, 0.35]},
+            ]},
+        )
+        resp = auth_client.get(f'/api/ai-analysis/tasks/study-findings/?study={study_uid}')
+        assert resp.status_code == 200, resp.content
+        assert resp.data['study_instance_uid'] == study_uid
+        assert len(resp.data['findings']) == 1
+        f = resp.data['findings'][0]
+        assert f['label'] == 'cardiomegaly'
+        assert f['bbox'] == [0.38, 0.45, 0.30, 0.35]
+        assert 'task_id' in f and 'model' in f
+
+    def test_missing_study_param_400(self, auth_client):
+        resp = auth_client.get('/api/ai-analysis/tasks/study-findings/')
+        assert resp.status_code == 400
+
+    def test_excludes_incomplete_tasks(self, auth_client, image, ai_model, user):
+        study_uid = image.series.study.study_instance_uid
+        AnalysisTask.objects.create(
+            input_image=image, model=ai_model, created_by=user, status='PROCESSING',
+            result_metadata={'findings': [{'label': 'x'}]},
+        )
+        resp = auth_client.get(f'/api/ai-analysis/tasks/study-findings/?study={study_uid}')
+        assert resp.data['findings'] == []
+
+    def test_requires_auth(self, image):
+        study_uid = image.series.study.study_instance_uid
+        resp = APIClient().get(f'/api/ai-analysis/tasks/study-findings/?study={study_uid}')
+        assert resp.status_code in (401, 403)
