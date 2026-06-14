@@ -43,6 +43,9 @@ channels==4.0.0
 channels-redis==4.2.0
 daphne==4.1.0
 
+# Static file serving in production (collected admin/DRF/Swagger assets)
+whitenoise==6.8.2
+
 # PDF Report Generation
 reportlab==4.1.0
 

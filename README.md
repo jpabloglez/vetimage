@@ -125,6 +125,19 @@ make down
 
 For a complete list of Make commands, run `make help` or see the Makefile.
 
+### Production deployment
+
+The base `docker-compose.yml` is development-oriented. For production, apply the
+override and follow the checklist in **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+It enforces `DEBUG=False`, a strong `SECRET_KEY` (the app refuses to boot in
+production with the insecure dev key), HTTPS-only cookies + HSTS, runs
+migrations + `collectstatic`, and serves static assets via WhiteNoise.
+
 ## Project Structure
 
 ```
@@ -147,6 +160,7 @@ vetimage/
 │   └── media/           # Uploaded DICOM files
 ├── docs/                # Detailed documentation
 │   ├── AI-WORKFLOW.md            # AI analysis pipeline (dispatch→webhook→findings→report)
+│   ├── DEPLOYMENT.md             # Production deployment guide + checklist
 │   ├── VETERINARY_ALIGNMENT_REPORT.md
 │   ├── PENDING_FEATURES.md
 │   └── models/MIRAGE-INTEGRATION.md

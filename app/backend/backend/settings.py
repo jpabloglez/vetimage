@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 # Load environment variables
 load_dotenv()
@@ -21,12 +22,26 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Deployment environment marker. Set DJANGO_ENVIRONMENT=production in real
+# deployments to enable fail-fast checks (e.g. a strong SECRET_KEY). Dev, CI,
+# and the test suite leave it at 'development' so they keep working with the
+# insecure fallback key.
+DJANGO_ENVIRONMENT = os.getenv('DJANGO_ENVIRONMENT', 'development')
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key')
+
+# Refuse to boot in production with the insecure fallback key (security.W009).
+if DJANGO_ENVIRONMENT == 'production' and SECRET_KEY.startswith('django-insecure'):
+    raise ImproperlyConfigured(
+        'SECRET_KEY must be set to a strong, random value when '
+        'DJANGO_ENVIRONMENT=production. Refusing to start with the insecure '
+        'development fallback key.'
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
@@ -73,6 +88,22 @@ MIDDLEWARE = [
     'credentials.middleware.RequestContextMiddleware',  # Store request context for signal handlers
     'credentials.middleware.AuditLoggingMiddleware',  # Audit logging and brute force protection
 ]
+
+# Static file serving via WhiteNoise — enabled only when the package is
+# installed, so the dev image (which may not have it yet) is never broken by a
+# missing-middleware import error. In production it serves collected static
+# (admin / DRF / Swagger assets) directly from the ASGI app without a separate
+# web server, and uses hashed+compressed storage.
+try:
+    import whitenoise  # noqa: F401
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')  # right after SecurityMiddleware
+    if DJANGO_ENVIRONMENT == 'production':
+        STORAGES = {
+            'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+            'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+        }
+except ImportError:
+    pass
 
 # CORS Configuration - Environment-based
 CORS_ALLOW_ALL_ORIGINS = False  # Never allow all in production

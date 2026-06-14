@@ -1,0 +1,55 @@
+# =============================================================================
+# Production overrides for the core VetImage stack.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# This override sets production environment, restart policies, and a startup
+# command that runs migrations + collectstatic before serving. It does NOT
+# remove the dev code-mount volume or the published DB/Redis ports from the
+# base file — Docker Compose cannot unset a list entry from an override. For a
+# hardened deployment, see docs/DEPLOYMENT.md (build images without the code
+# mount, and do not publish db/redis ports).
+#
+# Required environment (fail-fast if unset):
+#   SECRET_KEY, ALLOWED_HOSTS, CORS_ALLOWED_ORIGINS
+# =============================================================================
+
+services:
+  backend-vetimage:
+    restart: unless-stopped
+    # migrate + collect static, then serve via Daphne (ASGI).
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             daphne -b 0.0.0.0 -p 3080 backend.asgi:application"
+    environment:
+      - DJANGO_ENVIRONMENT=production
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is required in production}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:?ALLOWED_HOSTS is required in production}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:?CORS_ALLOWED_ORIGINS is required in production}
+      - SECURE_SSL_REDIRECT=${SECURE_SSL_REDIRECT:-True}
+
+  celery-worker-vetimage:
+    restart: unless-stopped
+    environment:
+      - DJANGO_ENVIRONMENT=production
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is required in production}
+
+  celery-beat-vetimage:
+    restart: unless-stopped
+    environment:
+      - DJANGO_ENVIRONMENT=production
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is required in production}
+
+  frontend-vetimage:
+    restart: unless-stopped
+
+  db-vetimage:
+    restart: unless-stopped
+
+  redis-vetimage:
+    restart: unless-stopped
