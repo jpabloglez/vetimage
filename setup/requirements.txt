@@ -46,6 +46,9 @@ daphne==4.1.0
 # Static file serving in production (collected admin/DRF/Swagger assets)
 whitenoise==6.8.2
 
+# Error tracking (optional; only active when SENTRY_DSN is set)
+sentry-sdk==2.20.0
+
 # PDF Report Generation
 reportlab==4.1.0
 

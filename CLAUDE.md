@@ -261,6 +261,10 @@ Other:
 - API keys for services: `oml_` prefix, SHA-256 hashed
 - Custom User: email as USERNAME_FIELD, integer `role` (1=Veterinarian, 2=Guest, 3=Clinic Admin, 4=Veterinary Radiologist, 5=Superuser, 6=Pet Owner). `PET_OWNER_ROLE = 6` constant in `users/models.py` gates the owner portal.
 
+### Deployment & Observability
+- Prod: `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build`; see `docs/DEPLOYMENT.md`. Settings refuse to boot when `DJANGO_ENVIRONMENT=production` with the insecure fallback `SECRET_KEY`. Security hardening (HSTS, secure cookies, SSL redirect) auto-enables under `not DEBUG`. WhiteNoise serves collected static (conditional on the package being installed).
+- Observability (`core/observability.py` + `core/middleware.py`): every request gets an `X-Request-ID` (honours inbound header, echoed on response); structured JSON logs when `DJANGO_ENVIRONMENT=production` (`LOG_FORMAT=json`), else console; `LOG_LEVEL` env. Sentry is env-gated on `SENTRY_DSN` (inert otherwise; `sentry-sdk` optional).
+
 ### Code Organization
 - Large Django apps split files: `views_statistics.py`, `serializers_batch.py`, `views_anonymization.py`
 - Services layer in `services.py` or `services/` for business logic

@@ -87,6 +87,15 @@ to anonymize owner PII past the retention window.
   Scale the worker (`docker compose up -d --scale celery-worker-vetimage=N`);
   run exactly **one** `celery-beat` instance.
 - **Health** — backend `GET /api/health/` (used by the container healthcheck).
+- **Logging** — structured JSON logs in production (`LOG_FORMAT=json` when
+  `DJANGO_ENVIRONMENT=production`; `console` otherwise). Tune verbosity with
+  `LOG_LEVEL` (default `INFO`). Every request gets an `X-Request-ID` (honouring
+  an inbound header from your proxy) that is echoed on the response and stamped
+  on every log line as `request_id` for correlation.
+- **Error tracking** — set `SENTRY_DSN` to enable Sentry (Django + Celery
+  integrations; `send_default_pii=False`). Optional `SENTRY_TRACES_SAMPLE_RATE`
+  (default `0.0`) and `SENTRY_RELEASE`. With no DSN, Sentry is inert; the SDK is
+  optional and the app runs fine without it installed.
 - **AI model services** — see [AI-WORKFLOW.md](AI-WORKFLOW.md). The vet-thorax
   reference service is a CPU fixture (no ML); replace with real model services
   for clinical use. GPU model services need the NVIDIA container runtime.

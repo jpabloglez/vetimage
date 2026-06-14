@@ -77,6 +77,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'core.middleware.RequestIDMiddleware',  # assign/propagate X-Request-ID for log correlation
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -392,6 +393,64 @@ if not DEBUG:
 # GDPR owner-PII retention window (days). 0 = disabled. The purge_expired_pii
 # management command anonymizes owners not updated within this window.
 OWNER_PII_RETENTION_DAYS = int(os.getenv('OWNER_PII_RETENTION_DAYS', 0) or 0)
+
+# ---------------------------------------------------------------------------
+# Observability — structured logging + request-id correlation + Sentry
+# ---------------------------------------------------------------------------
+LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO').upper()
+# JSON logs in production (machine-ingestible); human-readable in dev.
+_LOG_FORMAT = os.getenv('LOG_FORMAT', 'json' if DJANGO_ENVIRONMENT == 'production' else 'console')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'request_id': {'()': 'core.observability.RequestIDFilter'},
+    },
+    'formatters': {
+        'json': {'()': 'core.observability.JSONFormatter'},
+        'console': {
+            'format': '[{asctime}] {levelname} {name} [req={request_id}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'filters': ['request_id'],
+            'formatter': _LOG_FORMAT,
+        },
+    },
+    'root': {'handlers': ['console'], 'level': LOG_LEVEL},
+    'loggers': {
+        'django': {'handlers': ['console'], 'level': LOG_LEVEL, 'propagate': False},
+        # Quieten access-log noise unless explicitly raised.
+        'django.request': {'handlers': ['console'], 'level': 'WARNING', 'propagate': False},
+    },
+}
+
+# Sentry error tracking — only initialised when SENTRY_DSN is configured, and
+# only if the SDK is installed (kept optional so dev/test never require it).
+SENTRY_DSN = os.getenv('SENTRY_DSN', '').strip()
+if SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+        from sentry_sdk.integrations.celery import CeleryIntegration
+
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            integrations=[DjangoIntegration(), CeleryIntegration()],
+            environment=DJANGO_ENVIRONMENT,
+            traces_sample_rate=float(os.getenv('SENTRY_TRACES_SAMPLE_RATE', '0.0')),
+            send_default_pii=False,  # never ship request bodies / user PII by default
+            release=os.getenv('SENTRY_RELEASE') or None,
+        )
+    except ImportError:
+        import logging as _logging
+        _logging.getLogger(__name__).warning(
+            'SENTRY_DSN is set but sentry-sdk is not installed; skipping Sentry init.'
+        )
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
