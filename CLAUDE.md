@@ -240,7 +240,7 @@ Other:
 
 ### Notifications & Reminders
 
-- `credentials.Notification` model + `NotificationViewSet` (`/api/credentials/notifications/`, `mark_read`/`mark_all_read` actions). Frontend `NotificationBell` in Navbar polls every 30s.
+- `credentials.Notification` model + `NotificationViewSet` (`/api/credentials/notifications/`, `mark_read`/`mark_all_read` actions). Frontend `NotificationBell` in Navbar. **Real-time:** a `post_save` signal on `Notification` (`credentials/signals.py`) broadcasts `notification_created` to `notifications_user_{id}` via `NotificationConsumer` (`credentials/consumers.py`, `ws/notifications/`); the Navbar subscribes with `useWebSocket` and prepends live (deduped). The 30s poll remains a fallback. Best-effort — a channel-layer failure never blocks notification creation, so this covers every notification source automatically.
 - `patients.tasks.send_vaccination_reminders` — Celery beat task (daily 08:00 UTC, `monitoring` queue). Creates a `Notification` for the administering vet when a vaccination is due in 14/7/1 days. Registered in `backend/celery.py` beat schedule + `CELERY_TASK_ROUTES`.
 
 ### Audit Log

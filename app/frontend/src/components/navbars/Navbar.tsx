@@ -28,6 +28,7 @@ import { NotificationBell } from '../notifications/NotificationBell';
 import { NotificationDropdown } from '../notifications/NotificationDropdown';
 import { useAuth, useTheme } from '../../contexts';
 import { apiClient, type Notification } from '../../utils/api';
+import { useWebSocket } from '../../hooks/useWebSocket';
 
 const getRoleName = (role: number | undefined, t: (key: string) => string): string => {
   const map: Record<number, string> = {
@@ -69,6 +70,19 @@ const Navbar: React.FC = () => {
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [isAuthenticated, fetchNotifications]);
+
+  // Live notifications: prepend new ones as they arrive (deduped by id). The
+  // 30s poll above remains a fallback if the socket is unavailable.
+  const handleIncomingNotification = useCallback((m: any) => {
+    if (m?.type !== 'notification_created' || !m.notification) return;
+    setNotifications((prev) =>
+      prev.some((n) => n.id === m.notification.id) ? prev : [m.notification, ...prev]
+    );
+  }, []);
+  useWebSocket('/ws/notifications/', {
+    autoConnect: isAuthenticated,
+    onMessage: handleIncomingNotification,
+  });
 
   // Close dropdown on outside click
   useEffect(() => {

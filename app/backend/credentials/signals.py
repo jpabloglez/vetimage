@@ -372,3 +372,35 @@ def log_suspicious_activity(sender, user, event_type, ip_address, session=None, 
 
     except Exception as e:
         logger.error(f"Error logging suspicious activity: {e}", exc_info=True)
+
+
+@receiver(post_save, sender='credentials.Notification')
+def broadcast_notification(sender, instance, created, **kwargs):
+    """
+    Push newly-created notifications to the recipient's WebSocket group so the
+    navbar bell updates in real time. Best-effort: a channel-layer failure must
+    never break whatever created the notification (the row is already saved and
+    the 30s poll remains a fallback).
+    """
+    if not created:
+        return
+    try:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+        from .consumers import user_notification_group
+        from .serializers import NotificationSerializer
+
+        channel_layer = get_channel_layer()
+        if channel_layer is None or not instance.user_id:
+            return
+        async_to_sync(channel_layer.group_send)(
+            user_notification_group(instance.user_id),
+            {
+                'type': 'notification_created',
+                'notification': NotificationSerializer(instance).data,
+            },
+        )
+    except Exception as exc:  # noqa: BLE001 — real-time is best-effort
+        logging.getLogger(__name__).warning(
+            'Notification broadcast failed for notification %s: %s', instance.pk, exc
+        )

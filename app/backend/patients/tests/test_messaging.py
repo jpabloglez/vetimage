@@ -134,11 +134,14 @@ class TestMessageBroadcast:
         }, format='json')
         assert resp.status_code == 201, resp.content
 
-        # group_send called; one target is the clinic staff user's group.
-        sent_groups = [c.args[0] for c in fake_layer.group_send.call_args_list]
-        assert user_message_group(organization.user.id) in sent_groups
-        payload = fake_layer.group_send.call_args_list[0].args[1]
-        assert payload['type'] == 'message_created'
+        # Filter to message_created broadcasts (a notification_created broadcast
+        # also fires for the message's notification — that's expected now).
+        msg_calls = [c for c in fake_layer.group_send.call_args_list
+                     if c.args[1].get('type') == 'message_created']
+        assert msg_calls, 'expected a message_created broadcast'
+        groups = [c.args[0] for c in msg_calls]
+        assert user_message_group(organization.user.id) in groups
+        payload = msg_calls[0].args[1]
         assert payload['animal_patient_id'] == animal_patient.id
         assert payload['message']['body'] == 'Live ping'
 
