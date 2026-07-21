@@ -67,8 +67,8 @@ const API_METHODS = [
   'getTaskResultFiles', 'getModelRecommendations', 'getModelRecommendationsByMetadata',
   'getStudyFindings',
   // Reports
-  'getReports', 'createReport', 'downloadReportPdf', 'approveReport',
-  'unapproveReport', 'shareReport', 'unshareReport', 'getSharedReport',
+  'getReports', 'getReport', 'createReport', 'downloadReportPdf', 'getReportPdfObjectUrl',
+  'approveReport', 'unapproveReport', 'shareReport', 'unshareReport', 'getSharedReport',
   // Monitoring
   'getMonitorTasks', 'getTaskStats', 'getDicomTransfers', 'getTransferStats',
 ];

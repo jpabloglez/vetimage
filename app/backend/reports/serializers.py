@@ -65,12 +65,14 @@ class ReportListSerializer(serializers.ModelSerializer):
     """Lightweight serializer for report list views."""
 
     model_name = serializers.SerializerMethodField()
+    patient_info = serializers.SerializerMethodField()
+    is_approved = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Report
         fields = [
-            'id', 'title', 'status', 'model_name',
-            'created_at',
+            'id', 'title', 'status', 'model_name', 'patient_info',
+            'is_approved', 'created_at',
         ]
         read_only_fields = fields
 
@@ -79,6 +81,11 @@ class ReportListSerializer(serializers.ModelSerializer):
         if task and task.model:
             return task.model.name
         return None
+
+    @extend_schema_field(OpenApiTypes.OBJECT)
+    def get_patient_info(self, obj):
+        """Signalment header (patient_name, patient_id, owner, …) for list rows."""
+        return (obj.content or {}).get('patient_info', {})
 
 
 class PublicReportSerializer(serializers.ModelSerializer):

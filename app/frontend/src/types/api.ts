@@ -939,11 +939,27 @@ export interface Notification {
 // Reports
 // ---------------------------------------------------------------------------
 
+/** Signalment header carried in Report.content.patient_info (and on list rows). */
+export interface ReportPatientInfo {
+  patient_name?: string;
+  patient_id?: string;
+  owner?: string;
+  species?: string;
+  breed?: string;
+  sex?: string;
+  date_of_birth?: string;
+  weight?: string;
+  study_date?: string;
+  study_description?: string;
+  study_uid?: string;
+}
+
 export interface Report {
   id: string;
   title: string;
   content: Record<string, any>;
   status: 'DRAFT' | 'FINAL';
+  patient_info?: ReportPatientInfo;
   analysis_task_id?: string;
   study_uid?: string;
   model_name?: string;

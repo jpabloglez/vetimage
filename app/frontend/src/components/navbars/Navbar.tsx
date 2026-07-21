@@ -16,7 +16,8 @@ import {
   BarChart3,
   ChevronDown,
   Globe,
-  PawPrint
+  PawPrint,
+  LayoutDashboard
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -135,6 +136,7 @@ const Navbar: React.FC = () => {
 
   // Navigation items for authenticated users
   const authenticatedNavigation = [
+    { name: t('nav.dashboard'), href: '/dashboard', icon: LayoutDashboard },
     { name: t('nav.patients'), href: '/patients', icon: PawPrint },
     { name: t('nav.analysis'), href: '/analyze', icon: FileText },
     { name: t('nav.statistics'), href: '/statistics', icon: BarChart3 },

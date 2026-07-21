@@ -30,6 +30,14 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// jsdom doesn't implement the object-URL APIs used for blob previews/downloads.
+if (typeof URL.createObjectURL !== 'function') {
+  URL.createObjectURL = vi.fn(() => 'blob:mock');
+}
+if (typeof URL.revokeObjectURL !== 'function') {
+  URL.revokeObjectURL = vi.fn();
+}
+
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
   constructor() {}

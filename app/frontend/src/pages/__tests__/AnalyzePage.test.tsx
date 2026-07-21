@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../../test-utils';
+import { apiClient } from '../../utils/api';
 import AnalyzePage from '../AnalyzePage';
 
 // Mock heavy child components to keep tests focused on the page shell.
@@ -66,5 +67,30 @@ describe('AnalyzePage (tabbed shell)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('medical-image-uploader')).toBeInTheDocument();
     });
+  });
+
+  it('reports tab shows a View report link to the embedded detail page', async () => {
+    (apiClient.getReports as any).mockResolvedValue([
+      {
+        id: 'r1',
+        title: 'Thoracic Report — Rex',
+        content: {},
+        status: 'FINAL',
+        model_name: 'Vet Thorax CR',
+        created_at: new Date().toISOString(),
+      },
+    ]);
+    const user = userEvent.setup();
+    renderWithProviders(<AnalyzePage />);
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Reports' })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Reports' }));
+
+    const viewLink = await screen.findByRole('link', { name: /View report/i });
+    expect(viewLink).toHaveAttribute('href', '/reports/r1');
+    // The old inline download button is gone.
+    expect(screen.queryByRole('button', { name: /^PDF$/ })).not.toBeInTheDocument();
   });
 });

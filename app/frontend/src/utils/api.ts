@@ -1689,6 +1689,26 @@ class ApiClient {
     URL.revokeObjectURL(link.href);
   }
 
+  /**
+   * Fetch the report PDF as an authenticated blob and return an object URL
+   * suitable for embedding (e.g. in an <iframe>). The caller owns the URL and
+   * must revoke it with URL.revokeObjectURL when done.
+   * GET /api/reports/{id}/pdf/
+   */
+  async getReportPdfObjectUrl(reportId: string): Promise<string> {
+    const url = `${this.baseUrl}/api/reports/${reportId}/pdf/`;
+    const headers: HeadersInit = {};
+    if (this.accessToken) {
+      headers['Authorization'] = `Bearer ${this.accessToken}`;
+    }
+
+    const response = await fetch(url, { headers, credentials: 'include' });
+    if (!response.ok) throw new Error('PDF load failed');
+
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
+  }
+
   /** Veterinarian sign-off: approve a report (marks FINAL). POST .../approve/ */
   async approveReport(reportId: string): Promise<Report> {
     return this.request<Report>(`/api/reports/${reportId}/approve/`, { method: 'POST' });

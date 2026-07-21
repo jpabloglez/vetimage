@@ -1,4 +1,23 @@
 {
+  "detail": {
+    "patientName": "Nome do Paciente",
+    "patientId": "ID do Paciente",
+    "owner": "Proprietário",
+    "backToDashboard": "Voltar ao painel",
+    "loadError": "Não foi possível carregar este relatório.",
+    "analysisInfo": "Detalhes da análise",
+    "model": "Modelo",
+    "status": "Status da análise",
+    "priority": "Prioridade",
+    "duration": "Tempo de processamento",
+    "completedAt": "Concluído",
+    "reportStatus": "Status do relatório",
+    "approved": "Aprovado",
+    "studyUid": "UID do estudo",
+    "findings": "Achados de IA",
+    "aiDisclaimer": "Apoio diagnóstico assistido por IA — para revisão veterinária, não é um diagnóstico.",
+    "pdfUnavailable": "A pré-visualização do PDF não está disponível."
+  },
   "title": "Relatórios",
   "subtitle": "Relatórios de análise por IA com achados estruturados",
   "refresh": "Atualizar",
@@ -7,6 +26,7 @@
   "noReports": "Nenhum Relatório Ainda",
   "noReportsHint": "Gere um relatório a partir de uma tarefa de análise por IA concluída.",
   "downloadPdf": "PDF",
+  "viewReport": "Ver relatório",
   "table": {
     "title": "Título",
     "model": "Modelo",

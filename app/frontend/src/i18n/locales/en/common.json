@@ -1,5 +1,6 @@
 {
   "nav": {
+    "dashboard": "Dashboard",
     "models": "Models",
     "analysis": "Analysis",
     "statistics": "Statistics",
@@ -93,12 +94,30 @@
   },
   "dashboard": {
     "title": "Veterinary Imaging Dashboard",
-    "recentAnalyses": "Recent Analyses",
-    "recentAnalysesDesc": "View your recent veterinary image analyses",
+    "subtitle": "Your veterinary imaging activity at a glance",
     "availableModels": "Available Models",
     "availableModelsDesc": "Browse AI models for different veterinary imaging tasks",
     "quickAnalysis": "Quick Analysis",
-    "quickAnalysisDesc": "Start a new image analysis"
+    "quickAnalysisDesc": "Upload a study and run AI decision support in a few clicks.",
+    "recentReports": "Recent Reports",
+    "viewAllReports": "View all reports",
+    "reportTable": {
+      "patientName": "Patient Name",
+      "patientId": "Patient ID",
+      "owner": "Owner",
+      "description": "Description",
+      "date": "Date",
+      "status": "Status"
+    },
+    "noReports": "No reports yet",
+    "noReportsHint": "Reports appear here once an analysis is completed and reviewed.",
+    "loadError": "Couldn't load dashboard data.",
+    "retry": "Retry",
+    "reportStatus": {
+      "approved": "Approved",
+      "final": "Final",
+      "draft": "Draft"
+    }
   },
   "footer": {
     "tagline": "Veterinary imaging platform powered by DICOMweb standards and AI analysis models.",
