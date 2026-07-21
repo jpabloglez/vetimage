@@ -19,6 +19,7 @@ import {
   Tags,
   ArrowLeft,
   ChevronRight,
+  Wrench,
 } from 'lucide-react';
 import DicomDropzone from '../components/uploader/DicomDropzone';
 import StudyBrowser from '../components/viewer/StudyBrowser';
@@ -26,6 +27,7 @@ import OHIFViewer from '../components/viewer/OHIFViewer';
 import AnonymizationPanel from '../components/anonymization/AnonymizationPanel';
 import DicomTagEditor from '../components/tags/DicomTagEditor';
 import ConversionPanel from '../components/conversion/ConversionPanel';
+import PageHeader from '../components/ui/PageHeader';
 import Button from '../components/ui/Button';
 
 type ActiveTool = null | 'viewer' | 'anonymize' | 'convert' | 'compress' | 'tags';
@@ -189,20 +191,11 @@ const ToolsPage: React.FC = () => {
 
   // Card grid (home state)
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-20">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Page Header */}
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-            {t('title')}
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            {t('subtitle')}
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <PageHeader icon={Wrench} title={t('title')} subtitle={t('subtitle')} />
 
-        {/* Tool Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Tool Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {TOOLS.map((tool) => {
             const Icon = tool.icon;
             const isDisabled = !!tool.badgeKey;
@@ -250,7 +243,6 @@ const ToolsPage: React.FC = () => {
               </button>
             );
           })}
-        </div>
       </div>
     </div>
   );

@@ -38,6 +38,7 @@ import {
   MyActivityCard,
   PopulationInsightsPanel,
 } from '../components/statistics';
+import PageHeader from '../components/ui/PageHeader';
 import { useAuth } from '../contexts';
 
 type TabType = 'analysis' | 'studies' | 'models' | 'users' | 'population';
@@ -245,25 +246,16 @@ export const StatisticsPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Page Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <BarChart3 className="w-8 h-8 text-medical-500" />
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                {t('title')}
-              </h1>
-            </div>
-            <p className="text-slate-600 dark:text-slate-400">
-              {t('subtitle')}
-            </p>
-          </div>
-          {!isLoading && data.length > 0 && activeTab === 'analysis' && (
+      <PageHeader
+        icon={BarChart3}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        actions={
+          !isLoading && data.length > 0 && activeTab === 'analysis' ? (
             <ExportButton data={data} filename="analysis_statistics" />
-          )}
-        </div>
-      </div>
+          ) : undefined
+        }
+      />
 
       {/* Tab Navigation */}
       <div className="mb-6 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
