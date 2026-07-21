@@ -48,6 +48,7 @@ import {
 import { Button, Input, Card, CardContent, Modal, ModalContent, ModalFooter } from '../components/ui';
 import AiDisclaimer from '../components/AiDisclaimer';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
+import PageHeader from '../components/ui/PageHeader';
 import {
   ownerSchema, ownerAnimalSchema, animalPatientSchema, vhsSchema,
   clinicalVisitSchema, vaccinationSchema, weightRecordSchema, appointmentSchema,
@@ -1819,28 +1820,23 @@ const PatientsPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-medical-500 to-teal-500 flex items-center justify-center">
-            <PawPrint className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('title')}</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">{t('subtitle')}</p>
-          </div>
-        </div>
-        {view === 'owners' ? (
-          <Button variant="medical" leftIcon={Plus} onClick={() => setOwnerModal({ open: true, initial: null })}>
-            {t('newOwner')}
-          </Button>
-        ) : (
-          <Button variant="medical" leftIcon={Plus} onClick={() => setAnimalModal({ open: true, ownerId: null, initial: null })}>
-            {t('newPatient')}
-          </Button>
-        )}
-      </div>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <PageHeader
+        icon={PawPrint}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        actions={
+          view === 'owners' ? (
+            <Button variant="medical" leftIcon={Plus} onClick={() => setOwnerModal({ open: true, initial: null })}>
+              {t('newOwner')}
+            </Button>
+          ) : (
+            <Button variant="medical" leftIcon={Plus} onClick={() => setAnimalModal({ open: true, ownerId: null, initial: null })}>
+              {t('newPatient')}
+            </Button>
+          )
+        }
+      />
 
       {/* View toggle */}
       <div className="inline-flex rounded-medical border border-slate-200 dark:border-slate-700 p-0.5 mb-4">

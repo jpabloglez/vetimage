@@ -18,6 +18,8 @@ const LandingPage      = lazy(() => import('./pages/LandingPage'));
 const ToolsPage        = lazy(() => import('./pages/ToolsPage'));
 const ModelsPage       = lazy(() => import('./pages/ModelsPage'));
 const ModelDetailsPage = lazy(() => import('./pages/ModelDetailsPage'));
+const Dashboard        = lazy(() => import('./pages/DashboardPage'));
+const ReportDetailPage = lazy(() => import('./pages/ReportDetailPage'));
 const AnalyzePage      = lazy(() => import('./pages/AnalyzePage'));
 const PatientsPage     = lazy(() => import('./pages/PatientsPage'));
 const CalendarPage     = lazy(() => import('./pages/CalendarPage'));
@@ -55,31 +57,6 @@ const PageLoader = () => (
 );
 
 // Placeholder components for other pages
-const Dashboard = () => {
-  const { t } = useTranslation('common');
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-20">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold medical-gradient-text mb-8">{t('dashboard.title')}</h1>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="medical-card p-6">
-            <h3 className="text-xl font-semibold mb-4">{t('dashboard.recentAnalyses')}</h3>
-            <p className="text-slate-600 dark:text-slate-400">{t('dashboard.recentAnalysesDesc')}</p>
-          </div>
-          <div className="medical-card p-6">
-            <h3 className="text-xl font-semibold mb-4">{t('dashboard.availableModels')}</h3>
-            <p className="text-slate-600 dark:text-slate-400">{t('dashboard.availableModelsDesc')}</p>
-          </div>
-          <div className="medical-card p-6">
-            <h3 className="text-xl font-semibold mb-4">{t('dashboard.quickAnalysis')}</h3>
-            <p className="text-slate-600 dark:text-slate-400">{t('dashboard.quickAnalysisDesc')}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const NotFoundPage = () => {
   const { t } = useTranslation('common');
   return (
@@ -188,6 +165,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/reports/:id"
+                  element={
+                    <ProtectedRoute>
+                      <ReportDetailPage />
                     </ProtectedRoute>
                   }
                 />

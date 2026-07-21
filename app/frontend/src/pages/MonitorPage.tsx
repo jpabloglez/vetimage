@@ -13,6 +13,7 @@ import { DicomTransferPanel } from '../components/monitor/DicomTransferPanel';
 import { ProfileCompletionModal } from '../components/monitor/ProfileCompletionModal';
 import AuditReportFilters, { type AuditFilters } from '../components/audit/AuditReportFilters';
 import AuditReportPreview from '../components/audit/AuditReportPreview';
+import PageHeader from '../components/ui/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../utils/api';
 
@@ -115,18 +116,7 @@ export const MonitorPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Page Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <Activity className="w-8 h-8 text-medical-500" />
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-            {t('title')}
-          </h1>
-        </div>
-        <p className="text-slate-600 dark:text-slate-400">
-          {t('subtitle')}
-        </p>
-      </div>
+      <PageHeader icon={Activity} title={t('title')} subtitle={t('subtitle')} />
 
       {/* Tab Navigation */}
       <div className="mb-6 border-b border-slate-200 dark:border-slate-700">

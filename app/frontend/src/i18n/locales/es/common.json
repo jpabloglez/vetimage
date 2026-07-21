@@ -1,5 +1,6 @@
 {
   "nav": {
+    "dashboard": "Panel",
     "models": "Modelos",
     "analysis": "Análisis",
     "statistics": "Estadísticas",
@@ -93,12 +94,30 @@
   },
   "dashboard": {
     "title": "Panel de Imágenes Veterinarias",
-    "recentAnalyses": "Análisis Recientes",
-    "recentAnalysesDesc": "Vea sus análisis recientes de imágenes médicas",
+    "subtitle": "Su actividad de imágenes veterinarias de un vistazo",
     "availableModels": "Modelos Disponibles",
     "availableModelsDesc": "Explore modelos de AI para diferentes tareas de imágenes médicas",
     "quickAnalysis": "Análisis Rápido",
-    "quickAnalysisDesc": "Inicie un nuevo análisis de imágenes"
+    "quickAnalysisDesc": "Suba un estudio y ejecute el apoyo diagnóstico con IA en unos clics.",
+    "recentReports": "Informes Recientes",
+    "viewAllReports": "Ver todos los informes",
+    "reportTable": {
+      "patientName": "Nombre del Paciente",
+      "patientId": "ID del Paciente",
+      "owner": "Propietario",
+      "description": "Descripción",
+      "date": "Fecha",
+      "status": "Estado"
+    },
+    "noReports": "Aún no hay informes",
+    "noReportsHint": "Los informes aparecen aquí cuando un análisis se completa y se revisa.",
+    "loadError": "No se pudieron cargar los datos del panel.",
+    "retry": "Reintentar",
+    "reportStatus": {
+      "approved": "Aprobado",
+      "final": "Final",
+      "draft": "Borrador"
+    }
   },
   "footer": {
     "tagline": "Plataforma de imágenes veterinarias impulsada por estándares DICOMweb y modelos de análisis con IA.",

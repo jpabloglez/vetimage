@@ -8,11 +8,12 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   ChevronRight, Upload, Brain, Settings, CheckCircle,
-  Search, RefreshCw, Clock, FileText, Download, Plus,
-  ChevronDown, ChevronUp, GitCompare,
+  Search, RefreshCw, Clock, FileText, Eye, Plus,
+  GitCompare,
 } from 'lucide-react';
 
 import { MedicalImageUploader } from '../components/uploader/MedicalImageUploader';
@@ -20,12 +21,12 @@ import { DragDropUploadZone } from '../components/analyze/DragDropUploadZone';
 import { MetadataViewer } from '../components/analysis/MetadataViewer';
 import { ModelRecommendation } from '../components/analysis/ModelRecommendation';
 import { ParameterConfigurator } from '../components/analysis/ParameterConfigurator';
-import ReportViewer from '../components/reports/ReportViewer';
 import GenerateReportModal from '../components/reports/GenerateReportModal';
 import ComparisonSelector from '../components/reports/ComparisonSelector';
 import ReportComparison from '../components/reports/ReportComparison';
 import ModelCard from '../components/models/ModelCard';
 import AiDisclaimer from '../components/AiDisclaimer';
+import PageHeader from '../components/ui/PageHeader';
 import Card, { CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 
 import {
@@ -620,9 +621,7 @@ const ReportsTab: React.FC = () => {
   const { t } = useTranslation('reports');
   const [reports, setReports]     = useState<Report[]>([]);
   const [loading, setLoading]     = useState(true);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showModal, setShowModal]   = useState(false);
-  const [downloading, setDownloading] = useState<string | null>(null);
   const [compareMode, setCompareMode] = useState(false);
   const [compareA, setCompareA] = useState<string | null>(null);
   const [compareB, setCompareB] = useState<string | null>(null);
@@ -639,17 +638,6 @@ const ReportsTab: React.FC = () => {
   }, [t]);
 
   useEffect(() => { fetchReports(); }, [fetchReports]);
-
-  const handleDownloadPdf = async (reportId: string) => {
-    try {
-      setDownloading(reportId);
-      await apiClient.downloadReportPdf(reportId);
-    } catch {
-      toast.error(t('downloadError'));
-    } finally {
-      setDownloading(null);
-    }
-  };
 
   const handleReportCreated = () => {
     setShowModal(false);
@@ -747,30 +735,15 @@ const ReportsTab: React.FC = () => {
                   }`}>
                     {report.status}
                   </span>
-                  <button
-                    onClick={() => handleDownloadPdf(report.id)}
-                    disabled={downloading === report.id}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+                  <Link
+                    to={`/reports/${report.id}`}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
-                    <Download className="w-3.5 h-3.5" />
-                    {t('downloadPdf')}
-                  </button>
-                  <button
-                    onClick={() => setExpandedId(expandedId === report.id ? null : report.id)}
-                    className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    {expandedId === report.id
-                      ? <ChevronUp className="w-4 h-4 text-slate-500" />
-                      : <ChevronDown className="w-4 h-4 text-slate-500" />
-                    }
-                  </button>
+                    <Eye className="w-3.5 h-3.5" />
+                    {t('viewReport')}
+                  </Link>
                 </div>
               </div>
-              {expandedId === report.id && report.content && (
-                <div className="border-t border-slate-200 dark:border-slate-700 p-4">
-                  <ReportViewer content={report.content} />
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -929,9 +902,25 @@ const ModelsTab: React.FC = () => {
 
 // ─── AnalyzePage (main export) ────────────────────────────────────────────────
 
+const TAB_KEYS: AnalyzePageTab[] = ['worklist', 'new', 'reports', 'models'];
+
 export const AnalyzePage: React.FC = () => {
   const { t } = useTranslation('analyze');
-  const [activeTab, setActiveTab] = useState<AnalyzePageTab>('worklist');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlTab = searchParams.get('tab') as AnalyzePageTab | null;
+  const activeTab: AnalyzePageTab = urlTab && TAB_KEYS.includes(urlTab) ? urlTab : 'worklist';
+
+  const setActiveTab = (key: AnalyzePageTab) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (key === 'worklist') next.delete('tab');
+        else next.set('tab', key);
+        return next;
+      },
+      { replace: true },
+    );
+  };
 
   const tabs: { key: AnalyzePageTab; label: string }[] = [
     { key: 'worklist', label: t('tabs.worklist') },
@@ -942,13 +931,7 @@ export const AnalyzePage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-          {t('pageTitle')}
-        </h1>
-        <p className="text-slate-600 dark:text-slate-400">{t('pageSubtitle')}</p>
-      </div>
+      <PageHeader icon={Brain} title={t('pageTitle')} subtitle={t('pageSubtitle')} />
 
       <AiDisclaimer className="mb-6" />
 

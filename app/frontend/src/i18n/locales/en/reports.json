@@ -1,4 +1,23 @@
 {
+  "detail": {
+    "patientName": "Patient Name",
+    "patientId": "Patient ID",
+    "owner": "Owner",
+    "backToDashboard": "Back to dashboard",
+    "loadError": "Couldn't load this report.",
+    "analysisInfo": "Analysis details",
+    "model": "Model",
+    "status": "Analysis status",
+    "priority": "Priority",
+    "duration": "Processing time",
+    "completedAt": "Completed",
+    "reportStatus": "Report status",
+    "approved": "Approved",
+    "studyUid": "Study UID",
+    "findings": "AI findings",
+    "aiDisclaimer": "AI-assisted decision support — for veterinary review, not a diagnosis.",
+    "pdfUnavailable": "PDF preview is unavailable."
+  },
   "title": "Reports",
   "subtitle": "AI analysis reports with structured findings",
   "refresh": "Refresh",
@@ -7,6 +26,7 @@
   "noReports": "No Reports Yet",
   "noReportsHint": "Generate a report from a completed AI analysis task.",
   "downloadPdf": "PDF",
+  "viewReport": "View report",
   "table": {
     "title": "Title",
     "model": "Model",
