@@ -64,6 +64,13 @@ jobs:
       SECRET_KEY: test-secret-key-for-ci
       DEBUG: 'True'
       USE_ORCHESTRATOR: 'False'
+      # settings.py defaults these to the Docker Compose hostname
+      # redis-vetimage; the redis service container here is on localhost.
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      REDIS_URL: redis://localhost:6379/1
+      CELERY_BROKER_URL: redis://localhost:6379/0
+      CELERY_RESULT_BACKEND: redis://localhost:6379/0
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -124,6 +131,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Bootstrap backend .env
+        # .env is gitignored (real deployments hold secrets there); locally
+        # every dev already has one from following the setup docs. Without
+        # it, DEBUG defaults to False and settings.py's `not DEBUG` branch
+        # turns on SECURE_SSL_REDIRECT, 301-redirecting every plain-HTTP
+        # request on this TLS-less runner (including the health check).
+        run: cp app/backend/.env.example app/backend/.env
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: app/frontend/package-lock.json
+
+      - name: Install frontend deps
+        # backend-vetimage/frontend-vetimage bind-mount the repo checkout
+        # over the image's build output (see docker-compose.yml), so
+        # node_modules must exist on the runner *before* the containers
+        # start or the mount shadows what the Docker build installed —
+        # frontend-vetimage would come up with `vite: not found`.
+        working-directory: app/frontend
+        run: npm ci
+
       - name: Start core stack (db, redis, backend, celery worker, frontend)
         # docker-compose.services.yml joins app-network as `external: true`,
         # so the base file must create it first — bringing both files up in
@@ -154,17 +184,9 @@ jobs:
           docker compose $COMPOSE_FILES exec -T backend-vetimage python manage.py migrate
           docker compose $COMPOSE_FILES exec -T backend-vetimage python manage.py seed_e2e_data
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: npm
-          cache-dependency-path: app/frontend/package-lock.json
-
-      - name: Install frontend deps + Playwright browser
+      - name: Install Playwright browser
         working-directory: app/frontend
-        run: |
-          npm ci
-          npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Run Playwright E2E suite
         working-directory: app/frontend
