@@ -231,7 +231,7 @@ class ApiClient {
           // Dispatch custom event for AuthContext to handle
           window.dispatchEvent(new CustomEvent('auth:token-expired'));
 
-          throw new Error('Session expired. Please log in again.');
+          throw new Error('Session expired. Please log in again.', { cause: refreshError });
         }
       }
 

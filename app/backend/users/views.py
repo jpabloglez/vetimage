@@ -215,7 +215,7 @@ class UserProfileDetailView(APIView):
         #serializer = UserProfileSerializer(user)
         #return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, format=None):
+    def put(self, request, pk, format=None):
         user = self.get_object(pk)
         serializer = UserProfileSerializer(user, data=request.data)
         if serializer.is_valid():

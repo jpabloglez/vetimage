@@ -30,6 +30,7 @@ coverage-final.json
 # Environment variables
 .env
 .env.*
+!.env.example
 envs/
 
 # Jupyter Notebook checkpoints

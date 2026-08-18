@@ -22,7 +22,6 @@ from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
-from django.conf import settings
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -223,8 +222,8 @@ class AnalysisTaskViewSet(viewsets.ModelViewSet):
             f"for model {model.key}"
         )
 
-        # Dispatch based on configuration (per-model flag takes priority over global setting)
-        if task.model.use_orchestrator or settings.USE_ORCHESTRATOR:
+        # Dispatch based on the model's own connector pattern (see AIModel.use_orchestrator)
+        if task.model.use_orchestrator:
             # Allow connectors to prepare/convert inputs (e.g., DICOM → NIfTI)
             try:
                 from .connectors.factory import ConnectorFactory
@@ -338,8 +337,8 @@ class AnalysisTaskViewSet(viewsets.ModelViewSet):
             f"(attempt {task.retry_count}/{task.model.max_retries})"
         )
 
-        # Dispatch based on configuration (per-model flag takes priority over global setting)
-        if task.model.use_orchestrator or settings.USE_ORCHESTRATOR:
+        # Dispatch based on the model's own connector pattern (see AIModel.use_orchestrator)
+        if task.model.use_orchestrator:
             # Allow connectors to re-prepare inputs on retry (e.g., DICOM → NIfTI)
             try:
                 from .connectors.factory import ConnectorFactory

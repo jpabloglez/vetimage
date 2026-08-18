@@ -1,0 +1,9 @@
+version: 2
+secret:
+  ignored-matches:
+    # Fixed password for the E2E test fixture user (e2e@vetimage.test), used
+    # only to log in against ephemeral local/CI Docker databases that are
+    # torn down after every run (see app/frontend/e2e/README.md). Not a real
+    # credential for any external service.
+    - name: E2E fixture test password
+      match: E2ePlaywright123!
