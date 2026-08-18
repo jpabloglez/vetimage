@@ -163,7 +163,16 @@ jobs:
         # the dev server fails with EACCES on startup. Using chmod (not
         # chown) because the runner user also needs to keep writing here
         # directly afterwards (test-results/, playwright-report/).
-        run: chmod -R a+rwX app/backend app/frontend
+        #
+        # ./data/media is a *separate* bind mount (uploaded DICOM files,
+        # shared across backend/celery/vet-thorax-service) that Docker
+        # auto-creates root-owned on a fresh checkout since it's gitignored
+        # — same fix, but scoped away from data/db and friends, which
+        # manage their own container-internal permissions.
+        run: |
+          chmod -R a+rwX app/backend app/frontend
+          mkdir -p data/media
+          chmod -R a+rwX data/media
 
       - name: Start core stack (db, redis, backend, celery worker, frontend)
         # docker-compose.services.yml joins app-network as `external: true`,
