@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Playwright E2E run artifacts (reports, traces, screenshots, videos)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 # Environment variables
 .env
 .env.local
