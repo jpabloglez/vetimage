@@ -124,10 +124,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Start app stack (db, redis, backend, celery worker, frontend, orchestrator, vet-thorax reference AI service)
+      - name: Start core stack (db, redis, backend, celery worker, frontend)
+        # docker-compose.services.yml joins app-network as `external: true`,
+        # so the base file must create it first — bringing both files up in
+        # one combined command makes Compose treat the network as external
+        # from the start, which fails on a fresh runner where it doesn't
+        # exist yet.
+        run: |
+          docker compose -f docker-compose.yml up -d --build \
+            db-vetimage redis-vetimage backend-vetimage celery-worker-vetimage frontend-vetimage
+
+      - name: Start orchestrator + vet-thorax reference AI service
         run: |
           docker compose $COMPOSE_FILES up -d --build \
-            db-vetimage redis-vetimage backend-vetimage celery-worker-vetimage frontend-vetimage \
             orchestrator-redis-vetimage orchestrator-vetimage vet-thorax-service
 
       - name: Wait for backend + frontend to be ready
