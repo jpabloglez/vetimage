@@ -155,13 +155,15 @@ jobs:
         working-directory: app/frontend
         run: npm ci
 
-      - name: Align checkout ownership with the container's www-data (uid 1000)
+      - name: Open up checkout permissions for the container's www-data (uid 1000)
         # compose/Dockerfile.* remap www-data to uid 1000 so bind-mounted
         # dev volumes are writable on a typical Linux dev box. The GitHub
         # Actions runner user is uid 1001, so without this Vite can't write
         # its config bundle cache into the bind-mounted app/frontend and
-        # the dev server fails with EACCES on startup.
-        run: sudo chown -R 1000:1000 app/backend app/frontend
+        # the dev server fails with EACCES on startup. Using chmod (not
+        # chown) because the runner user also needs to keep writing here
+        # directly afterwards (test-results/, playwright-report/).
+        run: chmod -R a+rwX app/backend app/frontend
 
       - name: Start core stack (db, redis, backend, celery worker, frontend)
         # docker-compose.services.yml joins app-network as `external: true`,
