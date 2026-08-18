@@ -5,7 +5,6 @@ from users.models import (
     User,
     UserProfile
 )
-from datetime import datetime
 from django.utils import timezone
 from django.utils.timesince import timesince
 

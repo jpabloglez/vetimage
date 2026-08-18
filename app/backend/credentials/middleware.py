@@ -283,8 +283,12 @@ class AuditLoggingMiddleware(MiddlewareMixin):
                         ).first()
 
                         if session:
-                            # Check activity timeout
-                            timeout_minutes = getattr(settings, 'SESSION_ACTIVITY_TIMEOUT_MINUTES', 30)
+                            # TODO: SESSION_ACTIVITY_TIMEOUT_MINUTES is read but never enforced —
+                            # this only updates last_activity_at below, it never expires the
+                            # session once time_since_activity exceeds the timeout. Flagged
+                            # during lint cleanup; needs a product decision on the desired
+                            # behavior (force logout? invalidate token?) before implementing.
+                            timeout_minutes = getattr(settings, 'SESSION_ACTIVITY_TIMEOUT_MINUTES', 30)  # noqa: F841
                             time_since_activity = (timezone.now() - session.last_activity_at).total_seconds() / 60
 
                             # Only update if enough time has passed (avoid excessive DB writes)

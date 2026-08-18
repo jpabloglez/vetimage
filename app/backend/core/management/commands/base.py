@@ -105,7 +105,6 @@ class BaseRichCommand(BaseCommand):
         except Exception as e:
             self.error(f"Command failed: {str(e)}")
             if options.get('verbosity', 1) >= 2:
-                import traceback
                 self.console.print_exception()
             raise
 

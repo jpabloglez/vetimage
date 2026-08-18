@@ -8,7 +8,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver, Signal
 from django.conf import settings
 from django.utils import timezone
-from datetime import timedelta
 import logging
 
 from rest_framework_simplejwt.token_blacklist.models import (

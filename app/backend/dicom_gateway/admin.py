@@ -4,8 +4,6 @@ Django Admin for DICOM Gateway Models
 
 from django.contrib import admin
 from django.utils.html import format_html
-from django.urls import reverse
-from django.utils import timezone
 from .models import PACSConfiguration, DICOMTransaction, AuditEvent, GatewayHealth
 
 
@@ -103,7 +101,7 @@ class PACSConfigurationAdmin(admin.ModelAdmin):
                     '{} <span style="color: gray;">(inherited)</span>',
                     obj.node_user.profile.organization.centre
                 )
-            except:
+            except Exception:
                 return format_html('<span style="color: gray;">(no organization)</span>')
         return '-'
     receiving_org_display.short_description = 'Organization'

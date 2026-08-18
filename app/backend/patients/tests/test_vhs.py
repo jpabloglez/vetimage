@@ -42,10 +42,10 @@ class TestVHS:
 
     def test_vhs_trend_in_animal_detail(self, auth_client):
         animal = self._owner_and_animal(auth_client, 'feline')
-        for d, l, s in [('2026-01-01', '3.5', '3.5'), ('2026-03-01', '4.0', '4.5')]:
+        for d, long_ax, s in [('2026-01-01', '3.5', '3.5'), ('2026-03-01', '4.0', '4.5')]:
             auth_client.post('/api/patients/vhs/', {
                 'animal_patient_id': animal['id'], 'measured_on': d,
-                'long_axis_vertebrae': l, 'short_axis_vertebrae': s,
+                'long_axis_vertebrae': long_ax, 'short_axis_vertebrae': s,
             }, format='json')
         detail = auth_client.get(f"/api/patients/animals/{animal['id']}/")
         trend = detail.data['vhs_trend']

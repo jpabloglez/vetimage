@@ -16,7 +16,6 @@ from credentials.models import (
     APIKeyUsageLog
 )
 from users.models import UserAPIKey
-from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
 
@@ -162,7 +161,7 @@ class UserSessionModelTest(TestCase):
     def test_suspicious_manager(self):
         """Test suspicious sessions manager"""
         # Create normal session
-        normal_session = UserSession.objects.create(
+        UserSession.objects.create(
             user=self.user,
             session_type='jwt',
             ip_address='192.168.1.1',
@@ -287,21 +286,21 @@ class AuditLogModelTest(TestCase):
     def test_failed_logins_manager(self):
         """Test failed logins manager"""
         # Create success log
-        success_log = AuditLog.objects.create(
+        AuditLog.objects.create(
             user=self.user,
             event_type='login_success',
             ip_address='192.168.1.1'
         )
 
         # Create failed logs
-        failed_log1 = AuditLog.objects.create(
+        AuditLog.objects.create(
             user=None,
             username_attempted='test@vetimage.com',
             event_type='login_failed',
             ip_address='192.168.1.1'
         )
 
-        failed_log2 = AuditLog.objects.create(
+        AuditLog.objects.create(
             user=None,
             username_attempted='test@vetimage.com',
             event_type='login_failed',
@@ -316,7 +315,7 @@ class AuditLogModelTest(TestCase):
     def test_suspicious_events_manager(self):
         """Test suspicious events manager"""
         # Create normal event
-        normal_log = AuditLog.objects.create(
+        AuditLog.objects.create(
             user=self.user,
             event_type='login_success',
             ip_address='192.168.1.1'

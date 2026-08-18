@@ -15,7 +15,7 @@ Usage:
 """
 
 import random
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.contrib.auth import get_user_model
@@ -166,7 +166,7 @@ class Command(BaseCommand):
                         completed_at = started_processing_at + timedelta(seconds=duration_seconds)
 
                 # Create analysis task
-                task = AnalysisTask.objects.create(
+                AnalysisTask.objects.create(
                     model=model,
                     input_image=medical_image,
                     created_by=user,
@@ -220,5 +220,5 @@ class Command(BaseCommand):
                 self.stdout.write(f'  {model.name}: {count_model} ({percentage:.1f}%)')
 
         self.stdout.write(self.style.SUCCESS(
-            f'\nDummy data generation complete! You can now test the Statistics page.\n'
+            '\nDummy data generation complete! You can now test the Statistics page.\n'
         ))

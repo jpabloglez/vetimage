@@ -13,7 +13,7 @@ from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from django.db.models import Count, Avg, Sum, Q
+from django.db.models import Count, Avg
 from django.utils import timezone
 from datetime import timedelta
 import csv
@@ -39,11 +39,9 @@ from .serializers import (
     NotificationSerializer,
 )
 from .services import (
-    terminate_session_by_id,
-    get_active_sessions_for_user,
-    get_user_audit_logs
+    terminate_session_by_id
 )
-from .permissions import IsOwnerOrAdmin, IsAdminOrManager
+from .permissions import IsAdminOrManager
 
 logger = logging.getLogger(__name__)
 

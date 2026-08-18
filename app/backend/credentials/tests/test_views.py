@@ -19,7 +19,6 @@ from credentials.models import (
     AuditLog,
     APIKeyScope,
     EnhancedAPIKey,
-    APIKeyUsageLog,
 )
 from users.models import UserAPIKey
 

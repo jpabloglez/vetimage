@@ -7,7 +7,6 @@ and rate limiting.
 
 from django.conf import settings
 from django.core.cache import cache
-from django.utils import timezone
 from typing import Tuple, Optional
 import logging
 

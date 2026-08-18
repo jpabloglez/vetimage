@@ -47,7 +47,7 @@ class Command(BaseRichCommand):
             self.warning("\nDry run mode - no changes will be made")
 
         # ========== Count Existing Data ==========
-        from users.models import User, UserProfile, Organization
+        from users.models import User
         from dicom_images.models import MedicalStudy, UserStorageQuota
 
         if keep_superusers:
@@ -109,7 +109,7 @@ class Command(BaseRichCommand):
                 try:
                     profile = user.userprofile
                     name = f"{profile.first_name} {profile.last_name}"
-                except:
+                except Exception:
                     name = "N/A"
                 user_rows.append([user.email, name, "demo123"])
 
@@ -139,7 +139,7 @@ class Command(BaseRichCommand):
             for user in demo_users:
                 for modality in modalities:
                     try:
-                        study = DicomDataGenerationService.generate_study(
+                        DicomDataGenerationService.generate_study(
                             user=user,
                             modality=modality,
                             num_series=2,

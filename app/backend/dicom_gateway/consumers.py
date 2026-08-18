@@ -189,5 +189,5 @@ class TransferMonitorConsumer(AsyncWebsocketConsumer):
         """
         try:
             return self.user.userprofile
-        except:
+        except Exception:
             return None

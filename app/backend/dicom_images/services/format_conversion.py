@@ -8,7 +8,6 @@ import logging
 import os
 import uuid
 import zipfile
-from io import BytesIO
 from pathlib import Path
 
 import pydicom

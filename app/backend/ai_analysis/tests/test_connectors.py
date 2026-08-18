@@ -2,10 +2,9 @@
 Tests for AI analysis connectors (PICAI, CheXNet).
 """
 
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch, MagicMock
 
 import pytest
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 from ai_analysis.connectors.picai import PICAIConnector
 from ai_analysis.connectors.chexnet import CheXNetConnector, CHEXNET_PATHOLOGIES

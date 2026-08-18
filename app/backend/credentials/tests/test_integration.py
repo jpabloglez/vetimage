@@ -19,12 +19,10 @@ from django.utils import timezone
 from rest_framework.test import APIClient
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 from datetime import timedelta
 import json
 import time
 import unittest
-import uuid
 
 from users.models import UserAPIKey
 from credentials.models import (

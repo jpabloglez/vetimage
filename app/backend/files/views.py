@@ -1,15 +1,11 @@
-from django.shortcuts import render
 
 # Create your views here.
-import os
 import os.path as op
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 
 from .serializers import ImageSerializer
-from pathlib import Path
-from django.conf import settings
 
 
 class ImageUploadView(APIView):

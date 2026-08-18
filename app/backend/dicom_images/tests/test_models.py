@@ -8,7 +8,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 from dicom_images.models import (
     MedicalStudy,
-    MedicalSeries,
     MedicalImage,
     UserStorageQuota,
     SavedSearch,
@@ -53,7 +52,7 @@ class TestMedicalStudy:
         assert study.number_of_instances == 1
 
     def test_ordering(self, user):
-        s1 = MedicalStudy.objects.create(
+        MedicalStudy.objects.create(
             study_instance_uid='1.1.1', patient_id='P1', uploaded_by=user,
         )
         s2 = MedicalStudy.objects.create(

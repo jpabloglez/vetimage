@@ -124,7 +124,7 @@ class StudyTransferSerializer(serializers.Serializer):
                 return uploaded_by.get_full_name() or uploaded_by.email
             else:
                 return 'Private'
-        except:
+        except Exception:
             return 'Private'
 
     def get_uploaded_by_department(self, obj) -> str:
@@ -145,7 +145,7 @@ class StudyTransferSerializer(serializers.Serializer):
         if uploaded_by.id == request.user.id:
             try:
                 return uploaded_by.userprofile.department
-            except:
+            except Exception:
                 return None
 
         # Check sharing settings
@@ -155,7 +155,7 @@ class StudyTransferSerializer(serializers.Serializer):
                 return profile.department
             else:
                 return None
-        except:
+        except Exception:
             return None
 
 

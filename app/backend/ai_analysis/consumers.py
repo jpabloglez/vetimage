@@ -9,8 +9,6 @@ import json
 import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import AnalysisTask
-from .serializers import AnalysisTaskMonitorSerializer
 
 logger = logging.getLogger(__name__)
 

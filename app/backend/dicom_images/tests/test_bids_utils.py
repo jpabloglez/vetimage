@@ -6,8 +6,6 @@ run_dcm2niix (mocked), and the output_format API field.
 """
 
 import json
-import subprocess
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest

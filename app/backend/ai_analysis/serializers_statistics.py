@@ -8,7 +8,6 @@ CRITICAL PRIVACY REQUIREMENT:
 
 from rest_framework import serializers
 from django.utils import timezone
-from datetime import timedelta
 
 from .models import AnalysisTask
 

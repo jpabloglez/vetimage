@@ -2,7 +2,6 @@
 DICOM Anonymization Views
 """
 
-import os
 from pathlib import Path
 
 from django.conf import settings

@@ -8,7 +8,6 @@ This creates the MIRAGE model entry and can be extended for other models.
 """
 
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 from ai_analysis.models import AIModel
 
 

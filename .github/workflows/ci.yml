@@ -19,12 +19,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install ruff
-      # TODO: drop continue-on-error once the pre-existing lint backlog (168
-      # findings under the pinned legacy rule set, see app/backend/pyproject.toml)
-      # is cleaned up in a dedicated follow-up PR. Kept non-blocking so CI stays
-      # green while remaining visible for that future pass.
       - run: ruff check .
-        continue-on-error: true
 
   backend-test:
     name: Backend Tests

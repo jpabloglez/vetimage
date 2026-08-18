@@ -179,7 +179,7 @@ class AnonymizationService:
         # Anonymize or clear user profile
         try:
             profile = UserProfile.objects.get(user=user)
-            profile.first_name = f'Anonymized'
+            profile.first_name = 'Anonymized'
             profile.last_name = f'User{user_id}'
             profile.email = anonymized_email
             profile.phone = ''

@@ -6,7 +6,7 @@ All extractors normalize metadata to a common schema for consistent processing.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import os
 import re
 import logging
@@ -184,7 +184,6 @@ class NiftiMetadataExtractor(BaseMetadataExtractor):
         """
         try:
             import nibabel as nib
-            import numpy as np
 
             # Load NIfTI file
             img = nib.load(file_path)

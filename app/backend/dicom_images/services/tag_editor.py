@@ -94,7 +94,7 @@ class DicomTagEditorService:
             else:
                 # Attempt to add the tag — requires VR lookup
                 try:
-                    from pydicom.datadict import keyword_for_tag, dictionary_VR
+                    from pydicom.datadict import dictionary_VR
                     vr = dictionary_VR(tag)
                     dcm.add_new(tag, vr, update['value'])
                 except Exception:

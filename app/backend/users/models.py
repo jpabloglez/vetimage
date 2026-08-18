@@ -4,12 +4,10 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import (
     AbstractBaseUser,
-    BaseUserManager,
-    PermissionsMixin
+    BaseUserManager
 )
 
 # Create your models here.
-from django.contrib.auth.models import User
 
 ROLES = (
     (1, 'Veterinarian'),

@@ -3,11 +3,10 @@ Tests for DICOM Anonymization service and API views.
 """
 
 import pytest
-import pydicom
 from pydicom.dataset import Dataset
 from rest_framework.test import APIClient
 
-from dicom_images.services.anonymization import AnonymizationService, AnonymizationProfile
+from dicom_images.services.anonymization import AnonymizationService
 from dicom_images.models import AnonymizationJob
 
 
@@ -132,7 +131,6 @@ class TestAnonymizationJobAPI:
 
     def test_download_completed_job(self, auth_client, study, user, tmp_path):
         """Can download ZIP from a completed job."""
-        import os
         from django.conf import settings
         from pathlib import Path
 

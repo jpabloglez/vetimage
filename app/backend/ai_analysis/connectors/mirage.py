@@ -17,8 +17,7 @@ API Endpoints:
 
 import requests
 import logging
-import time
-from typing import Dict, Optional
+from typing import Dict
 from .base import BaseAIConnector
 
 logger = logging.getLogger(__name__)
