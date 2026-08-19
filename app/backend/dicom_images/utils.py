@@ -236,7 +236,7 @@ def extract_frame(
     else:
         # Single frame
         if frame_number != 0:
-            raise ValueError(f"Single-frame image, frame must be 0")
+            raise ValueError("Single-frame image, frame must be 0")
         return pixel_array
 
 

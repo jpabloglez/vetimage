@@ -30,7 +30,12 @@ class TemplateEngine:
         section_defs = layout.get('sections', [])
         if section_defs:
             allowed_types = {s['type'] for s in section_defs}
-            required_types = {s['type'] for s in section_defs if s.get('required', False)}
+            # TODO: computed but never checked against the filtered sections below —
+            # a template layout marking a section required doesn't actually enforce
+            # its presence in the rendered report. Flagged during lint cleanup; needs
+            # a product decision on the desired behavior (reject? warn the vet?)
+            # before implementing.
+            required_types = {s['type'] for s in section_defs if s.get('required', False)}  # noqa: F841
             order_map = {s['type']: s.get('order', 999) for s in section_defs}
             title_map = {s['type']: s.get('title') for s in section_defs}
 

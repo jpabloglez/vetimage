@@ -208,7 +208,6 @@ class TestAnalysisTaskViewSet:
     @patch('ai_analysis.tasks.dispatch_ai_job.delay')
     def test_create_picai_task_without_adc_fails(self, mock_dispatch, auth_client, user, image):
         """Should return 400 when PICAI model requires adc_image_id but it's missing."""
-        from ai_analysis.models import AIModel
 
         picai_model = AIModel.objects.create(
             name='PICAI Test',

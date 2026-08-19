@@ -10,12 +10,17 @@ from drf_spectacular.types import OpenApiTypes
 from .models import (
     Owner, AnimalPatient, VHSMeasurement,
     ClinicalVisit, VaccinationRecord, WeightRecord, Appointment,
+    Prescription, AllergyRecord, ClinicalPhoto, LabResult,
+    ReproductiveEvent,
 )
 from .serializers import (
     OwnerSerializer, AnimalPatientSerializer, AnimalPatientListSerializer,
     VHSMeasurementSerializer,
     ClinicalVisitSerializer, VaccinationRecordSerializer,
     WeightRecordSerializer, AppointmentSerializer,
+    PrescriptionSerializer, AllergyRecordSerializer,
+    ClinicalPhotoSerializer, LabResultSerializer,
+    ReproductiveEventSerializer,
 )
 
 logger = logging.getLogger(__name__)
@@ -353,12 +358,6 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 # All follow the same org-scoping pattern as Phase 1 ViewSets.
 # ---------------------------------------------------------------------------
 
-from .models import Prescription, AllergyRecord, ClinicalPhoto, LabResult
-from .serializers import (
-    PrescriptionSerializer, AllergyRecordSerializer,
-    ClinicalPhotoSerializer, LabResultSerializer,
-)
-
 
 @extend_schema(
     tags=['Patients'],
@@ -541,9 +540,6 @@ class LabResultViewSet(viewsets.ModelViewSet):
 # ---------------------------------------------------------------------------
 # P3 ViewSet: ReproductiveEvent
 # ---------------------------------------------------------------------------
-
-from .models import ReproductiveEvent
-from .serializers import ReproductiveEventSerializer
 
 
 @extend_schema(

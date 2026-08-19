@@ -6,7 +6,6 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.db.models import Count, Avg, Sum
 import json
 
 from .models import (
@@ -484,7 +483,7 @@ class EnhancedAPIKeyAdmin(admin.ModelAdmin):
         if obj.rate_limit_per_minute > 0:
             usage_pct = (obj.current_minute_count / obj.rate_limit_per_minute) * 100
             color = 'red' if usage_pct > 90 else 'orange' if usage_pct > 75 else 'green'
-            html += f'<tr><td style="padding: 5px;">Minute</td>'
+            html += '<tr><td style="padding: 5px;">Minute</td>'
             html += f'<td style="padding: 5px;"><span style="color: {color}; font-weight: bold;">{obj.current_minute_count}</span></td>'
             html += f'<td style="padding: 5px;">{obj.rate_limit_per_minute}</td></tr>'
 
@@ -492,7 +491,7 @@ class EnhancedAPIKeyAdmin(admin.ModelAdmin):
         if obj.rate_limit_per_hour > 0:
             usage_pct = (obj.current_hour_count / obj.rate_limit_per_hour) * 100
             color = 'red' if usage_pct > 90 else 'orange' if usage_pct > 75 else 'green'
-            html += f'<tr><td style="padding: 5px;">Hour</td>'
+            html += '<tr><td style="padding: 5px;">Hour</td>'
             html += f'<td style="padding: 5px;"><span style="color: {color}; font-weight: bold;">{obj.current_hour_count}</span></td>'
             html += f'<td style="padding: 5px;">{obj.rate_limit_per_hour}</td></tr>'
 
@@ -500,7 +499,7 @@ class EnhancedAPIKeyAdmin(admin.ModelAdmin):
         if obj.rate_limit_per_day > 0:
             usage_pct = (obj.current_day_count / obj.rate_limit_per_day) * 100
             color = 'red' if usage_pct > 90 else 'orange' if usage_pct > 75 else 'green'
-            html += f'<tr><td style="padding: 5px;">Day</td>'
+            html += '<tr><td style="padding: 5px;">Day</td>'
             html += f'<td style="padding: 5px;"><span style="color: {color}; font-weight: bold;">{obj.current_day_count}</span></td>'
             html += f'<td style="padding: 5px;">{obj.rate_limit_per_day}</td></tr>'
 

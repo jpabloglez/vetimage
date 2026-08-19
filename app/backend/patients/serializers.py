@@ -5,6 +5,8 @@ from .models import (
     Owner, AnimalPatient, VHSMeasurement, VHS_REFERENCE,
     ClinicalVisit, VaccinationRecord, WeightRecord, Appointment,
     ReferringClinic, ReferralPackage, Message,
+    Prescription, AllergyRecord, ClinicalPhoto, LabResult,
+    ReproductiveEvent,
 )
 
 
@@ -347,8 +349,6 @@ class AppointmentSerializer(serializers.ModelSerializer):
 # Prescription
 # ---------------------------------------------------------------------------
 
-from .models import Prescription, AllergyRecord, ClinicalPhoto, LabResult
-
 
 class PrescriptionSerializer(serializers.ModelSerializer):
     animal_patient_id = serializers.PrimaryKeyRelatedField(
@@ -453,8 +453,6 @@ class LabResultSerializer(serializers.ModelSerializer):
 # ---------------------------------------------------------------------------
 # Reproductive event
 # ---------------------------------------------------------------------------
-
-from .models import ReproductiveEvent
 
 
 class ReproductiveEventSerializer(serializers.ModelSerializer):

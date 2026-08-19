@@ -6,15 +6,14 @@ API views for DICOM upload and DICOMweb-compatible queries.
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import IsAuthenticated
-from django.core.files.base import ContentFile
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
-from django.db import transaction, IntegrityError
+from django.db import transaction
 from django.db import models as django_models
 import pydicom
-from datetime import datetime, date, time
+from datetime import datetime, date
 import os
 import logging
 
@@ -25,7 +24,7 @@ from .models import (
     UserStorageQuota,
     SavedSearch,
     ImageAnnotation,
-    AnnotationTemplate,
+    StudyShareLink,
 )
 from .metadata_extractors import MetadataExtractorFactory
 from .serializers import (
@@ -34,6 +33,7 @@ from .serializers import (
     DICOMwebInstanceSerializer,
     UserStorageQuotaSerializer,
     StudyListSerializer,
+    StudyShareLinkSerializer,
 )
 from .utils import (
     dicom_to_image,
@@ -1415,7 +1415,6 @@ class AdvancedSearchView(APIView):
         queryset = queryset[offset:offset + limit]
 
         # Serialize results
-        from .serializers import StudyListSerializer
         serializer = StudyListSerializer(queryset, many=True)
 
         return Response({
@@ -1943,7 +1942,7 @@ class MedicalImageUploadView(APIView):
                             if study_date_str:
                                 try:
                                     study_date = datetime.strptime(study_date_str, '%Y%m%d').date()
-                                except:
+                                except Exception:
                                     study_date = date.today()
                             else:
                                 study_date = date.today()
@@ -2080,11 +2079,6 @@ class MedicalImageUploadView(APIView):
 # Study sharing (StudyShareLink)
 # ---------------------------------------------------------------------------
 
-from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
-from .models import StudyShareLink
-from .serializers import StudyShareLinkSerializer
-
 
 class StudyShareViewSet(viewsets.ModelViewSet):
     """Create and manage share links for DICOM studies."""
@@ -2117,7 +2111,6 @@ class PublicStudyWADOView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, token):
-        from django.utils import timezone
         try:
             link = StudyShareLink.objects.select_related('study').get(token=token)
         except StudyShareLink.DoesNotExist:

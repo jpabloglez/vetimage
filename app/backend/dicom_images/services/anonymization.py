@@ -20,7 +20,6 @@ from pathlib import Path
 
 import pydicom
 from django.conf import settings
-from django.utils import timezone
 
 
 # -------------------------------------------------------------------------

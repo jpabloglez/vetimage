@@ -1,6 +1,5 @@
 import pytest
 from django.contrib.auth import get_user_model
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.serializers import (
     UserRegistrationSerializer,
@@ -111,7 +110,7 @@ class TestCustomTokenObtainPairSerializer:
 
     def test_validate_adds_user_data(self):
         """Test that validate method adds user data to response"""
-        user = User.objects.create_user(
+        User.objects.create_user(
             email='test@example.com',
             password='testpass123',
             role=1

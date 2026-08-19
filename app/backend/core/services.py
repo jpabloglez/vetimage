@@ -8,7 +8,6 @@ import os
 from datetime import timedelta
 from django.utils import timezone
 from django.contrib.sessions.models import Session
-from django.conf import settings
 
 
 class DataIntegrityService:

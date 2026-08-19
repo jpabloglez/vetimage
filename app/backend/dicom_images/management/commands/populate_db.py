@@ -94,7 +94,7 @@ class Command(BaseRichCommand):
             return
 
         # ========== Generate DICOM Studies ==========
-        self.info(f"\nGenerating DICOM studies...")
+        self.info("\nGenerating DICOM studies...")
 
         modalities = ['CT', 'MR', 'CR', 'DX']
         studies_created = 0
@@ -113,7 +113,7 @@ class Command(BaseRichCommand):
                     modality = modalities[study_num % len(modalities)]
 
                     try:
-                        study = DicomDataGenerationService.generate_study(
+                        DicomDataGenerationService.generate_study(
                             user=user,
                             modality=modality,
                             num_series=series_per_study,

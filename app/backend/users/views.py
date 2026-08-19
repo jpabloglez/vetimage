@@ -1,8 +1,5 @@
-from django.shortcuts import render
 from django.utils import timezone
 from django.contrib.auth import login as django_login
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 
 # Create your views here.
 
@@ -37,7 +34,6 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.conf import settings
 
-from users.permissions import IsAdminUserOrReadOnly
 
 #class UserViewSet(viewsets.ModelViewSet):
 
@@ -545,7 +541,7 @@ def api_key_auth(request):
             {'error': 'Invalid API key'},
             status=status.HTTP_401_UNAUTHORIZED
         )
-    except Exception as e:
+    except Exception:
         return Response(
             {'error': 'Authentication failed'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR

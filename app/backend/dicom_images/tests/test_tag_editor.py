@@ -4,9 +4,8 @@ Tests for the DICOM Tag Editor service and API views.
 
 import pytest
 from unittest.mock import patch, MagicMock
-from rest_framework.test import APIClient
 
-from dicom_images.services.tag_editor import DicomTagEditorService, RESTRICTED_TAGS
+from dicom_images.services.tag_editor import DicomTagEditorService
 
 
 # ---------------------------------------------------------------------------

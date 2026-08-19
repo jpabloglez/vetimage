@@ -14,7 +14,6 @@ from django.contrib.auth import get_user_model
 
 from dicom_images.models import MedicalStudy
 from ai_analysis.models import AnalysisTask
-from .models import AuditLog
 
 User = get_user_model()
 

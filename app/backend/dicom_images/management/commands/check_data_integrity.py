@@ -148,15 +148,15 @@ class Command(BaseRichCommand):
             )
 
             if fix_mode and total_orphaned > 0:
-                summary_content += f"\n[green]✓ Orphaned records cleaned up[/green]"
+                summary_content += "\n[green]✓ Orphaned records cleaned up[/green]"
             elif total_orphaned > 0:
                 summary_content += (
-                    f"\n[blue]Run with --fix to clean up orphaned records[/blue]"
+                    "\n[blue]Run with --fix to clean up orphaned records[/blue]"
                 )
 
             if total_missing > 0:
                 summary_content += (
-                    f"\n[yellow]Note: Missing files must be restored manually[/yellow]"
+                    "\n[yellow]Note: Missing files must be restored manually[/yellow]"
                 )
 
         self.panel("Integrity Check Summary", summary_content)

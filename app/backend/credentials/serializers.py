@@ -15,7 +15,6 @@ from .models import (
     APIKeyUsageLog,
     Notification,
 )
-from users.models import UserAPIKey
 
 User = get_user_model()
 

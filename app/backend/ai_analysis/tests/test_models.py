@@ -7,7 +7,6 @@ from datetime import timedelta
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from ai_analysis.models import AIModel, AnalysisTask
 
 
 # ===========================================================================

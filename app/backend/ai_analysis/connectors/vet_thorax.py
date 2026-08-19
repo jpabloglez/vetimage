@@ -17,7 +17,6 @@ a veterinarian before any clinical action — human-in-the-loop is mandatory.
 Supported species: canine, feline
 """
 import logging
-from typing import Optional
 
 import requests
 

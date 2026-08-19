@@ -3,7 +3,6 @@ Tests for the Report Templates system.
 """
 
 import pytest
-from rest_framework.test import APIClient
 
 from reports.models import ReportTemplate
 from reports.services.template_engine import TemplateEngine

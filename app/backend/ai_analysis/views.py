@@ -25,7 +25,7 @@ from drf_spectacular.types import OpenApiTypes
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.db.models import Count, Avg, Q
+from django.db.models import Count, Q
 from datetime import timedelta
 from .models import AIModel, AnalysisTask
 from .serializers import (

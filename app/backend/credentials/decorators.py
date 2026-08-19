@@ -7,7 +7,6 @@ Provides decorators to enforce API key scopes and rate limits on views.
 from functools import wraps
 from rest_framework.response import Response
 from rest_framework import status
-from django.conf import settings
 import logging
 import time
 

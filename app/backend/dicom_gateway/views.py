@@ -8,7 +8,7 @@ at the study level with real-time statistics and filtering capabilities.
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import (
-    Count, Sum, Avg, Min, Max, Q, F, Case, When, IntegerField
+    Count, Sum, Avg, Min, Max, Q, F
 )
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, api_view, permission_classes
@@ -142,7 +142,6 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
         Returns: 'success', 'partial', 'in_progress', or 'failed'
         """
         total = transfer['total_instances']
-        successful = transfer['successful_instances']
         failed = transfer['failed_instances']
         pending = transfer['pending_instances']
 
@@ -203,7 +202,7 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
                     transfer['source_pacs_name'] = pacs.name if pacs else transfer['source_ae']
                 else:
                     transfer['source_pacs_name'] = 'Unknown'
-            except:
+            except Exception:
                 transfer['source_pacs_name'] = transfer['source_ae'] or 'Unknown'
 
         return transfers
@@ -234,7 +233,7 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
                         pacs = PACSConfiguration.objects.filter(ae_title=source_ae).first()
                         if pacs and pacs.receiving_user_id == request.user.id:
                             filtered.append(t)
-                    except:
+                    except Exception:
                         pass
         elif scope in ['colleagues', 'department', 'team']:
             try:
@@ -276,7 +275,7 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
                                 elif scope == 'team' and other_profile.team_name == profile.team_name:
                                     filtered.append(t)
                                     continue
-                            except:
+                            except Exception:
                                 pass
 
                         # Check PACS-based organization membership
@@ -298,9 +297,9 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
                                         pacs_profile = pacs.receiving_user.userprofile
                                         if pacs_profile.team_name == profile.team_name:
                                             filtered.append(t)
-                            except:
+                            except Exception:
                                 pass
-            except:
+            except Exception:
                 # No profile, return only own
                 filtered = [t for t in transfers if t.get('uploaded_by') and t['uploaded_by'].id == request.user.id]
         else:
@@ -550,10 +549,7 @@ def pacs_lookup(request):
         This endpoint confirms API key exists but doesn't return plaintext key.
         Admin must configure API key in gateway settings when generated.
     """
-    from django.contrib.auth import get_user_model
     from users.models import UserAPIKey
-
-    User = get_user_model()
 
     ae_title = request.query_params.get('ae_title')
 

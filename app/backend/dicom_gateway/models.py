@@ -132,7 +132,7 @@ class PACSConfiguration(models.Model):
         # If node_user is set, ensure they have a valid profile
         if self.node_user:
             try:
-                profile = self.node_user.profile
+                self.node_user.profile
             except Exception:
                 raise ValidationError({
                     'node_user': 'Selected user does not have a user profile. '

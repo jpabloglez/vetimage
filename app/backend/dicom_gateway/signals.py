@@ -7,7 +7,7 @@ This module handles real-time WebSocket broadcasting when DICOM transfers occur.
 import logging
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.db.models import Count, Sum, Avg, Min, Max, Q
+from django.db.models import Sum, Avg, Min, Max
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
@@ -76,7 +76,7 @@ def _aggregate_study_transfer_data(study_instance_uid):
                     ae_title=first_transaction.source_ae
                 ).first()
                 source_pacs_name = pacs.name if pacs else first_transaction.source_ae
-            except:
+            except Exception:
                 source_pacs_name = first_transaction.source_ae
 
         # Try to get study info

@@ -372,7 +372,7 @@ def poll_mirage_job_status(self, task_id):
             _create_task_notification(
                 task, 'success',
                 f'Analysis "{task.model.name}" completed successfully.',
-                link=f'/monitor',
+                link='/monitor',
             )
 
         elif service_status == 'failed':
@@ -385,7 +385,7 @@ def poll_mirage_job_status(self, task_id):
             _create_task_notification(
                 task, 'error',
                 f'Analysis "{task.model.name}" failed: {error_message[:100]}',
-                link=f'/monitor',
+                link='/monitor',
             )
 
         elif service_status == 'processing':
