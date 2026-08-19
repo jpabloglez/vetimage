@@ -6,11 +6,10 @@
  * Features stats cards, filters, and a table showing transfers from PACS/Orthanc.
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Activity,
   CheckCircle,
-  XCircle,
   Clock,
   Users,
   Filter,
@@ -23,8 +22,6 @@ import {
 } from 'lucide-react';
 import {
   apiClient,
-  DicomTransfer,
-  TransferStats,
   DicomTransferFilters,
 } from '../../utils/api';
 import { useMonitoring } from '../../hooks/useMonitoring';
@@ -102,7 +99,7 @@ export const DicomTransferPanel: React.FC = () => {
         setTotalCount(data.count);
       }
     },
-    onStatsUpdate: (data) => {
+    onStatsUpdate: (_data) => {
       // Stats will be available via the stats property
     },
     messageTypes: ['transfer_updated', 'transfer_completed', 'transfer_failed'],

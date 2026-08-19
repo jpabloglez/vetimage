@@ -15,12 +15,11 @@
  */
 
 import React, { useState, useCallback, useRef } from 'react';
-import { Upload, X, CheckCircle, AlertCircle, FileText, HardDrive, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, CheckCircle, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { apiClient, UploadedMedicalImage } from '../../utils/api';
 import {
   validateFiles,
-  detectFileFormat,
   getFormatName,
   getFormatIcon,
   formatFileSize,
@@ -72,23 +71,7 @@ export const MedicalImageUploader: React.FC<MedicalImageUploaderProps> = ({
     e.stopPropagation();
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    addFiles(droppedFiles);
-  }, [maxFileSize, maxTotalSize]);
-
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files);
-      addFiles(selectedFiles);
-    }
-  };
-
-  const addFiles = (newFiles: File[]) => {
+  const addFiles = useCallback((newFiles: File[]) => {
     // Validate files
     const validation = validateFiles(newFiles, maxFileSize, maxTotalSize);
 
@@ -123,6 +106,22 @@ export const MedicalImageUploader: React.FC<MedicalImageUploaderProps> = ({
       .forEach(f => {
         f.errors.forEach(error => toast.error(error));
       });
+  }, [maxFileSize, maxTotalSize]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    addFiles(droppedFiles);
+  }, [addFiles]);
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      addFiles(selectedFiles);
+    }
   };
 
   const removeFile = (index: number) => {

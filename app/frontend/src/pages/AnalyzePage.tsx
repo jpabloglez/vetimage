@@ -772,7 +772,7 @@ const ModelsTab: React.FC = () => {
       .then((data) => { setModels(data); setFilteredModels(data); })
       .catch((err) => setError(err.detail || err.error || t('common:errors.loadFailed')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     let filtered = models;

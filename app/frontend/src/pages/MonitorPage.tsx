@@ -98,7 +98,7 @@ export const MonitorPage: React.FC = () => {
 
       try {
         // Get user profile to check if department is set
-        const profile = await apiClient.getProfile();
+        await apiClient.getProfile();
 
         // TODO: Check if profile has department field
         // For now, we'll skip the modal check as the User type doesn't include profile

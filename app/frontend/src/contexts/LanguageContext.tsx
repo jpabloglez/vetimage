@@ -7,6 +7,10 @@ export interface Language {
   flag: string;
 }
 
+// Context + hook co-location is intentional here (standard pattern across
+// this codebase's contexts); Fast Refresh works slightly worse for it but
+// that's an accepted tradeoff, not a bug.
+// eslint-disable-next-line react-refresh/only-export-components
 export const SUPPORTED_LANGUAGES: Language[] = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
   { code: 'es', name: 'Español', flag: '🇪🇸' },
@@ -45,9 +49,11 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, []);
 
-  // Set initial document lang
+  // Set initial document lang only — the sync effect above already keeps
+  // it updated on every subsequent language change.
   useEffect(() => {
     document.documentElement.lang = currentLanguage;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -63,6 +69,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLanguage = (): LanguageContextType => {
   const context = useContext(LanguageContext);
   if (context === undefined) {

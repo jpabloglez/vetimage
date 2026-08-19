@@ -9,7 +9,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FileText, Download, Plus, ChevronDown, ChevronUp, RefreshCw, GitCompare, CheckCircle2, Share2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { apiClient, type Report, type AnalysisTask } from '../utils/api';
+import { apiClient, type Report } from '../utils/api';
 import ReportViewer from '../components/reports/ReportViewer';
 import GenerateReportModal from '../components/reports/GenerateReportModal';
 import ComparisonSelector from '../components/reports/ComparisonSelector';
@@ -37,7 +37,7 @@ const ReportsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchReports();

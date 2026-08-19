@@ -17,12 +17,11 @@ import {
   PlayCircle,
 } from 'lucide-react';
 
-import { Button, Card, CardHeader, CardTitle, CardContent } from '../components/ui';
-import { useAuth, useTheme } from '../contexts';
+import { Button, Card, CardContent } from '../components/ui';
+import { useAuth } from '../contexts';
 
 const LandingPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
-  const { isDark } = useTheme();
   const { t } = useTranslation(['landing', 'common']);
 
   return (

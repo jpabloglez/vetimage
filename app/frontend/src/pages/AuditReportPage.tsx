@@ -29,7 +29,7 @@ const AuditReportPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, t]);
 
   const handleDownload = useCallback(async () => {
     setDownloading(true);
@@ -40,7 +40,7 @@ const AuditReportPage: React.FC = () => {
     } finally {
       setDownloading(false);
     }
-  }, [filters]);
+  }, [filters, t]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-20">

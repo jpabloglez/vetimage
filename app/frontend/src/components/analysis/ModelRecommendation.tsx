@@ -6,7 +6,7 @@
  * Allows user to select a model for analysis.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Brain, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Sparkles, Award, XCircle } from 'lucide-react';
 import { apiClient, ScoredModel, AIModel } from '../../utils/api';
@@ -180,11 +180,7 @@ export const ModelRecommendation: React.FC<ModelRecommendationProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchRecommendations();
-  }, [imageId]);
-
-  const fetchRecommendations = async () => {
+  const fetchRecommendations = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -204,7 +200,11 @@ export const ModelRecommendation: React.FC<ModelRecommendationProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [imageId]);
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, [fetchRecommendations]);
 
   if (loading) {
     return (

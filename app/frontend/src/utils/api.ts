@@ -62,26 +62,20 @@ import type {
   StudyShareLinkWrite,
   Species,
   AIModel,
-  TaskStatus,
   AnalysisTask,
   Finding,
   CreateTaskRequest,
-  ScoredModel,
   ModelRecommendationResponse,
-  UploadedMedicalImage,
   MedicalImageUploadResponse,
   MonitorTasksParams,
-  MonitorTask,
   PaginatedMonitorTasks,
   TaskStats,
   DicomTransferFilters,
-  DicomTransfer,
   PaginatedDicomTransfers,
   TransferStats,
   ProfileCompletionData,
   ColleagueProfile,
   StatisticsFilters,
-  StatisticsTask,
   PaginatedStatisticsData,
   StatisticsAggregated,
   StatisticsFilterOptions,
@@ -95,16 +89,12 @@ import type {
   PublicSharedReport,
   AuditLogEntry,
   ReportTemplate,
-  AnonymizationProfile,
-  AnonymizationOutputFormat,
   AnonymizationJob,
   CreateAnonymizationJobRequest,
   DicomTag,
   TagUpdate,
-  ConversionTargetFormat,
   ConversionJob,
   CreateConversionJobRequest,
-  BatchOperation,
   BatchJob,
   CreateBatchJobRequest,
   AuditReportFilters,
@@ -328,7 +318,7 @@ class ApiClient {
     try {
       await this.refreshAccessToken();
       return true;
-    } catch (error) {
+    } catch {
       // Refresh failed - no valid refresh token cookie
       return false;
     }
@@ -562,7 +552,7 @@ class ApiClient {
           try {
             const response = JSON.parse(xhr.responseText);
             resolve(response);
-          } catch (error) {
+          } catch {
             reject({
               error: 'Invalid response format',
               status: xhr.status,
@@ -1260,7 +1250,7 @@ class ApiClient {
           try {
             const response = JSON.parse(xhr.responseText);
             resolve(response);
-          } catch (error) {
+          } catch {
             reject(new Error('Failed to parse server response'));
           }
         } else if (xhr.status === 401) {
@@ -1277,7 +1267,7 @@ class ApiClient {
             // Refresh failed
             this.setAccessToken(null);
             window.dispatchEvent(new CustomEvent('auth:token-expired'));
-            reject(new Error('Session expired. Please log in again.'));
+            reject(new Error('Session expired. Please log in again.', { cause: refreshError }));
           }
         } else {
           try {

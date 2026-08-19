@@ -22,8 +22,6 @@ import {
 } from 'lucide-react';
 import {
   apiClient,
-  MonitorTask,
-  TaskStats,
   MonitorTasksParams,
 } from '../../utils/api';
 import { useMonitoring } from '../../hooks/useMonitoring';
@@ -100,7 +98,7 @@ export const JobMonitorPanel: React.FC = () => {
         setTotalCount(data.count);
       }
     },
-    onStatsUpdate: (data) => {
+    onStatsUpdate: (_data) => {
       // Stats will be available via the stats property
     },
     messageTypes: ['task_updated', 'task_completed', 'task_failed'],
@@ -117,7 +115,7 @@ export const JobMonitorPanel: React.FC = () => {
       didInitialLoad.current = true;
       refreshRef.current();
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // Extract tasks from monitor data
   const tasks = monitorData?.results || [];

@@ -32,18 +32,13 @@ interface ParameterSchema {
   placeholder?: string;
 }
 
-interface ValidationError {
-  field: string;
-  message: string;
-}
-
 const ParameterField: React.FC<{
   name: string;
   schema: ParameterSchema;
   value: any;
   onChange: (value: any) => void;
   error?: string;
-}> = ({ name, schema, value, onChange, error }) => {
+}> = ({ name: _name, schema, value, onChange, error }) => {
   const renderInput = () => {
     switch (schema.type) {
       case 'boolean':

@@ -26,7 +26,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useWebSocket, WebSocketMessage } from './useWebSocket';
+import { useWebSocket } from './useWebSocket';
 import { usePolling } from './usePolling';
 import { apiClient } from '../utils/api';
 import { FrontendConfig } from '../utils/api';

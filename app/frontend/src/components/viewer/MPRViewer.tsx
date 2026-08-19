@@ -29,8 +29,8 @@ const planeColors: Record<Plane, string> = {
 };
 
 export const MPRViewer: React.FC<MPRViewerProps> = ({
-  studyInstanceUID,
-  seriesInstanceUID,
+  studyInstanceUID: _studyInstanceUID,
+  seriesInstanceUID: _seriesInstanceUID,
   totalSlices,
 }) => {
   const [maximizedPlane, setMaximizedPlane] = useState<Plane | null>(null);

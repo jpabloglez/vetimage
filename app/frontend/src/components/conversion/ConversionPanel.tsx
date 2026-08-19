@@ -4,7 +4,7 @@
  * Study/series selector, format dropdown, job status polling, download.
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileOutput, Download, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { apiClient, type Study, type ConversionJob } from '../../utils/api';

@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { Download, Trash2, Brain, X, Loader2 } from 'lucide-react';
+import { Download, Trash2, X, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { apiClient } from '../../utils/api';
 import BatchDeleteConfirmModal from './BatchDeleteConfirmModal';

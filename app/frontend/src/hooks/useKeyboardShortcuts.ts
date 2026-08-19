@@ -5,7 +5,7 @@
  * Shortcuts are disabled when focus is in input/textarea elements.
  */
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export interface ShortcutDef {
@@ -30,14 +30,14 @@ export function useKeyboardShortcuts(
 ) {
   const navigate = useNavigate();
 
-  const shortcuts: ShortcutDef[] = [
+  const shortcuts: ShortcutDef[] = useMemo(() => [
     { key: '?', label: '?', description: 'Show keyboard shortcuts', action: onOpenHelp, shift: true },
     { key: 'u', label: 'U', description: 'Go to Upload / Analyze', action: () => navigate('/analyze') },
     { key: 'm', label: 'M', description: 'Go to Models', action: () => navigate('/models') },
     { key: 's', label: 'S', description: 'Go to Statistics', action: () => navigate('/statistics') },
     { key: 'o', label: 'O', description: 'Go to Monitor', action: () => navigate('/monitor') },
     ...extraShortcuts,
-  ];
+  ], [onOpenHelp, navigate, extraShortcuts]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -49,7 +49,7 @@ export function useKeyboardShortcuts(
         const ctrlMatch = shortcut.ctrl ? (e.ctrlKey || e.metaKey) : !(e.ctrlKey || e.metaKey);
         const shiftMatch = shortcut.shift ? e.shiftKey : true; // shift is optional unless required
 
-        if (keyMatch && ctrlMatch) {
+        if (keyMatch && ctrlMatch && shiftMatch) {
           e.preventDefault();
           shortcut.action();
           return;

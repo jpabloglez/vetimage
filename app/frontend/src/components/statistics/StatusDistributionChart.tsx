@@ -64,7 +64,7 @@ export const StatusDistributionChart: React.FC<StatusDistributionChartProps> = (
   };
 
   // Custom label
-  const renderCustomLabel = ({ name, percent }: any) => {
+  const renderCustomLabel = ({ percent }: any) => {
     const percentage = (percent * 100).toFixed(0);
     return percentage > 5 ? `${percentage}%` : '';
   };

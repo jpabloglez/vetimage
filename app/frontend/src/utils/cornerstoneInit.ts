@@ -207,7 +207,7 @@ export function enableElement(element: HTMLDivElement): void {
       cornerstone.enable(element);
       console.log('Element enabled for Cornerstone');
     }
-  } catch (err) {
+  } catch {
     // Element not enabled yet, enable it
     cornerstone.enable(element);
     console.log('Element enabled for Cornerstone');
@@ -249,7 +249,7 @@ export function generateImageId(
 /**
  * Add and activate basic viewing tools
  */
-export function addBasicTools(element: HTMLDivElement): void {
+export function addBasicTools(_element: HTMLDivElement): void {
   // Add tools
   const WwwcTool = cornerstoneTools.WwwcTool;
   const ZoomTool = cornerstoneTools.ZoomTool;
