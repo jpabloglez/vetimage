@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BarChart3, TrendingUp, Database, Users, Activity, PieChart } from 'lucide-react';
+import { BarChart3, Database, Users, Activity, PieChart } from 'lucide-react';
 import {
   apiClient,
   StatisticsFilters,
@@ -182,21 +182,29 @@ export const StatisticsPage: React.FC = () => {
 
   // --- Effects ---
 
+  // Intentionally scoped to currentPage only — filter changes are applied
+  // explicitly via handleApplyFilters below, not fetched automatically as
+  // the user edits them.
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   useEffect(() => {
     fetchData();
     fetchAggregatedData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load tab data on tab change
+  // Load tab data on tab change — the guards (!studyAnalytics etc.) make
+  // this fetch-once-per-tab; adding the fetch* functions/data as deps would
+  // defeat that guard by re-running whenever their own state updates.
   useEffect(() => {
     if (activeTab === 'studies' && !studyAnalytics) fetchStudyAnalytics();
     if (activeTab === 'models' && modelMetrics.length === 0) fetchModelMetrics();
     if (activeTab === 'users' && !myActivity) fetchUserActivity();
     if (activeTab === 'population' && !populationData) fetchPopulation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const handleApplyFilters = () => {

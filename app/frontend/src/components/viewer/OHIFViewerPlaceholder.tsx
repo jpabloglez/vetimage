@@ -9,7 +9,7 @@
  * for the complete OHIF implementation.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Eye, Layers, Image as ImageIcon, Info, ArrowLeft } from 'lucide-react';
 import { apiClient, formatDicomDateDisplay, type Study, type Series } from '../../utils/api';
 import Button from '../ui/Button';
@@ -29,11 +29,7 @@ export const OHIFViewerPlaceholder: React.FC<OHIFViewerPlaceholderProps> = ({
   const [study, setStudy] = useState<Study | null>(null);
   const [series, setSeries] = useState<Series[]>([]);
 
-  useEffect(() => {
-    loadStudyData();
-  }, [studyUID]);
-
-  const loadStudyData = async () => {
+  const loadStudyData = useCallback(async () => {
     setLoading(true);
     try {
       // Get study metadata
@@ -57,7 +53,11 @@ export const OHIFViewerPlaceholder: React.FC<OHIFViewerPlaceholderProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [studyUID]);
+
+  useEffect(() => {
+    loadStudyData();
+  }, [loadStudyData]);
 
   if (loading) {
     return (

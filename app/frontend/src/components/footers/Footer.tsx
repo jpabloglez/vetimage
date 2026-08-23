@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Stethoscope, Mail, Github, FileText, Shield, Heart } from 'lucide-react';
+import { Stethoscope, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function Footer() {

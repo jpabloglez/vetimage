@@ -11,11 +11,7 @@ import {
   CheckCircle,
   Eye,
   Database,
-  Cloud,
-  UserCheck,
   ShieldCheck,
-  FileText,
-  Award,
   Activity,
 } from 'lucide-react';
 

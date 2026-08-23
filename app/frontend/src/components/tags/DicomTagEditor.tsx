@@ -29,7 +29,6 @@ const DicomTagEditor: React.FC<DicomTagEditorProps> = ({ imageId }) => {
     if (!imageId) return;
     setLoading(true);
     try {
-      const params = search ? `?search=${encodeURIComponent(search)}` : '';
       const response = await apiClient.getDicomTags(imageId, search || undefined);
       setTags(response.tags);
     } catch {

@@ -6,7 +6,7 @@
  * window/level adjustment, and multi-series support.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { ArrowLeft, Loader2, ScanSearch } from 'lucide-react';
 import Button from '../ui/Button';
 import { AIToolbarButton } from './AIToolbarButton';
@@ -46,65 +46,37 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
   const [findings, setFindings] = useState<Finding[]>([]);
   const [showFindings, setShowFindings] = useState(true);
 
-  // Initialize Cornerstone on component mount
+  // Tracks viewportInitialized for the mount-effect cleanup below, which
+  // otherwise closes over its stale (always-false) initial value forever.
+  const viewportInitializedRef = useRef(false);
   useEffect(() => {
-    console.log('Initializing Cornerstone libraries...');
-    try {
-      initializeCornerstone();
-    } catch (err) {
-      console.error('Failed to initialize Cornerstone:', err);
-    }
+    viewportInitializedRef.current = viewportInitialized;
+  }, [viewportInitialized]);
 
-    // Cleanup on unmount
-    return () => {
-      if (viewerContainerRef.current && viewportInitialized) {
-        try {
-          disableElement(viewerContainerRef.current);
-        } catch (err) {
-          console.warn('Error disabling viewport:', err);
-        }
+  const loadSeriesInstances = useCallback(async (studyUID: string, seriesUID: string, seriesIndex: number) => {
+    try {
+      console.log(`Loading instances for series ${seriesIndex + 1}...`);
+
+      // Get instances for this series
+      const instancesData = await apiClient.getInstances(studyUID, seriesUID);
+
+      if (instancesData.length === 0) {
+        throw new Error('No instances found in series');
       }
-    };
+
+      setInstances(instancesData);
+      setCurrentSeriesIndex(seriesIndex);
+      setCurrentImageIndex(0);
+
+      // Note: Image will be displayed by the useEffect when viewport is ready
+
+    } catch (err: any) {
+      console.error('Failed to load series instances:', err);
+      toast.error('Failed to load images for series');
+    }
   }, []);
 
-  // Load study data when component mounts or study UIDs change
-  useEffect(() => {
-    loadStudyData();
-  }, [studyInstanceUIDs]);
-
-  // Enable viewport when container ref is available
-  useEffect(() => {
-    if (viewerContainerRef.current && !viewportInitialized && !loading) {
-      try {
-        console.log('Enabling viewport...');
-        enableElement(viewerContainerRef.current);
-        addBasicTools(viewerContainerRef.current);
-        setViewportInitialized(true);
-        console.log('Viewport enabled successfully');
-      } catch (err) {
-        console.error('Failed to enable viewport:', err);
-        toast.error('Failed to initialize viewer');
-      }
-    }
-  }, [viewerContainerRef.current, loading, viewportInitialized]);
-
-  // Display first image when viewport becomes ready and we have instances
-  useEffect(() => {
-    if (viewportInitialized && instances.length > 0 && study) {
-      const currentSeries = series[currentSeriesIndex];
-      if (currentSeries && instances[0]) {
-        console.log('Viewport ready - displaying first image of series');
-        displayImage(
-          study.StudyInstanceUID,
-          currentSeries.SeriesInstanceUID,
-          instances[0].SOPInstanceUID,
-          0
-        );
-      }
-    }
-  }, [viewportInitialized, instances, currentSeriesIndex]);
-
-  const loadStudyData = async () => {
+  const loadStudyData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -143,32 +115,9 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
     } finally {
       setLoading(false);
     }
-  };
+  }, [studyInstanceUIDs, loadSeriesInstances]);
 
-  const loadSeriesInstances = async (studyUID: string, seriesUID: string, seriesIndex: number) => {
-    try {
-      console.log(`Loading instances for series ${seriesIndex + 1}...`);
-
-      // Get instances for this series
-      const instancesData = await apiClient.getInstances(studyUID, seriesUID);
-
-      if (instancesData.length === 0) {
-        throw new Error('No instances found in series');
-      }
-
-      setInstances(instancesData);
-      setCurrentSeriesIndex(seriesIndex);
-      setCurrentImageIndex(0);
-
-      // Note: Image will be displayed by the useEffect when viewport is ready
-
-    } catch (err: any) {
-      console.error('Failed to load series instances:', err);
-      toast.error('Failed to load images for series');
-    }
-  };
-
-  const displayImage = async (studyUID: string, seriesUID: string, sopUID: string, imageIndex: number) => {
+  const displayImage = useCallback(async (studyUID: string, seriesUID: string, sopUID: string, imageIndex: number) => {
     if (!viewerContainerRef.current || !viewportInitialized) {
       console.warn('Viewport not ready for image display');
       return;
@@ -194,9 +143,9 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
     } finally {
       setImageLoading(false);
     }
-  };
+  }, [viewportInitialized]);
 
-  const handlePreviousSeries = async () => {
+  const handlePreviousSeries = useCallback(async () => {
     if (currentSeriesIndex > 0 && study) {
       const newIndex = currentSeriesIndex - 1;
       await loadSeriesInstances(
@@ -205,9 +154,9 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
         newIndex
       );
     }
-  };
+  }, [currentSeriesIndex, study, series, loadSeriesInstances]);
 
-  const handleNextSeries = async () => {
+  const handleNextSeries = useCallback(async () => {
     if (currentSeriesIndex < series.length - 1 && study) {
       const newIndex = currentSeriesIndex + 1;
       await loadSeriesInstances(
@@ -216,9 +165,9 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
         newIndex
       );
     }
-  };
+  }, [currentSeriesIndex, study, series, loadSeriesInstances]);
 
-  const handlePreviousImage = async () => {
+  const handlePreviousImage = useCallback(async () => {
     if (currentImageIndex > 0 && study && instances.length > 0) {
       const newIndex = currentImageIndex - 1;
       const currentSeries = series[currentSeriesIndex];
@@ -229,9 +178,9 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
         newIndex
       );
     }
-  };
+  }, [currentImageIndex, study, instances, series, currentSeriesIndex, displayImage]);
 
-  const handleNextImage = async () => {
+  const handleNextImage = useCallback(async () => {
     const currentSeries = series[currentSeriesIndex];
     if (currentImageIndex < instances.length - 1 && study) {
       const newIndex = currentImageIndex + 1;
@@ -242,9 +191,9 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
         newIndex
       );
     }
-  };
+  }, [series, currentSeriesIndex, currentImageIndex, instances, study, displayImage]);
 
-  const handleSeriesClick = async (seriesIndex: number) => {
+  const handleSeriesClick = useCallback(async (seriesIndex: number) => {
     if (study && seriesIndex !== currentSeriesIndex) {
       await loadSeriesInstances(
         study.StudyInstanceUID,
@@ -252,19 +201,83 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
         seriesIndex
       );
     }
-  };
+  }, [study, currentSeriesIndex, series, loadSeriesInstances]);
 
-  const handleResetViewport = () => {
+  const handleResetViewport = useCallback(() => {
     if (viewerContainerRef.current && viewportInitialized) {
       resetViewport(viewerContainerRef.current);
     }
-  };
+  }, [viewportInitialized]);
 
-  const handleFitToWindow = () => {
+  const handleFitToWindow = useCallback(() => {
     if (viewerContainerRef.current && viewportInitialized) {
       fitToWindow(viewerContainerRef.current);
     }
-  };
+  }, [viewportInitialized]);
+
+  // Initialize Cornerstone on component mount
+  useEffect(() => {
+    console.log('Initializing Cornerstone libraries...');
+    try {
+      initializeCornerstone();
+    } catch (err) {
+      console.error('Failed to initialize Cornerstone:', err);
+    }
+
+    // Cleanup on unmount. Deliberately reading viewerContainerRef.current
+    // live here rather than capturing it above: this effect runs at mount,
+    // before the container div exists (it's behind the loading/error early
+    // returns below), so a captured value would be null forever. Refs
+    // aren't subject to the stale-closure problem state is — .current is
+    // always read fresh, which is exactly what's needed here.
+    return () => {
+      if (viewerContainerRef.current && viewportInitializedRef.current) {
+        try {
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          disableElement(viewerContainerRef.current);
+        } catch (err) {
+          console.warn('Error disabling viewport:', err);
+        }
+      }
+    };
+  }, []);
+
+  // Load study data when component mounts or study UIDs change
+  useEffect(() => {
+    loadStudyData();
+  }, [loadStudyData]);
+
+  // Enable viewport when container ref is available
+  useEffect(() => {
+    if (viewerContainerRef.current && !viewportInitialized && !loading) {
+      try {
+        console.log('Enabling viewport...');
+        enableElement(viewerContainerRef.current);
+        addBasicTools(viewerContainerRef.current);
+        setViewportInitialized(true);
+        console.log('Viewport enabled successfully');
+      } catch (err) {
+        console.error('Failed to enable viewport:', err);
+        toast.error('Failed to initialize viewer');
+      }
+    }
+  }, [loading, viewportInitialized]);
+
+  // Display first image when viewport becomes ready and we have instances
+  useEffect(() => {
+    if (viewportInitialized && instances.length > 0 && study) {
+      const currentSeries = series[currentSeriesIndex];
+      if (currentSeries && instances[0]) {
+        console.log('Viewport ready - displaying first image of series');
+        displayImage(
+          study.StudyInstanceUID,
+          currentSeries.SeriesInstanceUID,
+          instances[0].SOPInstanceUID,
+          0
+        );
+      }
+    }
+  }, [viewportInitialized, instances, currentSeriesIndex, study, series, displayImage]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -303,7 +316,7 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [loading, error, currentSeriesIndex, currentImageIndex, instances]);
+  }, [loading, error, handlePreviousImage, handleNextImage, handlePreviousSeries, handleNextSeries, handleResetViewport, handleFitToWindow]);
 
   if (loading) {
     return (

@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Columns2, Search } from 'lucide-react';
+import { Columns2 } from 'lucide-react';
 import { apiClient, formatDicomDateDisplay, type Study } from '../../utils/api';
 import Button from '../ui/Button';
 

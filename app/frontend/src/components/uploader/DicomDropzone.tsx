@@ -69,23 +69,7 @@ export const DicomDropzone: React.FC<{ onUploadComplete?: () => void }> = ({ onU
     e.stopPropagation();
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    addFiles(droppedFiles);
-  }, []);
-
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files);
-      addFiles(selectedFiles);
-    }
-  }, []);
-
-  const addFiles = (newFiles: File[]) => {
+  const addFiles = useCallback((newFiles: File[]) => {
     // Validate files
     const validFiles: FileWithProgress[] = [];
     const invalidFiles: string[] = [];
@@ -116,7 +100,23 @@ export const DicomDropzone: React.FC<{ onUploadComplete?: () => void }> = ({ onU
       setFiles(prev => [...prev, ...validFiles]);
       toast.success(`Added ${validFiles.length} DICOM file(s)`);
     }
-  };
+  }, [files]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    addFiles(droppedFiles);
+  }, [addFiles]);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      addFiles(selectedFiles);
+    }
+  }, [addFiles]);
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));

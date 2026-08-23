@@ -12,7 +12,6 @@ import {
   Building,
   Stethoscope,
   UserPlus,
-  CheckCircle,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 

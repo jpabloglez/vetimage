@@ -223,7 +223,6 @@ export const TaskMonitor: React.FC<TaskMonitorProps> = ({
   const isActive = ['PENDING', 'QUEUED', 'DISPATCHED', 'PROCESSING'].includes(task.status);
   const isCompleted = task.status === 'COMPLETED';
   const isFailed = ['FAILED', 'TIMEOUT'].includes(task.status);
-  const isCancelled = task.status === 'CANCELLED';
 
   return (
     <Card>
