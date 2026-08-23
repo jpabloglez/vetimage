@@ -12,7 +12,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Upload, X, CheckCircle, AlertCircle, FileText, HardDrive } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { apiClient, formatFileSize, isDicomFile } from '../../utils/api';
+import { apiClient, formatFileSize, isDicomFile, StorageInfo } from '../../utils/api';
 import Button from '../ui/Button';
 
 interface FileWithProgress {
@@ -23,19 +23,11 @@ interface FileWithProgress {
   studyUID?: string;
 }
 
-interface StorageQuota {
-  used_bytes: number;
-  quota_bytes: number;
-  remaining_bytes: number;
-  usage_percentage: number;
-  is_over_quota: boolean;
-}
-
 export const DicomDropzone: React.FC<{ onUploadComplete?: () => void }> = ({ onUploadComplete }) => {
   const [files, setFiles] = useState<FileWithProgress[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [storageQuota, setStorageQuota] = useState<StorageQuota | null>(null);
+  const [storageQuota, setStorageQuota] = useState<StorageInfo | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load storage quota on mount
@@ -133,7 +125,7 @@ export const DicomDropzone: React.FC<{ onUploadComplete?: () => void }> = ({ onU
     }
 
     // Check storage quota
-    if (storageQuota?.is_over_quota) {
+    if (storageQuota && storageQuota.percentage >= 100) {
       toast.error('Storage quota exceeded. Please delete some studies first.');
       return;
     }
@@ -225,23 +217,23 @@ export const DicomDropzone: React.FC<{ onUploadComplete?: () => void }> = ({ onU
               <span className="font-semibold text-slate-900 dark:text-slate-100">Storage Quota</span>
             </div>
             <span className="text-sm text-slate-600 dark:text-slate-400">
-              {formatFileSize(storageQuota.used_bytes)} / {formatFileSize(storageQuota.quota_bytes)}
+              {formatFileSize(storageQuota.used)} / {formatFileSize(storageQuota.quota)}
             </span>
           </div>
           <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
             <div
               className={`h-2 rounded-full transition-all ${
-                storageQuota.is_over_quota
+                storageQuota.percentage >= 100
                   ? 'bg-error-600'
-                  : storageQuota.usage_percentage > 80
+                  : storageQuota.percentage > 80
                   ? 'bg-warning-600'
                   : 'bg-medical-600'
               }`}
-              style={{ width: `${Math.min(storageQuota.usage_percentage, 100)}%` }}
+              style={{ width: `${Math.min(storageQuota.percentage, 100)}%` }}
             />
           </div>
           <div className="mt-1 text-xs text-slate-500 dark:text-slate-400 text-right">
-            {storageQuota.usage_percentage.toFixed(1)}% used
+            {storageQuota.percentage.toFixed(1)}% used
           </div>
         </div>
       )}

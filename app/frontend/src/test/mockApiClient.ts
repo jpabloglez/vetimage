@@ -77,7 +77,7 @@ const API_METHODS = [
  * Build a complete apiClient mock. Pass overrides to customise individual
  * methods for a given test, e.g. createApiClientMock({ login: vi.fn(...) }).
  */
-export function createApiClientMock(overrides: Partial<ApiClientMock> = {}): ApiClientMock {
+export function createApiClientMock(overrides: ApiClientMock = {}): ApiClientMock {
   const mock: ApiClientMock = {};
   for (const name of API_METHODS) {
     mock[name] = vi.fn().mockResolvedValue(undefined);

@@ -252,10 +252,11 @@ function App() {
                 />
 
                 {/* Role-based Protected Routes */}
+                {/* allowedRoles: Clinic Admin (3) and Superuser (5) — see users.models.ROLES */}
                 <Route
                   path="/admin"
                   element={
-                    <ProtectedRoute allowedRoles={['admin']}>
+                    <ProtectedRoute allowedRoles={[3, 5]}>
                       <div className="p-8">
                         <h1 className="text-2xl font-bold">Admin Panel</h1>
                         <p>This page is only accessible to administrators.</p>

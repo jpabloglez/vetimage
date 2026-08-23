@@ -41,7 +41,9 @@ export function initializeCornerstone() {
       use16BitDataType: true,
     },
     // Add authentication headers to requests
-    beforeSend: (xhr: XMLHttpRequest) => {
+    // `url` is a convenience property cornerstone-wado-image-loader tacks onto
+    // the XHR before invoking beforeSend — not part of the standard XHR type.
+    beforeSend: (xhr: XMLHttpRequest & { url?: string }) => {
       const token = apiClient.getAccessToken();
       if (token) {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
@@ -180,7 +182,7 @@ export function cleanupCornerstone() {
   try {
     // Disable all enabled elements
     const enabledElements = cornerstone.getEnabledElements();
-    enabledElements.forEach((enabledElement) => {
+    enabledElements.forEach((enabledElement: any) => {
       try {
         cornerstone.disable(enabledElement.element);
       } catch (err) {

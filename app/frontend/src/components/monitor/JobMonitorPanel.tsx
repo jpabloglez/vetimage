@@ -23,6 +23,7 @@ import {
 import {
   apiClient,
   MonitorTasksParams,
+  MonitorTask,
 } from '../../utils/api';
 import { useMonitoring } from '../../hooks/useMonitoring';
 import Card, { CardHeader, CardTitle, CardContent } from '../ui/Card';
@@ -118,7 +119,7 @@ export const JobMonitorPanel: React.FC = () => {
   }, []);
 
   // Extract tasks from monitor data
-  const tasks = monitorData?.results || [];
+  const tasks: MonitorTask[] = monitorData?.results || [];
 
   /**
    * Format duration in seconds to human-readable format
