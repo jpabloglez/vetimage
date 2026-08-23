@@ -181,9 +181,9 @@ class ApiClient {
 
     // Add access token to headers if available
     // Skip Content-Type for FormData so the browser sets multipart boundary automatically
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
-      ...options.headers,
+      ...(options.headers as Record<string, string> | undefined),
     };
 
     if (this.accessToken) {

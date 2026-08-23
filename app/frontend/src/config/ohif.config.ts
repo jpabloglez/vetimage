@@ -5,15 +5,14 @@
  * with DICOMweb data source pointing to our backend API.
  */
 
-import { Types } from '@ohif/core';
-
 // API Base URL - use environment variable or default to backend
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3081';
 
 /**
  * OHIF Viewer Configuration Object
+ * (@ohif/core ships no types, so this is left untyped rather than faking a shape)
  */
-const ohifConfig: Types.AppConfig = {
+const ohifConfig: any = {
   /**
    * Viewer routing and display options
    */

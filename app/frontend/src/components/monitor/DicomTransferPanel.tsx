@@ -23,6 +23,7 @@ import {
 import {
   apiClient,
   DicomTransferFilters,
+  DicomTransfer,
 } from '../../utils/api';
 import { useMonitoring } from '../../hooks/useMonitoring';
 import Card, { CardHeader, CardTitle, CardContent } from '../ui/Card';
@@ -106,7 +107,7 @@ export const DicomTransferPanel: React.FC = () => {
   });
 
   // Extract transfers from monitor data
-  const transfers = monitorData?.results || [];
+  const transfers: DicomTransfer[] = monitorData?.results || [];
 
   /**
    * Format bytes to human-readable string

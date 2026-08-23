@@ -19,7 +19,7 @@ import {
   PlayCircle,
   Zap,
 } from 'lucide-react';
-import { apiClient, AnalysisTask } from '../../utils/api';
+import { apiClient, getApiBaseUrl, AnalysisTask } from '../../utils/api';
 import Card, { CardHeader, CardTitle, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
 import toast from 'react-hot-toast';
@@ -187,7 +187,7 @@ export const TaskMonitor: React.FC<TaskMonitorProps> = ({
     if (!task || !task.result_file_path) return;
 
     // Construct download URL (assuming result files are served from the backend)
-    const downloadUrl = `${apiClient.baseUrl}${task.result_file_path}`;
+    const downloadUrl = `${getApiBaseUrl()}${task.result_file_path}`;
     window.open(downloadUrl, '_blank');
     toast.success('Download started');
   };

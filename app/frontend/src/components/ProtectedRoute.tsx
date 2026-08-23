@@ -2,11 +2,21 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts';
 
+// Mirrors backend `users.models.ROLES` (integer role field).
+const ROLE_LABELS: Record<number, string> = {
+  1: 'Veterinarian',
+  2: 'Guest',
+  3: 'Clinic Admin',
+  4: 'Veterinary Radiologist',
+  5: 'Superuser',
+  6: 'Pet Owner',
+};
+
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAuth?: boolean;
   redirectTo?: string;
-  allowedRoles?: Array<'doctor' | 'researcher' | 'admin' | 'user'>;
+  allowedRoles?: number[];
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
@@ -79,7 +89,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
               Access Denied
             </h2>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              You don't have permission to access this page. This section is restricted to {allowedRoles.join(', ')} users.
+              You don't have permission to access this page. This section is restricted to {allowedRoles.map((r) => ROLE_LABELS[r] ?? r).join(', ')} users.
             </p>
             <button
               onClick={() => window.history.back()}
