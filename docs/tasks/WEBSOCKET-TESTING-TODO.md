@@ -231,7 +231,7 @@ print('Sharing disabled for colleague')
 
 **Scenario 1: Server Restart**
 1. Open Monitor page (WebSocket connected)
-2. Restart backend: `docker-compose restart backend-openmedlab`
+2. Restart backend: `docker compose restart backend-openmedlab`
 3. Wait 30 seconds
 
 **Expected Results:**
@@ -444,19 +444,19 @@ asyncio.run(main())
 
 1. **Backend Services Running:**
 ```bash
-docker-compose up -d
-docker-compose ps  # Verify all services "Up"
+docker compose up -d
+docker compose ps  # Verify all services "Up"
 ```
 
 2. **Verify Daphne:**
 ```bash
-docker-compose logs backend-openmedlab | grep -i daphne
+docker compose logs backend-openmedlab | grep -i daphne
 # Should show: "Starting server at tcp:port=3080:interface=0.0.0.0"
 ```
 
 3. **Frontend Running:**
 ```bash
-docker-compose logs frontend-openmedlab | grep -i "ready"
+docker compose logs frontend-openmedlab | grep -i "ready"
 # Should show Vite dev server ready
 ```
 
@@ -537,7 +537,7 @@ PATCH /users/profile/{id}/
 
 **Verify Redis:**
 ```bash
-docker-compose logs redis-openmedlab --tail=20
+docker compose logs redis-openmedlab --tail=20
 # Should show Redis accepting connections
 ```
 
@@ -591,7 +591,7 @@ A successful test completion should verify:
 3. User profile not found
 
 **Solution:**
-- Check backend logs: `docker-compose logs backend-openmedlab --tail=50`
+- Check backend logs: `docker compose logs backend-openmedlab --tail=50`
 - Look for Python exceptions in consumer code
 - Verify user has UserProfile record
 
@@ -605,7 +605,7 @@ A successful test completion should verify:
 3. Wrong group subscribed
 
 **Solution:**
-- Verify Redis running: `docker-compose ps redis-openmedlab`
+- Verify Redis running: `docker compose ps redis-openmedlab`
 - Check signal registration in `ai_analysis/apps.py`
 - Test channel layer: `docker exec backend-openmedlab python manage.py shell -c "from channels.layers import get_channel_layer; print(get_channel_layer())"`
 

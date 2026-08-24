@@ -10,12 +10,12 @@ VetImage is a DICOM medical imaging platform: DICOM storage, DICOMweb APIs (QIDO
 
 ## Build & Run
 
-All services run inside Docker. The Makefile wraps docker-compose.
+All services run inside Docker. The Makefile wraps docker compose.
 
 ```bash
-make dev               # docker-compose up -d && logs -f
+make dev               # docker compose up -d && logs -f
 make down              # stop and remove containers
-docker-compose build   # rebuild images
+docker compose build   # rebuild images
 ```
 
 Key ports: Frontend `:3001`, Backend `:3081`, Swagger `:3081/api/docs/`, PostgreSQL `:5445`, Redis `:6381`, DICOM SCP `:11113`, Orthanc `:8043`

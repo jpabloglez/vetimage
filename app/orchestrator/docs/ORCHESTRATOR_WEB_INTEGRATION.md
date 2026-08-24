@@ -673,10 +673,10 @@ export default {
 
 ### Option 1: Same Server, Separate Containers (Recommended)
 
-Create a unified docker-compose file that includes both web app and orchestrator:
+Create a unified docker compose file that includes both web app and orchestrator:
 
 ```yaml
-# docker-compose-full-stack.yml
+# docker compose-full-stack.yml
 version: '3.8'
 
 services:
@@ -787,7 +787,7 @@ networks:
 **Start everything:**
 
 ```bash
-docker-compose -f docker-compose-full-stack.yml up -d
+docker compose -f docker compose-full-stack.yml up -d
 ```
 
 ### Option 2: Separate Servers (Production)
@@ -954,7 +954,7 @@ CREATE INDEX idx_jobs_created_at ON jobs(created_at DESC);
 **Prometheus + Grafana:**
 
 ```yaml
-# Add to docker-compose
+# Add to docker compose
 prometheus:
   image: prom/prometheus
   ports:
@@ -1125,7 +1125,7 @@ describe('Orchestrator Integration', () => {
 
 **Deployment**:
 - ✅ Separate services (can be same server)
-- ✅ Use docker-compose for easy deployment
+- ✅ Use docker compose for easy deployment
 - ✅ Orchestrator on port 50050, web app on port 3000
 
 **Status Display**:
@@ -1160,7 +1160,7 @@ The orchestrator is **production-ready** and provides all the APIs your web app 
 1. Choose your integration pattern (polling, SSE, or WebSocket)
 2. Implement web app backend with gRPC client
 3. Create frontend components for job submission and status
-4. Deploy using docker-compose-full-stack.yml
+4. Deploy using docker compose-full-stack.yml
 5. Test end-to-end flow
 6. Add monitoring and alerts
 

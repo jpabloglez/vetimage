@@ -543,7 +543,7 @@ Potential additions for future iterations:
 ## Support
 
 For issues or questions:
-- Check logs: `docker-compose logs backend-xrays`
+- Check logs: `docker compose logs backend-xrays`
 - Verify migrations: `make migrate`
 - Test endpoints with the examples above
 - Review model definitions in `dicom_images/models.py`

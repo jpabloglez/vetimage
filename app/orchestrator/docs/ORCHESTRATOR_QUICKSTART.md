@@ -11,7 +11,7 @@ Check you have:
 docker --version
 
 # Docker Compose 2.0+
-docker-compose --version
+docker compose --version
 
 # NVIDIA Docker (for GPU)
 docker run --rm --gpus all nvidia/cuda:11.8.0-base-ubuntu22.04 nvidia-smi
@@ -39,7 +39,7 @@ wget -P data/weights https://huggingface.co/PRIME-MIR/MIRAGE-OCT-large/resolve/m
 
 ```bash
 # Build all services (orchestrator, MIRAGE, Redis)
-docker-compose -f docker-compose-orchestrator.yml build
+docker compose -f docker compose-orchestrator.yml build
 
 # This takes 5-10 minutes on first build
 ```
@@ -48,10 +48,10 @@ docker-compose -f docker-compose-orchestrator.yml build
 
 ```bash
 # Start all services in background
-docker-compose -f docker-compose-orchestrator.yml up -d
+docker compose -f docker compose-orchestrator.yml up -d
 
 # Check all services are running
-docker-compose -f docker-compose-orchestrator.yml ps
+docker compose -f docker compose-orchestrator.yml ps
 ```
 
 You should see:
@@ -172,13 +172,13 @@ docker exec mirage-model-service ls -lh /app/MIRAGE/_test_data/orchestrator_resu
 
 ```bash
 # All services
-docker-compose -f docker-compose-orchestrator.yml logs -f
+docker compose -f docker compose-orchestrator.yml logs -f
 
 # Just orchestrator
-docker-compose -f docker-compose-orchestrator.yml logs -f orchestrator
+docker compose -f docker compose-orchestrator.yml logs -f orchestrator
 
 # Just MIRAGE
-docker-compose -f docker-compose-orchestrator.yml logs -f mirage-service
+docker compose -f docker compose-orchestrator.yml logs -f mirage-service
 ```
 
 ### Check Metrics
@@ -252,10 +252,10 @@ channel.close()
 
 ```bash
 # Stop all services
-docker-compose -f docker-compose-orchestrator.yml down
+docker compose -f docker compose-orchestrator.yml down
 
 # Stop and remove volumes (clears Redis queue)
-docker-compose -f docker-compose-orchestrator.yml down -v
+docker compose -f docker compose-orchestrator.yml down -v
 ```
 
 ## Common Issues
@@ -269,7 +269,7 @@ If you see "port is already allocated":
 lsof -i :50050
 lsof -i :8000
 
-# Stop conflicting services or change ports in docker-compose-orchestrator.yml
+# Stop conflicting services or change ports in docker compose-orchestrator.yml
 ```
 
 ### MIRAGE Service Unhealthy
@@ -278,13 +278,13 @@ If MIRAGE shows as unhealthy:
 
 ```bash
 # Check logs
-docker-compose -f docker-compose-orchestrator.yml logs mirage-service
+docker compose -f docker compose-orchestrator.yml logs mirage-service
 
 # Common issue: Model weights not found
 # Solution: Download weights to data/weights/
 
 # Restart service
-docker-compose -f docker-compose-orchestrator.yml restart mirage-service
+docker compose -f docker compose-orchestrator.yml restart mirage-service
 ```
 
 ### Job Times Out
@@ -296,7 +296,7 @@ If jobs timeout:
 timeout: 600  # 10 minutes
 
 # Rebuild and restart
-docker-compose -f docker-compose-orchestrator.yml up -d --build orchestrator
+docker compose -f docker compose-orchestrator.yml up -d --build orchestrator
 ```
 
 ### GPU Not Available
@@ -353,7 +353,7 @@ See https://grpc.io/docs/languages/ for other languages.
 
 - **Full documentation**: `ORCHESTRATOR_README.md`
 - **Troubleshooting**: See README troubleshooting section
-- **Logs**: `docker-compose -f docker-compose-orchestrator.yml logs`
+- **Logs**: `docker compose -f docker compose-orchestrator.yml logs`
 
 ## Architecture Overview
 

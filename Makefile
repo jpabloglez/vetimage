@@ -13,62 +13,62 @@ help: ## Show this help message
 
 # Build Commands
 build: ## Build all services
-	docker-compose build
+	docker compose build
 
 build-backend: ## Build only backend service
-	docker-compose build backend-vetimage
+	docker compose build backend-vetimage
 
 build-frontend: ## Build only frontend service
-	docker-compose build frontend-vetimage
+	docker compose build frontend-vetimage
 
 build-gateway: ## Build DICOM gateway service
-	docker-compose build dicom-gateway-vetimage gateway-celery-worker-vetimage
+	docker compose build dicom-gateway-vetimage gateway-celery-worker-vetimage
 
 build-db: ## Build database service
-	docker-compose build db-vetimage
+	docker compose build db-vetimage
 
 build-orthanc: ## Build Orthanc test PACS
-	docker-compose build orthanc-test-pacs-vetimage
+	docker compose build orthanc-test-pacs-vetimage
 
 build-redis: ## Build Redis service
-	docker-compose build redis-vetimage
+	docker compose build redis-vetimage
 
 build-orchestrator: ## Build orchestrator service
-	docker-compose build orchestrator-vetimage
+	docker compose build orchestrator-vetimage
 
 build-no-cache: ## Build all services without cache
-	docker-compose build --no-cache
+	docker compose build --no-cache
 
 # Service Management
 up: ## Start all services in detached mode
-	docker-compose up -d
+	docker compose up -d
 
 up-logs: ## Start all services and show logs
-	docker-compose up
+	docker compose up
 
 up-detached: ## Start all services in detached mode
-	docker-compose up -d
+	docker compose up -d
 
 up-backend: ## Start backend service
-	docker-compose up -d backend-vetimage
+	docker compose up -d backend-vetimage
 
 up-frontend: ## Start frontend service
-	docker-compose up -d frontend-vetimage
+	docker compose up -d frontend-vetimage
 
 up-db: ## Start database service
-	docker-compose up -d db-vetimage
+	docker compose up -d db-vetimage
 
 up-gateway: ## Start DICOM gateway service
-	docker-compose up -d dicom-gateway-vetimage gateway-celery-worker-vetimage
+	docker compose up -d dicom-gateway-vetimage gateway-celery-worker-vetimage
 
 up-orthanc: ## Start Orthanc test PACS
-	docker-compose up -d orthanc-test-pacs-vetimage
+	docker compose up -d orthanc-test-pacs-vetimage
 
 up-redis: ## Start Redis service
-	docker-compose up -d redis-vetimage
+	docker compose up -d redis-vetimage
 
 up-orchestrator: ## Start orchestrator service
-	docker-compose up -d orchestrator-vetimage
+	docker compose up -d orchestrator-vetimage
 
 up-services: ## Start all AI model services
 	docker compose -f docker-compose.yml -f docker-compose.services.yml up -d mirage-service chexnet-service picai-service
@@ -77,101 +77,101 @@ up-services-picai: ## Start PicAI service
 	docker compose -f docker-compose.yml -f docker-compose.services.yml up -d orchestrator-vetimage picai-service
 
 down: ## Stop and remove all containers
-	docker-compose down
+	docker compose down
 
 down-volumes: ## Stop containers and remove volumes
-	docker-compose down -v
+	docker compose down -v
 
 restart: ## Restart all services
-	docker-compose restart
+	docker compose restart
 
 restart-backend: ## Restart backend service
-	docker-compose restart backend-vetimage
+	docker compose restart backend-vetimage
 
 restart-frontend: ## Restart frontend service
-	docker-compose restart frontend-vetimage
+	docker compose restart frontend-vetimage
 
 restart-db: ## Restart database service
-	docker-compose restart db-vetimage
+	docker compose restart db-vetimage
 
 restart-gateway: ## Restart DICOM gateway service
-	docker-compose restart dicom-gateway-vetimage
+	docker compose restart dicom-gateway-vetimage
 
 restart-orthanc: ## Restart Orthanc test PACS
-	docker-compose restart orthanc-test-pacs-vetimage
+	docker compose restart orthanc-test-pacs-vetimage
 
 restart-gateway-worker: ## Restart gateway Celery worker
-	docker-compose restart gateway-celery-worker-vetimage
+	docker compose restart gateway-celery-worker-vetimage
 
 # Development Commands
 dev: ## Start development environment
-	docker-compose up -d && make logs
+	docker compose up -d && make logs
 
 prod: build ## Build and start production environment
-	docker-compose up -d
+	docker compose up -d
 
 # Logging
 logs: ## Show logs for all services
-	docker-compose logs -f
+	docker compose logs -f
 
 logs-backend: ## Show logs for backend service
-	docker-compose logs -f backend-vetimage --timestamps
+	docker compose logs -f backend-vetimage --timestamps
 
 logs-frontend: ## Show logs for frontend service
-	docker-compose logs -f frontend-vetimage
+	docker compose logs -f frontend-vetimage
 
 logs-db: ## Show logs for database service
-	docker-compose logs -f db-vetimage
+	docker compose logs -f db-vetimage
 
 logs-gateway: ## Show logs for DICOM gateway service
-	docker-compose logs -f dicom-gateway-vetimage
+	docker compose logs -f dicom-gateway-vetimage
 
 logs-gateway-worker: ## Show logs for gateway Celery worker
-	docker-compose logs -f gateway-celery-worker-vetimage
+	docker compose logs -f gateway-celery-worker-vetimage
 
 logs-orthanc: ## Show logs for Orthanc test PACS
-	docker-compose logs -f orthanc-test-pacs-vetimage
+	docker compose logs -f orthanc-test-pacs-vetimage
 	
 logs-redis: ## Show logs for Redis service
-	docker-compose logs -f redis-vetimage
+	docker compose logs -f redis-vetimage
 
 logs-orchestrator: ## Show logs for orchestrator service
-	docker-compose logs -f orchestrator-vetimage
+	docker compose logs -f orchestrator-vetimage
 
 # Shell Access
 shell-backend: ## Access backend container shell
-	docker-compose exec backend-vetimage bash
+	docker compose exec backend-vetimage bash
 
 shell-frontend: ## Access frontend container shell
-	docker-compose exec frontend-vetimage bash
+	docker compose exec frontend-vetimage bash
 
 shell-db: ## Access database container shell
-	docker-compose exec db-vetimage psql -U postgres -d postgres
+	docker compose exec db-vetimage psql -U postgres -d postgres
 
 shell-gateway: ## Access DICOM gateway container shell
-	docker-compose exec dicom-gateway-vetimage bash
+	docker compose exec dicom-gateway-vetimage bash
 
 shell-orthanc: ## Access Orthanc container shell
-	docker-compose exec orthanc-test-pacs-vetimage bash
+	docker compose exec orthanc-test-pacs-vetimage bash
 
 # Execute Commands
 exec-backend: ## Execute command in backend container (use CMD="your command")
-	docker-compose exec backend-vetimage $(CMD)
+	docker compose exec backend-vetimage $(CMD)
 
 exec-frontend: ## Execute command in frontend container (use CMD="your command")
-	docker-compose exec frontend-vetimage $(CMD)
+	docker compose exec frontend-vetimage $(CMD)
 
 exec-db: ## Execute SQL command in database (use CMD="your query")
-	docker-compose exec db-vetimage psql -U postgres -d postgres -c "$(CMD)"
+	docker compose exec db-vetimage psql -U postgres -d postgres -c "$(CMD)"
 
 # Status and Information
 status: ## Show container status
-	docker-compose ps
+	docker compose ps
 
 ps: status ## Alias for status
 
 health: ## Check health of all services
-	docker-compose ps
+	docker compose ps
 	@echo ""
 	@echo "Backend health:"
 	@curl -f http://localhost:3081/health 2>/dev/null || echo "Backend not responding"
@@ -187,66 +187,66 @@ health: ## Check health of all services
 
 # Database Operations
 migrate: ## Run database migrations
-	docker-compose exec backend-vetimage python manage.py migrate
+	docker compose exec backend-vetimage python manage.py migrate
 
 makemigrations: ## Create new migrations
-	docker-compose exec backend-vetimage python manage.py makemigrations
+	docker compose exec backend-vetimage python manage.py makemigrations
 
 seed: ## Seed database with initial data
-	docker-compose exec backend-vetimage python manage.py loaddata fixtures/initial_data.json
+	docker compose exec backend-vetimage python manage.py loaddata fixtures/initial_data.json
 
 backup: ## Backup database to ./backups/
 	@mkdir -p backups
-	docker-compose exec db-vetimage pg_dump -U postgres postgres > backups/backup-$$(date +%Y%m%d_%H%M%S).sql
+	docker compose exec db-vetimage pg_dump -U postgres postgres > backups/backup-$$(date +%Y%m%d_%H%M%S).sql
 
 restore: ## Restore database from backup (use FILE="backup_file.sql")
 	@if [ -z "$(FILE)" ]; then echo "Usage: make restore FILE=backup_file.sql"; exit 1; fi
-	docker-compose exec -T db-vetimage psql -U postgres -d postgres < $(FILE)
+	docker compose exec -T db-vetimage psql -U postgres -d postgres < $(FILE)
 
 # Installation and Dependencies
 install: ## Install dependencies in containers
-	docker-compose exec backend-vetimage pip install -r requirements.txt
-	docker-compose exec frontend-vetimage npm install
+	docker compose exec backend-vetimage pip install -r requirements.txt
+	docker compose exec frontend-vetimage npm install
 
 install-backend: ## Install backend dependencies
-	docker-compose exec backend-vetimage pip install -r requirements.txt
+	docker compose exec backend-vetimage pip install -r requirements.txt
 
 install-frontend: ## Install frontend dependencies
-	docker-compose exec frontend-vetimage npm install
+	docker compose exec frontend-vetimage npm install
 
 update: ## Update dependencies
-	docker-compose exec backend-vetimage pip install -r requirements.txt --upgrade
-	docker-compose exec frontend-vetimage npm update
+	docker compose exec backend-vetimage pip install -r requirements.txt --upgrade
+	docker compose exec frontend-vetimage npm update
 
 # Testing
 test: ## Run all tests
-	docker-compose exec backend-vetimage python manage.py test
-	docker-compose exec frontend-vetimage npm test
+	docker compose exec backend-vetimage python manage.py test
+	docker compose exec frontend-vetimage npm test
 
 test-backend: ## Run backend tests
-	docker-compose exec backend-vetimage python manage.py test
+	docker compose exec backend-vetimage python manage.py test
 
 test-frontend: ## Run frontend tests
-	docker-compose exec frontend-vetimage npm test
+	docker compose exec frontend-vetimage npm test
 
 test-coverage: ## Run tests with coverage
-	docker-compose exec backend-vetimage coverage run --source='.' manage.py test
-	docker-compose exec backend-vetimage coverage report
+	docker compose exec backend-vetimage coverage run --source='.' manage.py test
+	docker compose exec backend-vetimage coverage report
 
 # Linting and Code Quality
 lint: ## Run linters for all services
-	docker-compose exec backend-vetimage flake8 .
-	docker-compose exec frontend-vetimage npm run lint
+	docker compose exec backend-vetimage flake8 .
+	docker compose exec frontend-vetimage npm run lint
 
 lint-backend: ## Run backend linting
-	docker-compose exec backend-vetimage flake8 .
+	docker compose exec backend-vetimage flake8 .
 
 lint-frontend: ## Run frontend linting
-	docker-compose exec frontend-vetimage npm run lint
+	docker compose exec frontend-vetimage npm run lint
 
 format: ## Format code
-	docker-compose exec backend-vetimage black .
-	docker-compose exec frontend-vetimage npm run format
+	docker compose exec backend-vetimage black .
+	docker compose exec frontend-vetimage npm run format
 
 check: lint test ## Run all checks (lint + test)
 
@@ -264,11 +264,11 @@ pull: ## Pull from remote repository
 
 # Cleanup
 clean: ## Remove stopped containers and unused images
-	docker-compose down
+	docker compose down
 	docker system prune -f
 
 clean-all: ## Remove all containers, images, and volumes
-	docker-compose down -v --remove-orphans
+	docker compose down -v --remove-orphans
 	docker system prune -af
 
 prune: clean ## Alias for clean
@@ -286,10 +286,10 @@ volume-restore: ## Restore shared volume (use FILE="backup.tar.gz")
 
 # Monitoring
 monitor: ## Monitor resource usage
-	docker stats $$(docker-compose ps -q)
+	docker stats $$(docker compose ps -q)
 
 top: ## Show running processes in containers
-	docker-compose top
+	docker compose top
 
 # Network
 network-ls: ## List networks
@@ -312,7 +312,7 @@ gateway-test-echo: ## Test DICOM gateway C-ECHO connectivity
 	@curl -X POST http://localhost:8091/api/test-echo
 
 gateway-logs-live: ## Show live gateway logs
-	docker-compose logs -f --tail=100 dicom-gateway-vetimage
+	docker compose logs -f --tail=100 dicom-gateway-vetimage
 
 # Orthanc Commands
 orthanc-open: ## Open Orthanc web interface in browser

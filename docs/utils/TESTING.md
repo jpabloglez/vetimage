@@ -539,10 +539,10 @@ docker logs frontend-xrays --tail 50
 docker logs backend-xrays --tail 50
 
 # Restart frontend
-docker-compose restart frontend-xrays
+docker compose restart frontend-xrays
 
 # Restart backend
-docker-compose restart backend-xrays
+docker compose restart backend-xrays
 
 # Check network
 curl http://localhost:3080/api/health

@@ -34,7 +34,7 @@ cat app/backend/.env | grep WEBSOCKET_BASED_TRACKING
 
 ### 2. Restart Backend (If Needed)
 ```bash
-docker-compose restart backend-openmedlab
+docker compose restart backend-openmedlab
 ```
 
 ### 3. Rebuild Frontend
@@ -48,7 +48,7 @@ npm run dev
 ### 4. Verify Config Endpoint
 ```bash
 # Test config endpoint is working
-docker-compose logs backend-openmedlab --tail=20 | grep "/api/config/"
+docker compose logs backend-openmedlab --tail=20 | grep "/api/config/"
 ```
 
 ---
@@ -246,7 +246,7 @@ docker-compose logs backend-openmedlab --tail=20 | grep "/api/config/"
    ```
 2. Restart backend:
    ```bash
-   docker-compose restart backend-openmedlab
+   docker compose restart backend-openmedlab
    ```
 3. Refresh browser
 4. Observe behavior
@@ -264,7 +264,7 @@ docker-compose logs backend-openmedlab --tail=20 | grep "/api/config/"
 WEBSOCKET_BASED_TRACKING=False
 
 # Restart
-docker-compose restart backend-openmedlab
+docker compose restart backend-openmedlab
 ```
 
 ---
@@ -277,12 +277,12 @@ docker-compose restart backend-openmedlab
 1. With polling active, simulate backend error:
    ```bash
    # Stop backend temporarily
-   docker-compose stop backend-openmedlab
+   docker compose stop backend-openmedlab
    ```
 2. Observe browser behavior for ~30 seconds
 3. Restart backend:
    ```bash
-   docker-compose start backend-openmedlab
+   docker compose start backend-openmedlab
    ```
 
 **Expected Results:**
@@ -395,7 +395,7 @@ docker-compose restart backend-openmedlab
 grep "WEBSOCKET_BASED_TRACKING=False" app/backend/.env
 
 # 2. Restart backend if needed
-docker-compose restart backend-openmedlab
+docker compose restart backend-openmedlab
 
 # 3. Open browser to http://localhost:3000/monitor
 # 4. Open DevTools (F12) → Network tab
@@ -435,7 +435,7 @@ docker-compose restart backend-openmedlab
 
 If issues persist:
 1. Check browser console for detailed errors
-2. Review backend logs: `docker-compose logs backend-openmedlab --tail=50`
+2. Review backend logs: `docker compose logs backend-openmedlab --tail=50`
 3. Verify all files were updated correctly
 4. Try hard refresh: Ctrl+Shift+R
 

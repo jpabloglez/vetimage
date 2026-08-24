@@ -7,7 +7,7 @@ Run these commands to verify the complete workflow:
 ### 1. Check DICOM Gateway Reception
 ```bash
 # Watch for incoming C-STORE requests
-docker-compose logs -f dicom-gateway-openmedlab | grep "C-STORE"
+docker compose logs -f dicom-gateway-openmedlab | grep "C-STORE"
 ```
 
 **Expected Output:**
@@ -19,7 +19,7 @@ C-STORE completed in 8.45ms
 ### 2. Monitor Celery Task Processing
 ```bash
 # Watch celery worker process files
-docker-compose logs -f gateway-celery-worker | grep -E "process_dicom_file|Task|SUCCESS|FAIL"
+docker compose logs -f gateway-celery-worker | grep -E "process_dicom_file|Task|SUCCESS|FAIL"
 ```
 
 **Expected Output:**
@@ -101,17 +101,17 @@ docker exec dicom-gateway-openmedlab find /app/storage/dicom-temp -name "*.dcm" 
 
 **Terminal 1 - Gateway Logs:**
 ```bash
-docker-compose logs -f --tail=0 dicom-gateway-openmedlab
+docker compose logs -f --tail=0 dicom-gateway-openmedlab
 ```
 
 **Terminal 2 - Celery Worker:**
 ```bash
-docker-compose logs -f --tail=0 gateway-celery-worker
+docker compose logs -f --tail=0 gateway-celery-worker
 ```
 
 **Terminal 3 - Backend:**
 ```bash
-docker-compose logs -f --tail=0 backend-openmedlab | grep -E "POST /api/dicom-gateway/transactions|201"
+docker compose logs -f --tail=0 backend-openmedlab | grep -E "POST /api/dicom-gateway/transactions|201"
 ```
 
 ### Step 3: Verify Data Flow
@@ -154,7 +154,7 @@ Expected: `(integer) 0` (queue empty, tasks processed)
 
 **Check for errors:**
 ```bash
-docker-compose logs gateway-celery-worker --tail=100 | grep -i error
+docker compose logs gateway-celery-worker --tail=100 | grep -i error
 ```
 
 ### If monitor page shows no data:

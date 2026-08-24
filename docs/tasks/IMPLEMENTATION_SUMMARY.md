@@ -168,7 +168,7 @@ docs/IMPLEMENTATION_SUMMARY.md
 ### Development (Current)
 ```bash
 # Already running - no action needed
-docker-compose ps
+docker compose ps
 ```
 
 ### Production Recommendations

@@ -514,7 +514,7 @@ docker exec backend-openmedlab python manage.py migrate ai_analysis
 #### Step 5: Restart Services (Already Done)
 
 ```bash
-docker-compose restart backend-openmedlab celery-worker-openmedlab celery-beat-openmedlab
+docker compose restart backend-openmedlab celery-worker-openmedlab celery-beat-openmedlab
 ```
 
 ---
@@ -578,7 +578,7 @@ app.conf.beat_schedule = {
 
 ```bash
 cd /home/jpablo/code/web-apps/openmedlab
-docker-compose up -d
+docker compose up -d
 ```
 
 This starts:
@@ -589,7 +589,7 @@ This starts:
 #### Option 2: Start Only Orchestrator Services
 
 ```bash
-docker-compose up -d orchestrator-redis orchestrator-openmedlab
+docker compose up -d orchestrator-redis orchestrator-openmedlab
 ```
 
 ### Verifying Orchestrator Health
@@ -597,7 +597,7 @@ docker-compose up -d orchestrator-redis orchestrator-openmedlab
 #### 1. Check Container Status
 
 ```bash
-docker-compose ps orchestrator-openmedlab
+docker compose ps orchestrator-openmedlab
 ```
 
 Expected output:
@@ -609,7 +609,7 @@ orchestrator-openmedlab   Up 2 minutes    0.0.0.0:50050->50050/tcp, 0.0.0.0:8080
 #### 2. Check Orchestrator Logs
 
 ```bash
-docker-compose logs orchestrator-openmedlab
+docker compose logs orchestrator-openmedlab
 ```
 
 Expected output (healthy):
@@ -669,14 +669,14 @@ backend-openmedlab:
 Then restart:
 
 ```bash
-docker-compose restart backend-openmedlab celery-worker-openmedlab celery-beat-openmedlab
+docker compose restart backend-openmedlab celery-worker-openmedlab celery-beat-openmedlab
 ```
 
 #### Method 2: Runtime Override (Testing)
 
 ```bash
-docker-compose exec backend-openmedlab bash -c "export USE_ORCHESTRATOR=True"
-docker-compose restart backend-openmedlab
+docker compose exec backend-openmedlab bash -c "export USE_ORCHESTRATOR=True"
+docker compose restart backend-openmedlab
 ```
 
 #### Method 3: Django Shell (One-time Test)
@@ -778,7 +778,7 @@ curl http://localhost:3080/api/ai-analysis/tasks/550e8400-e29b-41d4-a716-4466554
 #### Via Backend Logs
 
 ```bash
-docker-compose logs -f backend-openmedlab | grep orchestrator
+docker compose logs -f backend-openmedlab | grep orchestrator
 ```
 
 Example output:
@@ -791,7 +791,7 @@ Task 550e8400...: PROCESSING → COMPLETED
 #### Via Celery Beat Logs
 
 ```bash
-docker-compose logs -f celery-beat-openmedlab | grep sync-orchestrator-status
+docker compose logs -f celery-beat-openmedlab | grep sync-orchestrator-status
 ```
 
 Example output:
@@ -803,7 +803,7 @@ Example output:
 #### Via Celery Worker Logs
 
 ```bash
-docker-compose logs -f celery-worker-openmedlab | grep sync_orchestrator_status
+docker compose logs -f celery-worker-openmedlab | grep sync_orchestrator_status
 ```
 
 Example output:
@@ -837,11 +837,11 @@ Phase 5: Full Migration (Optional) → remove Celery workers
 cd /home/jpablo/code/web-apps/openmedlab
 
 # Start orchestrator services
-docker-compose up -d orchestrator-redis orchestrator-openmedlab
+docker compose up -d orchestrator-redis orchestrator-openmedlab
 
 # Verify health
 curl http://localhost:8080/metrics
-docker-compose logs orchestrator-openmedlab
+docker compose logs orchestrator-openmedlab
 ```
 
 **Status**:
@@ -864,10 +864,10 @@ docker exec backend-openmedlab python -m grpc_tools.protoc \
 docker exec backend-openmedlab python manage.py migrate
 
 # Restart backend
-docker-compose restart backend-openmedlab celery-worker-openmedlab celery-beat-openmedlab
+docker compose restart backend-openmedlab celery-worker-openmedlab celery-beat-openmedlab
 
 # Verify no errors
-docker-compose logs backend-openmedlab | tail -50
+docker compose logs backend-openmedlab | tail -50
 ```
 
 **Status**:
@@ -881,7 +881,7 @@ docker-compose logs backend-openmedlab | tail -50
 
 ```bash
 # Set environment variable for testing
-docker-compose exec backend-openmedlab bash
+docker compose exec backend-openmedlab bash
 export USE_ORCHESTRATOR=True
 
 # Submit a test job via API
@@ -903,7 +903,7 @@ backend-openmedlab:
 Restart services:
 
 ```bash
-docker-compose restart backend-openmedlab celery-worker-openmedlab celery-beat-openmedlab
+docker compose restart backend-openmedlab celery-worker-openmedlab celery-beat-openmedlab
 ```
 
 **Status**:
@@ -924,7 +924,7 @@ curl http://localhost:8080/metrics | grep orchestrator_processing_time_seconds
 
 **Backend Logs**:
 ```bash
-docker-compose logs -f backend-openmedlab | grep -E "(orchestrator|Task.*→)"
+docker compose logs -f backend-openmedlab | grep -E "(orchestrator|Task.*→)"
 ```
 
 **Database Queries** (check orchestrator adoption):
@@ -986,12 +986,12 @@ If issues arise, rollback is instant:
 
 ```bash
 # Option 1: Environment variable
-docker-compose exec backend-openmedlab bash -c "export USE_ORCHESTRATOR=False"
-docker-compose restart backend-openmedlab
+docker compose exec backend-openmedlab bash -c "export USE_ORCHESTRATOR=False"
+docker compose restart backend-openmedlab
 
 # Option 2: Update docker-compose.yml
 # Change USE_ORCHESTRATOR=True → False
-docker-compose restart backend-openmedlab celery-worker-openmedlab celery-beat-openmedlab
+docker compose restart backend-openmedlab celery-worker-openmedlab celery-beat-openmedlab
 ```
 
 **Result**: System immediately reverts to Celery. No data loss (orchestrator_job_id field is nullable).
@@ -1000,7 +1000,7 @@ docker-compose restart backend-openmedlab celery-worker-openmedlab celery-beat-o
 
 ```bash
 # Check backend logs for Celery dispatch
-docker-compose logs backend-openmedlab | grep "dispatch_ai_job"
+docker compose logs backend-openmedlab | grep "dispatch_ai_job"
 
 # Submit test job
 # Should see celery_task_id populated, orchestrator_job_id = null
@@ -1044,46 +1044,46 @@ orchestrator_grpc_request_duration_seconds_bucket{method="GetJobStatus",le="0.05
 
 ```bash
 # All orchestrator activity
-docker-compose logs -f backend-openmedlab | grep orchestrator
+docker compose logs -f backend-openmedlab | grep orchestrator
 
 # Task status transitions
-docker-compose logs -f backend-openmedlab | grep "Task.*→"
+docker compose logs -f backend-openmedlab | grep "Task.*→"
 
 # gRPC errors
-docker-compose logs -f backend-openmedlab | grep "gRPC error"
+docker compose logs -f backend-openmedlab | grep "gRPC error"
 ```
 
 #### Orchestrator Logs
 
 ```bash
 # All activity
-docker-compose logs -f orchestrator-openmedlab
+docker compose logs -f orchestrator-openmedlab
 
 # Job submissions
-docker-compose logs orchestrator-openmedlab | grep "Job submitted"
+docker compose logs orchestrator-openmedlab | grep "Job submitted"
 
 # Job completions
-docker-compose logs orchestrator-openmedlab | grep "Job completed"
+docker compose logs orchestrator-openmedlab | grep "Job completed"
 
 # Errors
-docker-compose logs orchestrator-openmedlab | grep ERROR
+docker compose logs orchestrator-openmedlab | grep ERROR
 ```
 
 #### Celery Beat Logs (Polling)
 
 ```bash
 # Status sync activity
-docker-compose logs -f celery-beat-openmedlab | grep sync-orchestrator-status
+docker compose logs -f celery-beat-openmedlab | grep sync-orchestrator-status
 
 # All periodic tasks
-docker-compose logs celery-beat-openmedlab | grep "Scheduler: Sending"
+docker compose logs celery-beat-openmedlab | grep "Scheduler: Sending"
 ```
 
 #### Celery Worker Logs (Sync Execution)
 
 ```bash
 # Sync task results
-docker-compose logs -f celery-worker-openmedlab | grep sync_orchestrator_status
+docker compose logs -f celery-worker-openmedlab | grep sync_orchestrator_status
 
 # Example output:
 # [2025-12-27 22:10:33] Orchestrator sync: 3 tasks, 1 updated
@@ -1123,12 +1123,12 @@ MONITOR
 
 1. Check orchestrator is running:
 ```bash
-docker-compose ps orchestrator-openmedlab
+docker compose ps orchestrator-openmedlab
 ```
 
 2. Check orchestrator logs:
 ```bash
-docker-compose logs orchestrator-openmedlab | grep "orch_abc123xyz789"
+docker compose logs orchestrator-openmedlab | grep "orch_abc123xyz789"
 ```
 
 3. Check Redis queue:
@@ -1138,12 +1138,12 @@ docker exec orchestrator-redis redis-cli LLEN orchestrator:queue
 
 4. Check worker logs:
 ```bash
-docker-compose logs orchestrator-openmedlab | grep "Worker.*processing"
+docker compose logs orchestrator-openmedlab | grep "Worker.*processing"
 ```
 
 **Likely Causes**:
-- Orchestrator container crashed → `docker-compose restart orchestrator-openmedlab`
-- Redis connection lost → `docker-compose restart orchestrator-redis`
+- Orchestrator container crashed → `docker compose restart orchestrator-openmedlab`
+- Redis connection lost → `docker compose restart orchestrator-redis`
 - All workers busy → increase `NUM_WORKERS` in docker-compose.yml
 
 #### Scenario 2: gRPC Connection Errors
@@ -1156,7 +1156,7 @@ docker-compose logs orchestrator-openmedlab | grep "Worker.*processing"
 
 1. Check orchestrator container:
 ```bash
-docker-compose ps orchestrator-openmedlab
+docker compose ps orchestrator-openmedlab
 ```
 
 2. Check gRPC port:
@@ -1166,12 +1166,12 @@ docker exec backend-openmedlab nc -zv orchestrator-openmedlab 50050
 
 3. Check orchestrator startup logs:
 ```bash
-docker-compose logs orchestrator-openmedlab | head -20
+docker compose logs orchestrator-openmedlab | head -20
 ```
 
 **Likely Causes**:
-- Orchestrator not started → `docker-compose up -d orchestrator-openmedlab`
-- Port conflict → check `docker-compose ps` for port 50050
+- Orchestrator not started → `docker compose up -d orchestrator-openmedlab`
+- Port conflict → check `docker compose ps` for port 50050
 - Network issue → `docker network inspect app-network`
 
 #### Scenario 3: Status Not Updating
@@ -1185,17 +1185,17 @@ docker-compose logs orchestrator-openmedlab | head -20
 
 1. Check Celery Beat is running:
 ```bash
-docker-compose ps celery-beat-openmedlab
+docker compose ps celery-beat-openmedlab
 ```
 
 2. Check sync task is scheduled:
 ```bash
-docker-compose logs celery-beat-openmedlab | grep sync-orchestrator-status
+docker compose logs celery-beat-openmedlab | grep sync-orchestrator-status
 ```
 
 3. Check sync task execution:
 ```bash
-docker-compose logs celery-worker-openmedlab | grep sync_orchestrator_status
+docker compose logs celery-worker-openmedlab | grep sync_orchestrator_status
 ```
 
 4. Manually trigger sync (for testing):
@@ -1209,7 +1209,7 @@ print(result)  # Should show {'total': X, 'updated': Y}
 ```
 
 **Likely Causes**:
-- Celery Beat not running → `docker-compose up -d celery-beat-openmedlab`
+- Celery Beat not running → `docker compose up -d celery-beat-openmedlab`
 - Sync task disabled → check `USE_ORCHESTRATOR=True` in environment
 - Sync task failing → check celery-worker logs for exceptions
 
@@ -1230,12 +1230,12 @@ ws://localhost:3080/ws/tasks/
 
 2. Check Django signals:
 ```bash
-docker-compose logs backend-openmedlab | grep "task_status_changed"
+docker compose logs backend-openmedlab | grep "task_status_changed"
 ```
 
 3. Check Channels/Daphne:
 ```bash
-docker-compose logs backend-openmedlab | grep "WebSocket"
+docker compose logs backend-openmedlab | grep "WebSocket"
 ```
 
 **Likely Causes**:
@@ -1345,7 +1345,7 @@ No changes to existing REST API - orchestrator is transparent to frontend.
 **Solution**:
 ```bash
 docker exec backend-openmedlab pip install grpcio==1.60.0 grpcio-tools==1.60.0
-docker-compose restart backend-openmedlab
+docker compose restart backend-openmedlab
 ```
 
 ### Issue: "ModuleNotFoundError: No module named 'protos'"
@@ -1357,7 +1357,7 @@ docker-compose restart backend-openmedlab
 docker exec backend-openmedlab python -m grpc_tools.protoc \
   -I./protos --python_out=./protos --grpc_python_out=./protos \
   ./protos/orchestrator.proto
-docker-compose restart backend-openmedlab
+docker compose restart backend-openmedlab
 ```
 
 ### Issue: "gRPC error: UNAVAILABLE - failed to connect to all addresses"
@@ -1366,8 +1366,8 @@ docker-compose restart backend-openmedlab
 
 **Solution**:
 ```bash
-docker-compose up -d orchestrator-openmedlab
-docker-compose logs orchestrator-openmedlab
+docker compose up -d orchestrator-openmedlab
+docker compose logs orchestrator-openmedlab
 ```
 
 ### Issue: "Column 'orchestrator_job_id' does not exist"
@@ -1387,7 +1387,7 @@ docker exec backend-openmedlab python manage.py migrate ai_analysis
 
 1. Check worker logs:
 ```bash
-docker-compose logs orchestrator-openmedlab | grep Worker
+docker compose logs orchestrator-openmedlab | grep Worker
 ```
 
 2. Check Redis queue:
@@ -1397,7 +1397,7 @@ docker exec orchestrator-redis redis-cli LLEN orchestrator:queue
 
 3. Restart orchestrator:
 ```bash
-docker-compose restart orchestrator-openmedlab
+docker compose restart orchestrator-openmedlab
 ```
 
 ### Issue: "Task sync shows 0 updated despite active tasks"
@@ -1463,7 +1463,7 @@ orchestrator-openmedlab:
 
 3. **Scale Celery workers** (for sync task):
 ```bash
-docker-compose up -d --scale celery-worker-openmedlab=3
+docker compose up -d --scale celery-worker-openmedlab=3
 ```
 
 **Vertical Scaling**:
@@ -1560,8 +1560,8 @@ The orchestrator integration is **complete and production-ready** with the follo
 
 **Questions or Issues?**
 - Check [Troubleshooting](#troubleshooting) section
-- Review orchestrator logs: `docker-compose logs orchestrator-openmedlab`
-- Check backend logs: `docker-compose logs backend-openmedlab | grep orchestrator`
+- Review orchestrator logs: `docker compose logs orchestrator-openmedlab`
+- Check backend logs: `docker compose logs backend-openmedlab | grep orchestrator`
 
 ---
 

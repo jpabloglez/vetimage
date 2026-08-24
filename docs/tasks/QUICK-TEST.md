@@ -191,10 +191,10 @@ docker logs frontend-xrays --tail 30
 docker logs backend-xrays --tail 30
 
 # Restart frontend
-docker-compose restart frontend-xrays
+docker compose restart frontend-xrays
 
 # Restart backend
-docker-compose restart backend-xrays
+docker compose restart backend-xrays
 ```
 
 ---

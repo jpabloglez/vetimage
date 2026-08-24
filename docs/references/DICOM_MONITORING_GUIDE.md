@@ -21,7 +21,7 @@ This guide provides comprehensive instructions for monitoring and verifying the 
 ### 1. Check All Services Running
 
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 **Expected Output:**
@@ -39,7 +39,7 @@ redis                   Up
 ### 2. Verify Gateway Listening
 
 ```bash
-docker-compose logs gateway-scp | grep "DICOM SCP started"
+docker compose logs gateway-scp | grep "DICOM SCP started"
 ```
 
 **Expected:** `DICOM SCP started on 0.0.0.0:11112 (AE Title: OPENMEDLAB)`
@@ -47,7 +47,7 @@ docker-compose logs gateway-scp | grep "DICOM SCP started"
 ### 3. Check Celery Worker Status
 
 ```bash
-docker-compose logs gateway-celery-worker | grep "ready"
+docker compose logs gateway-celery-worker | grep "ready"
 ```
 
 **Expected:** `[2024-XX-XX] [INFO/MainProcess] celery@xxx ready.`
@@ -92,7 +92,7 @@ print('Cleared all transactions')
 
 ```bash
 # Watch gateway logs in real-time
-docker-compose logs -f gateway-scp
+docker compose logs -f gateway-scp
 ```
 
 **Expected Output:**
@@ -107,7 +107,7 @@ Successfully stored: /app/storage/dicom-temp/[study]/[series]/[instance].dcm
 
 ```bash
 # Watch Celery worker processing
-docker-compose logs -f gateway-celery-worker
+docker compose logs -f gateway-celery-worker
 ```
 
 **Expected Output (for each instance):**
@@ -170,17 +170,17 @@ curl -s "http://localhost:8000/api/dicom-gateway/transfers/monitor/?scope=own" \
 
 **Terminal 1: Gateway Reception**
 ```bash
-docker-compose logs -f gateway-scp | grep -E "C-STORE|stored"
+docker compose logs -f gateway-scp | grep -E "C-STORE|stored"
 ```
 
 **Terminal 2: Celery Processing**
 ```bash
-docker-compose logs -f gateway-celery-worker | grep -E "Processing|Uploaded|Transaction logged|succeeded|failed"
+docker compose logs -f gateway-celery-worker | grep -E "Processing|Uploaded|Transaction logged|succeeded|failed"
 ```
 
 **Terminal 3: Backend Logs**
 ```bash
-docker-compose logs -f backend-openmedlab | grep -E "POST|dicom-gateway|error"
+docker compose logs -f backend-openmedlab | grep -E "POST|dicom-gateway|error"
 ```
 
 **Terminal 4: Database Watch**
@@ -202,12 +202,12 @@ print(f\"Pending: {DICOMTransaction.objects.filter(status=\"pending\").count()}\
 
 **Check listening status:**
 ```bash
-docker-compose logs gateway-scp | tail -n 50
+docker compose logs gateway-scp | tail -n 50
 ```
 
 **Monitor incoming connections:**
 ```bash
-docker-compose logs -f gateway-scp | grep "Association"
+docker compose logs -f gateway-scp | grep "Association"
 ```
 
 **Check storage path:**
@@ -243,7 +243,7 @@ docker exec redis redis-cli llen dicom_processing
 
 **Check recent API calls:**
 ```bash
-docker-compose logs backend-openmedlab | grep "POST.*dicom-gateway" | tail -n 20
+docker compose logs backend-openmedlab | grep "POST.*dicom-gateway" | tail -n 20
 ```
 
 **Test transaction creation endpoint:**
@@ -311,10 +311,10 @@ LIMIT 10;
 **Diagnosis:**
 ```bash
 # 1. Check Celery is processing tasks
-docker-compose logs gateway-celery-worker | grep "process_dicom_file"
+docker compose logs gateway-celery-worker | grep "process_dicom_file"
 
 # 2. Check for errors in Celery logs
-docker-compose logs gateway-celery-worker | grep -i error
+docker compose logs gateway-celery-worker | grep -i error
 
 # 3. Verify queue routing
 docker exec gateway-celery-worker celery -A gateway.tasks inspect active_queues
@@ -534,7 +534,7 @@ WEBSOCKET_BASED_TRACKING=True   # WebSocket (real-time, requires stable connecti
 
 Then restart backend:
 ```bash
-docker-compose restart backend-openmedlab
+docker compose restart backend-openmedlab
 ```
 
 ---
@@ -644,13 +644,13 @@ WEBSOCKET_HEARTBEAT_INTERVAL=30
 
 Run before reporting issues:
 
-- [ ] All Docker containers running (`docker-compose ps`)
-- [ ] Gateway listening on port 11112 (`docker-compose logs gateway-scp`)
-- [ ] Celery worker active (`docker-compose logs gateway-celery-worker`)
+- [ ] All Docker containers running (`docker compose ps`)
+- [ ] Gateway listening on port 11112 (`docker compose logs gateway-scp`)
+- [ ] Celery worker active (`docker compose logs gateway-celery-worker`)
 - [ ] Redis accessible (`docker exec redis redis-cli ping`)
 - [ ] Backend API responding (`curl http://localhost:8000/api/config/`)
 - [ ] Database connection working (`docker exec db psql -U openmedlab -c "SELECT 1;"`)
-- [ ] No errors in backend logs (`docker-compose logs backend-openmedlab | grep -i error`)
+- [ ] No errors in backend logs (`docker compose logs backend-openmedlab | grep -i error`)
 - [ ] Transaction endpoint accepting POSTs (test with curl)
 - [ ] Frontend loading (`http://localhost:3000`)
 - [ ] Browser console clear of errors (F12 → Console)
@@ -664,10 +664,10 @@ Run before reporting issues:
 ```bash
 # Collect all relevant logs
 mkdir -p ~/openmedlab-logs
-docker-compose logs gateway-scp > ~/openmedlab-logs/gateway-scp.log 2>&1
-docker-compose logs gateway-celery-worker > ~/openmedlab-logs/celery.log 2>&1
-docker-compose logs backend-openmedlab > ~/openmedlab-logs/backend.log 2>&1
-docker-compose logs redis > ~/openmedlab-logs/redis.log 2>&1
+docker compose logs gateway-scp > ~/openmedlab-logs/gateway-scp.log 2>&1
+docker compose logs gateway-celery-worker > ~/openmedlab-logs/celery.log 2>&1
+docker compose logs backend-openmedlab > ~/openmedlab-logs/backend.log 2>&1
+docker compose logs redis > ~/openmedlab-logs/redis.log 2>&1
 
 # Database state
 docker exec backend-openmedlab python -c "

@@ -157,7 +157,7 @@ Try login again
 ### Issue: Cookie not being set
 **Check 1:** Backend restarted after changes?
 ```bash
-docker-compose restart backend-openmedlab
+docker compose restart backend-openmedlab
 ```
 
 **Check 2:** CORS configured correctly?

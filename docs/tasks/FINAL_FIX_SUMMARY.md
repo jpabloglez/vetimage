@@ -312,13 +312,13 @@ else:
 ### Watch Real-Time Uploads
 ```bash
 # Terminal 1: Gateway reception
-docker-compose logs -f gateway-scp | grep -E "C-STORE|stored"
+docker compose logs -f gateway-scp | grep -E "C-STORE|stored"
 
 # Terminal 2: Celery processing
-docker-compose logs -f gateway-celery-worker | grep -E "Processing|Uploaded|Transaction logged|succeeded"
+docker compose logs -f gateway-celery-worker | grep -E "Processing|Uploaded|Transaction logged|succeeded"
 
 # Terminal 3: Backend uploads
-docker-compose logs -f backend-openmedlab | grep -E "uploaded.*medical|ERROR"
+docker compose logs -f backend-openmedlab | grep -E "uploaded.*medical|ERROR"
 ```
 
 ---
@@ -370,7 +370,7 @@ if tx:
 
 **Check 4: Check backend logs for errors**
 ```bash
-docker-compose logs backend-openmedlab | grep -i error | tail -n 20
+docker compose logs backend-openmedlab | grep -i error | tail -n 20
 ```
 
 ---

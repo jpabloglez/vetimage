@@ -135,7 +135,7 @@ A single S3 bucket with strict prefix separation and lifecycle policies.
 1. Fork MIRAGE repository.
 2. Create `Dockerfile` optimizing for Layer Caching (install PyTorch Geometric before copying source code).
 3. Write `ai_service.py` wrapper using FastAPI.
-4. Test locally using `docker-compose` with GPU support (`--gpus all`).
+4. Test locally using `docker compose` with GPU support (`--gpus all`).
 
 ### Phase 2: Core Connector Implementation
 
