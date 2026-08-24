@@ -123,7 +123,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      COMPOSE_FILES: -f docker-compose.yml -f docker-compose.services.yml
+      # docker-compose.override.yml (dev port-publishing + code-mounts) is only
+      # auto-loaded for a bare `docker compose` invocation — this job passes -f
+      # explicitly for docker-compose.services.yml, so it must be listed too, or
+      # backend-vetimage never publishes :3081 and the readiness wait times out.
+      COMPOSE_FILES: -f docker-compose.yml -f docker-compose.services.yml -f docker-compose.override.yml
     steps:
       - uses: actions/checkout@v4
 
