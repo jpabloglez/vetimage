@@ -1,0 +1,39 @@
+# =============================================================================
+# Development overrides — auto-loaded by `docker compose` (no -f needed).
+#
+# Holds the dev-only conveniences that must NOT be present in production:
+#   - source code-mounts (hot reload) for backend + celery
+#   - host port publishing for db / redis / backend (Daphne)
+#
+# The base docker-compose.yml is therefore production-safe by default: it runs
+# baked image code and keeps the database, cache, and app server on the internal
+# network only. Production uses `-f docker-compose.yml -f docker-compose.prod.yml`
+# (this override is NOT applied because -f is specified explicitly).
+#
+# NOTE: when running the AI model services
+# (`-f docker-compose.yml -f docker-compose.services.yml`) and you also want the
+# backend code-mount for hot reload, add `-f docker-compose.override.yml` too.
+# =============================================================================
+
+services:
+  db-vetimage:
+    ports:
+      - "5445:5432"
+
+  redis-vetimage:
+    ports:
+      - "6381:6379"
+
+  backend-vetimage:
+    ports:
+      - "3081:3080"
+    volumes:
+      - ./app/backend:/var/www/app/backend
+
+  celery-worker-vetimage:
+    volumes:
+      - ./app/backend:/var/www/app/backend
+
+  celery-beat-vetimage:
+    volumes:
+      - ./app/backend:/var/www/app/backend
