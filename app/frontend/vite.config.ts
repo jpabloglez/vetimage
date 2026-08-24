@@ -36,13 +36,6 @@ export default defineConfig({
           'vendor-charts': ['recharts'],
           // Form handling
           'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
-          // OHIF medical viewer — very large, split into its own chunk
-          'vendor-ohif': [
-            '@ohif/core',
-            '@ohif/viewer',
-            '@ohif/extension-cornerstone',
-            '@ohif/extension-default',
-          ],
           // Cornerstone imaging toolkit
           'vendor-cornerstone': [
             'cornerstone-core',
