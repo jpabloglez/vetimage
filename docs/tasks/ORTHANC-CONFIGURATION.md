@@ -230,7 +230,7 @@ make logs-gateway
 
 Then restart Orthanc:
 ```bash
-docker-compose up -d --force-recreate orthanc-test-pacs
+docker compose up -d --force-recreate orthanc-test-pacs
 ```
 
 ### Issue: Authentication fails

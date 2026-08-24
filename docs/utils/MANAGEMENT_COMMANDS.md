@@ -690,7 +690,7 @@ docker exec backend-xrays python manage.py reset_demo_data \
 
 For issues or questions:
 1. Check command help: `python manage.py <command> --help`
-2. Review logs: `docker-compose logs backend-xrays`
+2. Review logs: `docker compose logs backend-xrays`
 3. Verify configuration: `python manage.py check`
 4. Run with verbosity: `python manage.py <command> --verbosity=3`
 

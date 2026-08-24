@@ -383,7 +383,7 @@ Rules evaluated in `dicom_gateway/tasks.py` after every successful C-STORE.
 
 ### 2.7 Prometheus + Grafana Observability
 
-**What:** Instrument the backend with `django-prometheus` and expose a `/metrics` endpoint. Add a Grafana service to docker-compose with a pre-built dashboard covering API latency, Celery queue depth, DB query counts, and memory usage.
+**What:** Instrument the backend with `django-prometheus` and expose a `/metrics` endpoint. Add a Grafana service to docker compose with a pre-built dashboard covering API latency, Celery queue depth, DB query counts, and memory usage.
 
 **Why:** Currently there is no production observability — failures are discovered via user reports, not alerts. Prometheus + Grafana is the standard open-source stack for this.
 

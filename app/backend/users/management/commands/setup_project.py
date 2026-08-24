@@ -204,7 +204,7 @@ class Command(BaseRichCommand):
         # Display next steps
         if not self.is_dry_run:
             next_steps = (
-                "1. Start the backend: docker-compose up\n"
+                "1. Start the backend: docker compose up\n"
                 "2. Access Django admin: http://localhost:3080/admin/\n"
                 "3. Test API endpoints with demo users\n"
                 "4. View DICOM data in OHIF Viewer"

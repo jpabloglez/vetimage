@@ -129,17 +129,17 @@ The ML Model Orchestrator is a production-ready service that:
 
 ```bash
 # Build all services (orchestrator + MIRAGE + Redis)
-docker-compose -f docker-compose-orchestrator.yml build
+docker compose -f docker compose-orchestrator.yml build
 ```
 
 ### 2. Start Services
 
 ```bash
 # Start in background
-docker-compose -f docker-compose-orchestrator.yml up -d
+docker compose -f docker compose-orchestrator.yml up -d
 
 # Or start with logs
-docker-compose -f docker-compose-orchestrator.yml up
+docker compose -f docker compose-orchestrator.yml up
 ```
 
 ### 3. Check Health
@@ -176,20 +176,20 @@ python tests/test_orchestrator_client.py \
 
 ```bash
 # All services
-docker-compose -f docker-compose-orchestrator.yml logs -f
+docker compose -f docker compose-orchestrator.yml logs -f
 
 # Orchestrator only
-docker-compose -f docker-compose-orchestrator.yml logs -f orchestrator
+docker compose -f docker compose-orchestrator.yml logs -f orchestrator
 
 # MIRAGE service only
-docker-compose -f docker-compose-orchestrator.yml logs -f mirage-service
+docker compose -f docker compose-orchestrator.yml logs -f mirage-service
 ```
 
 ## Configuration
 
 ### Environment Variables
 
-Configure the orchestrator via environment variables in `docker-compose-orchestrator.yml`:
+Configure the orchestrator via environment variables in `docker compose-orchestrator.yml`:
 
 ```yaml
 environment:
@@ -534,7 +534,7 @@ ZRANGE orchestrator:jobs:by_status:completed 0 -1 WITHSCORES
 **Solutions:**
 ```bash
 # Check worker logs
-docker-compose -f docker-compose-orchestrator.yml logs orchestrator | grep worker
+docker compose -f docker compose-orchestrator.yml logs orchestrator | grep worker
 
 # Check model health
 python tests/test_orchestrator_client.py --skip-models --output /tmp
@@ -558,10 +558,10 @@ docker exec -it orchestrator-redis redis-cli ping
 timeout: 600  # 10 minutes
 
 # Check model service logs
-docker-compose -f docker-compose-orchestrator.yml logs mirage-service
+docker compose -f docker compose-orchestrator.yml logs mirage-service
 
 # Restart model service
-docker-compose -f docker-compose-orchestrator.yml restart mirage-service
+docker compose -f docker compose-orchestrator.yml restart mirage-service
 ```
 
 ### gRPC Connection Refused
@@ -576,7 +576,7 @@ docker-compose -f docker-compose-orchestrator.yml restart mirage-service
 **Solutions:**
 ```bash
 # Check orchestrator is running
-docker-compose -f docker-compose-orchestrator.yml ps
+docker compose -f docker compose-orchestrator.yml ps
 
 # Check port is listening
 netstat -an | grep 50050
@@ -603,7 +603,7 @@ curl http://localhost:8000/health
 docker exec mirage-model-service nvidia-smi
 
 # Restart model service
-docker-compose -f docker-compose-orchestrator.yml restart mirage-service
+docker compose -f docker compose-orchestrator.yml restart mirage-service
 ```
 
 ### Redis Connection Errors
@@ -613,13 +613,13 @@ docker-compose -f docker-compose-orchestrator.yml restart mirage-service
 **Solutions:**
 ```bash
 # Check Redis is running
-docker-compose -f docker-compose-orchestrator.yml ps redis
+docker compose -f docker compose-orchestrator.yml ps redis
 
 # Check Redis logs
-docker-compose -f docker-compose-orchestrator.yml logs redis
+docker compose -f docker compose-orchestrator.yml logs redis
 
 # Restart Redis (jobs will be lost)
-docker-compose -f docker-compose-orchestrator.yml restart redis
+docker compose -f docker compose-orchestrator.yml restart redis
 ```
 
 ## Development
@@ -697,7 +697,7 @@ python tests/test_orchestrator_client.py \
      health_check_interval: 30
      timeout: 300
    ```
-3. **Add to docker-compose**:
+3. **Add to docker compose**:
    ```yaml
    my-model:
      build: ./my-model
@@ -786,7 +786,7 @@ FAILED_JOB_TTL = 86400     # 24 hours
 
 For issues and questions:
 - Check troubleshooting section above
-- Review logs: `docker-compose -f docker-compose-orchestrator.yml logs`
+- Review logs: `docker compose -f docker compose-orchestrator.yml logs`
 - Check health: `python tests/test_orchestrator_client.py --skip-models --output /tmp`
 
 ## Acknowledgments

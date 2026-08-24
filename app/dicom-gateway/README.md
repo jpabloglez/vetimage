@@ -25,7 +25,7 @@ PACS/Modality → [DICOM SCP:11112] → Celery Queue → Backend API → AI Anal
 
 ```bash
 # From repository root
-docker-compose up -d dicom-gateway-vetimage
+docker compose up -d dicom-gateway-vetimage
 
 # Check logs
 docker logs -f dicom-gateway-vetimage
@@ -193,7 +193,7 @@ Orthanc test PACS is included in Docker Compose:
 
 ```bash
 # Start Orthanc
-docker-compose up -d orthanc-test-pacs
+docker compose up -d orthanc-test-pacs
 
 # Access web interface
 open http://localhost:8042

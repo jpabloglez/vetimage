@@ -354,7 +354,7 @@ x-rays-covid-id/
    ```bash
    make up
    # or
-   docker-compose up -d
+   docker compose up -d
    ```
 
 2. **Access Frontend**: http://localhost:3000

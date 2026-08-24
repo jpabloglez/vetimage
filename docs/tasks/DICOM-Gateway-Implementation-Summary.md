@@ -178,7 +178,7 @@ docs/
 cd /home/jpablo/code/web-apps/openmedlab
 
 # Build and start all services
-docker-compose up -d
+docker compose up -d
 
 # Verify gateway is running
 docker logs -f dicom-gateway-openmedlab

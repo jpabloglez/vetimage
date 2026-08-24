@@ -82,7 +82,7 @@ The developers and contributors are not responsible for any clinical decisions, 
 
 2. Start the application:
    ```bash
-   docker-compose up -d --build
+   docker compose up -d --build
    ```
 
 3. Access the application:

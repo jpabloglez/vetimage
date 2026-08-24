@@ -683,7 +683,7 @@ AUDIT_LOG_RETENTION_DAYS = 90  # Reduce from 365
 **Solution:** Verify Redis is running and accessible:
 
 ```bash
-docker-compose ps redis-vetimage
+docker compose ps redis-vetimage
 redis-cli -h redis-vetimage ping
 ```
 
