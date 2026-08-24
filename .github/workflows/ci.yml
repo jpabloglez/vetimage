@@ -178,9 +178,11 @@ jobs:
         # so the base file must create it first — bringing both files up in
         # one combined command makes Compose treat the network as external
         # from the start, which fails on a fresh runner where it doesn't
-        # exist yet.
+        # exist yet. docker-compose.override.yml (dev port-publishing) is
+        # included explicitly since -f is already explicit here — it's only
+        # auto-loaded for a bare `docker compose` invocation.
         run: |
-          docker compose -f docker-compose.yml up -d --build \
+          docker compose -f docker-compose.yml -f docker-compose.override.yml up -d --build \
             db-vetimage redis-vetimage backend-vetimage celery-worker-vetimage frontend-vetimage
 
       - name: Start orchestrator + vet-thorax reference AI service
