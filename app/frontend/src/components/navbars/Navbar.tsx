@@ -54,6 +54,9 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
 
   const isAuthPage = location.pathname.startsWith('/auth');
+  // The landing page has its own complete header (logo, nav, sign in, CTA) —
+  // rendering the app-wide Navbar on top of it would double up.
+  const isLandingPage = location.pathname === '/';
 
   // Poll notifications every 30s
   const fetchNotifications = useCallback(async () => {
@@ -157,6 +160,10 @@ const Navbar: React.FC = () => {
     return location.pathname.startsWith(href) && href !== '/';
   };
 
+
+  if (isLandingPage) {
+    return null;
+  }
 
   if (isAuthPage) {
     // Minimal navbar for auth pages
