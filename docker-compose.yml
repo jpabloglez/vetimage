@@ -3,8 +3,7 @@ services:
   db-vetimage:
     image: postgres:17
     container_name: db-vetimage
-    ports:
-      - 5445:5432
+    # Host port publishing is dev-only (see docker-compose.override.yml).
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -22,8 +21,7 @@ services:
   redis-vetimage:
     image: redis:7-alpine
     container_name: redis-vetimage
-    ports:
-      - "6381:6379"
+    # Host port publishing is dev-only (see docker-compose.override.yml).
     volumes:
       - ./data/redis:/data
     command: redis-server --appendonly yes
@@ -45,10 +43,8 @@ services:
     depends_on:
       - db-vetimage
       - redis-vetimage
-    ports:
-      - 3081:3080
+    # Host port publishing + source code-mount are dev-only (override file).
     volumes:
-      - ./app/backend:/var/www/app/backend
       - ./data/media:/var/www/app/backend/media
       - shared_volume:/var/www/static
     command: daphne -b 0.0.0.0 -p 3080 backend.asgi:application
@@ -78,8 +74,8 @@ services:
       - db-vetimage
       - redis-vetimage
       - backend-vetimage
+    # Source code-mount is dev-only (see docker-compose.override.yml).
     volumes:
-      - ./app/backend:/var/www/app/backend
       - ./data/media:/var/www/app/backend/media
     command: celery -A backend worker --loglevel=info --queues=ai_jobs,monitoring,default
     networks:
@@ -102,8 +98,7 @@ services:
     depends_on:
       - db-vetimage
       - redis-vetimage
-    volumes:
-      - ./app/backend:/var/www/app/backend
+    # Source code-mount is dev-only (see docker-compose.override.yml).
     command: celery -A backend beat --loglevel=info
     networks:
       - app-network

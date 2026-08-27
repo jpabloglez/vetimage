@@ -4,11 +4,14 @@
 is Django + DRF + Channels (ASGI/Daphne) · PostgreSQL · Redis · Celery
 (worker + beat) · a Vite/React frontend · optional AI model services.
 
-> The repo's base `docker-compose.yml` is **development-oriented** (code-mount
-> volumes, published DB/Redis ports). The `docker-compose.prod.yml` override
-> applies production environment, restart policies, and a migrate +
-> collectstatic startup. Read the **Caveats** section before exposing this to
-> the internet.
+> The repo's base `docker-compose.yml` is **production-safe by default**: no
+> code-mount volumes, no published DB/Redis/backend host ports. Those dev
+> conveniences live in `docker-compose.override.yml`, which `docker compose`
+> auto-loads only when no `-f` flag is given (plain dev runs) — an explicit
+> `-f docker-compose.yml -f docker-compose.prod.yml` never loads it. The
+> `docker-compose.prod.yml` override applies production environment, restart
+> policies, and a migrate + collectstatic startup. Read the **Caveats**
+> section before exposing this to the internet.
 
 ---
 
@@ -104,16 +107,21 @@ to anonymize owner PII past the retention window.
 
 ## 5. Caveats (Compose override limitations)
 
-`docker-compose.prod.yml` cannot *remove* entries the base file defines. For a
-hardened deployment you should additionally:
+The dev-only code-mounts and DB/Redis/backend host port publishing live in
+`docker-compose.override.yml`, which `docker compose` auto-loads only for a
+bare invocation (no `-f`). The `-f docker-compose.yml -f docker-compose.prod.yml`
+combo from §2 never loads it — Docker Compose cannot *remove* entries an
+override adds, so keeping them out of the base file (instead of trying to
+un-set them in `docker-compose.prod.yml`) is what makes prod hardened by
+default. Remaining deploy-environment decisions, still left to you:
 
-- **Drop the code-mount volume** `./app/backend:/var/www/app/backend` so the
-  container runs the baked image, not host code. (Build a prod image / use a
-  base file without the mount.)
-- **Stop publishing `db`/`redis` ports** (`5445`, `6381`) to the host — keep
-  them on the internal Docker network only.
 - Put the whole stack behind a TLS-terminating reverse proxy; do not expose
   Daphne (`:3081`) directly.
-
-These are intentionally left as deploy-environment decisions rather than baked
-into the override.
+- Exclude the bundled `orthanc-test-pacs-vetimage` service from prod — it's a
+  dev/test PACS fixture with hardcoded credentials, not meant to be reachable
+  from the internet. (No separate compose file for this yet; stop/remove the
+  container after `up`, or split it into its own file if you need a repeatable
+  prod bring-up.)
+- Running the AI model services (`docker-compose.services.yml`) alongside a
+  hardened prod stack: combine explicitly, e.g.
+  `-f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.services.yml`.
