@@ -465,3 +465,106 @@ class TestAnonymizationGate:
 
         assert resp.status_code == status.HTTP_201_CREATED
         mock_dispatch.assert_called_once()
+
+
+# ===========================================================================
+# Dispatch routing (gRPC orchestrator vs Celery REST + webhook)
+# ===========================================================================
+
+
+@pytest.mark.django_db
+class TestDispatchRouting:
+    """
+    A task goes to the gRPC orchestrator only when the model asks for it
+    (AIModel.use_orchestrator) AND the orchestrator is globally enabled
+    (settings.USE_ORCHESTRATOR).
+
+    Regression: the two flags used to be ORed, so enabling the orchestrator
+    globally dragged every REST + webhook model (the vet connectors, which set
+    use_orchestrator=False) onto the gRPC path, where they died with
+    "No healthy model available".
+    """
+
+    @pytest.fixture
+    def orchestrator_model(self, db):
+        return AIModel.objects.create(
+            name='Orchestrator Model',
+            key='orchestrator-model-v1',
+            version='1.0',
+            endpoint_url='http://orchestrator-service:8000',
+            connector_class='ai_analysis.connectors.test.TestConnector',
+            model_type='segmentation',
+            supported_modalities=['CT', 'MR'],
+            use_orchestrator=True,
+        )
+
+    def _create_task(self, auth_client, model, image):
+        return auth_client.post(reverse('task-list'), {
+            'model_key': model.key,
+            'input_image_id': image.pk,
+            'parameters': {'modality': 't1'},
+        }, format='json')
+
+    @override_settings(USE_ORCHESTRATOR=True)
+    @patch('ai_analysis.orchestrator_client.OrchestratorClient')
+    @patch('ai_analysis.tasks.dispatch_ai_job.delay')
+    def test_rest_model_stays_on_celery_when_orchestrator_globally_enabled(
+        self, mock_dispatch, mock_orchestrator, auth_client, ai_model, image
+    ):
+        """The regression: a REST model must ignore the global orchestrator flag."""
+        assert ai_model.use_orchestrator is False
+
+        resp = self._create_task(auth_client, ai_model, image)
+
+        assert resp.status_code == status.HTTP_201_CREATED
+        mock_dispatch.assert_called_once()
+        mock_orchestrator.assert_not_called()
+
+    @override_settings(USE_ORCHESTRATOR=True)
+    @patch('ai_analysis.orchestrator_client.OrchestratorClient')
+    @patch('ai_analysis.tasks.dispatch_ai_job.delay')
+    def test_orchestrator_model_uses_orchestrator(
+        self, mock_dispatch, mock_orchestrator, auth_client, orchestrator_model, image
+    ):
+        mock_orchestrator.return_value.submit_job.return_value = {'job_id': 'job-123'}
+
+        resp = self._create_task(auth_client, orchestrator_model, image)
+
+        assert resp.status_code == status.HTTP_201_CREATED
+        mock_orchestrator.return_value.submit_job.assert_called_once()
+        mock_dispatch.assert_not_called()
+
+        task = AnalysisTask.objects.get(pk=resp.data['id'])
+        assert task.status == 'DISPATCHED'
+        assert task.orchestrator_job_id == 'job-123'
+
+    @override_settings(USE_ORCHESTRATOR=False)
+    @patch('ai_analysis.orchestrator_client.OrchestratorClient')
+    @patch('ai_analysis.tasks.dispatch_ai_job.delay')
+    def test_orchestrator_model_falls_back_to_celery_when_globally_disabled(
+        self, mock_dispatch, mock_orchestrator, auth_client, orchestrator_model, image
+    ):
+        """The global flag is a kill-switch: off means nothing reaches gRPC."""
+        resp = self._create_task(auth_client, orchestrator_model, image)
+
+        assert resp.status_code == status.HTTP_201_CREATED
+        mock_dispatch.assert_called_once()
+        mock_orchestrator.assert_not_called()
+
+    @override_settings(USE_ORCHESTRATOR=True)
+    @patch('ai_analysis.orchestrator_client.OrchestratorClient')
+    @patch('ai_analysis.tasks.dispatch_ai_job.delay')
+    def test_retry_of_rest_model_stays_on_celery(
+        self, mock_dispatch, mock_orchestrator, auth_client, analysis_task
+    ):
+        """Retry routes the same way as create — this path had the same bug."""
+        analysis_task.status = 'FAILED'
+        analysis_task.retry_count = 0
+        analysis_task.save()
+
+        url = reverse('task-retry', kwargs={'pk': str(analysis_task.pk)})
+        resp = auth_client.post(url)
+
+        assert resp.status_code == status.HTTP_200_OK
+        mock_dispatch.assert_called_once()
+        mock_orchestrator.assert_not_called()

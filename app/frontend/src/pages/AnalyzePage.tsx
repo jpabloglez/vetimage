@@ -13,8 +13,9 @@ import { useTranslation } from 'react-i18next';
 import {
   ChevronRight, Upload, Brain, Settings, CheckCircle,
   Search, RefreshCw, Clock, FileText, Eye, Plus,
-  GitCompare,
+  GitCompare, Loader2,
 } from 'lucide-react';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 import { MedicalImageUploader } from '../components/uploader/MedicalImageUploader';
 import { DragDropUploadZone } from '../components/analyze/DragDropUploadZone';
@@ -78,6 +79,16 @@ function formatDuration(seconds?: number): string {
   return `${Math.floor(seconds / 60)}m ${(seconds % 60).toFixed(0)}s`;
 }
 
+// Non-terminal statuses — a task here is still in flight (drives the live
+// duration clock, the status spinner, and the worklist auto-refresh poll).
+const ACTIVE_STATUSES: AnalysisTask['status'][] = ['PENDING', 'QUEUED', 'DISPATCHED', 'PROCESSING'];
+
+/** Seconds elapsed since a running task started (best available timestamp). */
+function liveElapsedSeconds(task: AnalysisTask, nowMs: number): number {
+  const startStr = task.started_processing_at || task.dispatched_at || task.created_at;
+  return Math.max(0, (nowMs - new Date(startStr).getTime()) / 1000);
+}
+
 // ─── StepIndicator ────────────────────────────────────────────────────────────
 
 const StepIndicator: React.FC<{
@@ -136,6 +147,7 @@ const WorklistTab: React.FC = () => {
   const [tasks, setTasks]   = useState<AnalysisTask[]>([]);
   const [models, setModels] = useState<AIModel[]>([]);
   const [loading, setLoading] = useState(true);
+  const [now, setNow] = useState(() => Date.now());  // ticking clock for live durations
 
   const [search, setSearch]           = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -148,8 +160,8 @@ const WorklistTab: React.FC = () => {
     apiClient.getAIModels().then(setModels).catch(() => {});
   }, []);
 
-  const fetchTasks = useCallback(async () => {
-    setLoading(true);
+  const fetchTasks = useCallback(async ({ silent = false }: { silent?: boolean } = {}) => {
+    if (!silent) setLoading(true);
     try {
       const data = await apiClient.getAnalysisTasks({
         ...(statusFilter && { status: statusFilter }),
@@ -158,9 +170,9 @@ const WorklistTab: React.FC = () => {
       });
       setTasks(data);
     } catch {
-      toast.error(t('common:errors.loadFailed'));
+      if (!silent) toast.error(t('common:errors.loadFailed'));
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [statusFilter, modelFilter, t]);
 
@@ -168,6 +180,30 @@ const WorklistTab: React.FC = () => {
     fetchTasks();
     setPage(1);
   }, [fetchTasks]);
+
+  // Live updates: the backend broadcasts task status changes over
+  // ws/monitor/tasks/ (post_save signal → task_user_<id> group). Silently
+  // refresh the worklist on any task event so completions appear without a
+  // manual page refresh. A full refetch keeps the row shape consistent with
+  // the initial load and honours the active filters.
+  const { lastMessage } = useWebSocket('/ws/monitor/tasks/');
+  useEffect(() => {
+    if (!lastMessage) return;
+    if (['task_updated', 'task_completed', 'task_failed'].includes(lastMessage.type)) {
+      fetchTasks({ silent: true });
+    }
+  }, [lastMessage, fetchTasks]);
+
+  // While any task is still in flight: tick a 1s clock so running durations
+  // update live, and poll every 4s as a reliable fallback for the status flip
+  // (covers WebSocket gaps). Both intervals stop once nothing is active.
+  const hasActiveTasks = tasks.some((task) => ACTIVE_STATUSES.includes(task.status));
+  useEffect(() => {
+    if (!hasActiveTasks) return;
+    const tick = setInterval(() => setNow(Date.now()), 1000);
+    const poll = setInterval(() => fetchTasks({ silent: true }), 4000);
+    return () => { clearInterval(tick); clearInterval(poll); };
+  }, [hasActiveTasks, fetchTasks]);
 
   // Client-side: search by filename, date range — then triage so STAT/urgent
   // cases surface at the top of the worklist.
@@ -278,7 +314,7 @@ const WorklistTab: React.FC = () => {
           })}
         </span>
         <button
-          onClick={fetchTasks}
+          onClick={() => fetchTasks()}
           className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
@@ -356,7 +392,10 @@ const WorklistTab: React.FC = () => {
 
                       {/* Status */}
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusColor}`}>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${statusColor}`}>
+                          {ACTIVE_STATUSES.includes(task.status) && (
+                            <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" />
+                          )}
                           {t(`progress.${statusKey}`)}
                         </span>
                         {task.error_message && (
@@ -374,9 +413,11 @@ const WorklistTab: React.FC = () => {
                         </div>
                       </td>
 
-                      {/* Duration */}
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
-                        {formatDuration(task.processing_duration)}
+                      {/* Duration — live elapsed while running, final value once done */}
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-400 tabular-nums">
+                        {ACTIVE_STATUSES.includes(task.status)
+                          ? formatDuration(liveElapsedSeconds(task, now))
+                          : formatDuration(task.processing_duration)}
                       </td>
 
                       {/* Actions */}
