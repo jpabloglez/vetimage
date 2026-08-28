@@ -130,6 +130,72 @@ class TestDeleteStudyView:
 
 
 # ===========================================================================
+# DeleteStudyView.patch — link/unlink to an AnimalPatient
+# ===========================================================================
+
+
+@pytest.mark.django_db
+class TestLinkStudyToAnimal:
+    """
+    Linking a study to a real AnimalPatient must sync the study's own
+    display fields (patient_name/patient_id) — otherwise the viewer keeps
+    showing whatever the source DICOM file's tags were (often blank/
+    generic), e.g. "Unknown Patient", despite a real patient being linked.
+    """
+
+    @pytest.fixture
+    def linked_animal(self, user):
+        from patients.models import Owner, AnimalPatient
+        from patients.views import get_or_create_organization
+
+        org = get_or_create_organization(user)
+        owner = Owner.objects.create(
+            organization=org, first_name='Jane', last_name='Smith',
+            email='jane@example.com', phone='555-0100',
+        )
+        return AnimalPatient.objects.create(
+            owner=owner, name='Bella', species='canine', breed='Labrador', sex='F',
+        )
+
+    def _link_url(self, study):
+        return reverse('dicom_images:delete-study', kwargs={'study_uid': study.study_instance_uid})
+
+    def test_linking_syncs_patient_display_fields(self, auth_client, study, linked_animal):
+        assert study.patient_name == 'DOE^JOHN'  # sanity: original DICOM-tag value
+
+        resp = auth_client.patch(
+            self._link_url(study), {'animal_patient_id': linked_animal.id}, format='json',
+        )
+        assert resp.status_code == status.HTTP_200_OK
+
+        study.refresh_from_db()
+        assert study.animal_patient_id == linked_animal.id
+        assert study.patient_name == 'Bella'
+        assert study.patient_id == str(linked_animal.id)
+        assert study.patient_name_normalized == 'bella'
+
+    def test_unlinking_clears_the_fk_but_leaves_display_fields(self, auth_client, study, linked_animal):
+        auth_client.patch(self._link_url(study), {'animal_patient_id': linked_animal.id}, format='json')
+
+        resp = auth_client.patch(self._link_url(study), {'animal_patient_id': None}, format='json')
+        assert resp.status_code == status.HTTP_200_OK
+
+        study.refresh_from_db()
+        assert study.animal_patient_id is None
+        assert study.patient_name == 'Bella'  # not reverted — out of scope for the sync fix
+
+    def test_rejects_animal_from_another_organization(self, auth_client, study, animal_patient):
+        # `animal_patient` (conftest fixture) belongs to a different org than
+        # auth_client's user.
+        resp = auth_client.patch(
+            self._link_url(study), {'animal_patient_id': animal_patient.id}, format='json',
+        )
+        assert resp.status_code == status.HTTP_404_NOT_FOUND
+        study.refresh_from_db()
+        assert study.patient_name == 'DOE^JOHN'  # untouched
+
+
+# ===========================================================================
 # AdvancedSearchView
 # ===========================================================================
 

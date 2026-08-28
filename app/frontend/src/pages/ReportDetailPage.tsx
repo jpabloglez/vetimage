@@ -8,6 +8,7 @@ import {
   Brain,
   CheckCircle2,
   Download,
+  Eye,
   FileText,
   Loader2,
 } from 'lucide-react';
@@ -18,19 +19,14 @@ import type { AnalysisTask, Finding, Report, ReportPatientInfo } from '../types/
 /** Normalize the DICOM/report placeholder "N/A" (and empty values) to an em-dash. */
 const field = (value?: string): string => (value && value !== 'N/A' ? value : '—');
 
-/** A single label/value row inside the analysis-detail table. */
-const Row: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
-  <tr>
-    <th
-      scope="row"
-      className="py-2 pr-6 text-left font-normal text-slate-500 dark:text-slate-400 whitespace-nowrap align-top w-px"
-    >
-      {label}
-    </th>
-    <td className="py-2 font-medium text-slate-900 dark:text-slate-100 break-words">
+/** A single label/value cell inside the condensed three-column analysis-detail grid. */
+const Field: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
+  <div className="min-w-0">
+    <dt className="text-xs text-slate-500 dark:text-slate-400">{label}</dt>
+    <dd className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-0.5 break-words">
       {value ?? '—'}
-    </td>
-  </tr>
+    </dd>
+  </div>
 );
 
 const ReportDetailPage: React.FC = () => {
@@ -138,76 +134,58 @@ const ReportDetailPage: React.FC = () => {
                   {new Date(report.created_at).toLocaleString()}
                 </p>
               </div>
-              <button
-                onClick={handleDownload}
-                disabled={downloading}
-                className="medical-button-primary inline-flex items-center gap-2 disabled:opacity-60"
-              >
-                {downloading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Download className="h-4 w-4" />
+              <div className="flex items-center gap-2 shrink-0">
+                {report.study_uid && (
+                  <Link
+                    to={`/tools?tab=viewer&study=${encodeURIComponent(report.study_uid)}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    <Eye className="h-4 w-4" />
+                    {t('detail.viewDicom')}
+                  </Link>
                 )}
-                {t('downloadPdf')}
-              </button>
+                <button
+                  onClick={handleDownload}
+                  disabled={downloading}
+                  className="medical-button-primary inline-flex items-center gap-2 disabled:opacity-60"
+                >
+                  {downloading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                  {t('downloadPdf')}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-6">
-              {/* Analysis detail — table format, above the embedded viewer */}
+              {/* Analysis detail — condensed three-column grid, above the embedded viewer */}
               <div className="medical-card p-6">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <Brain className="h-5 w-5 text-medical-500" />
                   {t('detail.analysisInfo')}
                 </h2>
-                <div className="overflow-x-auto">
-                  <table className="text-sm">
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                      <Row label={t('detail.patientName')} value={field(patient.patient_name)} />
-                      <Row label={t('detail.patientId')} value={field(patient.patient_id)} />
-                      <Row label={t('detail.owner')} value={field(patient.owner)} />
-                      <Row label={t('detail.model')} value={report.model_name} />
-                      {task && (
-                        <>
-                          <Row label={t('detail.status')} value={task.status} />
-                          {task.priority && (
-                            <Row label={t('detail.priority')} value={task.priority} />
-                          )}
-                          {typeof task.processing_duration === 'number' && (
-                            <Row
-                              label={t('detail.duration')}
-                              value={`${task.processing_duration.toFixed(1)}s`}
-                            />
-                          )}
-                          {task.completed_at && (
-                            <Row
-                              label={t('detail.completedAt')}
-                              value={new Date(task.completed_at).toLocaleString()}
-                            />
-                          )}
-                        </>
-                      )}
-                      <Row
-                        label={t('detail.reportStatus')}
-                        value={
-                          report.is_approved ? (
-                            <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
-                              <CheckCircle2 className="h-4 w-4" />
-                              {t('detail.approved')}
-                            </span>
-                          ) : (
-                            report.status
-                          )
-                        }
-                      />
-                      {report.study_uid && (
-                        <Row
-                          label={t('detail.studyUid')}
-                          value={<span className="font-mono text-xs">{report.study_uid}</span>}
-                        />
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                <dl className="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-4 text-sm">
+                  <Field label={t('detail.patientName')} value={field(patient.patient_name)} />
+                  <Field label={t('detail.patientId')} value={field(patient.patient_id)} />
+                  <Field label={t('detail.owner')} value={field(patient.owner)} />
+                  <Field label={t('detail.model')} value={report.model_name} />
+                  {task && <Field label={t('detail.status')} value={task.status} />}
+                  <Field
+                    label={t('detail.reportStatus')}
+                    value={
+                      report.is_approved ? (
+                        <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
+                          <CheckCircle2 className="h-4 w-4" />
+                          {t('detail.approved')}
+                        </span>
+                      ) : (
+                        report.status
+                      )
+                    }
+                  />
+                </dl>
               </div>
 
               {findings.length > 0 && (

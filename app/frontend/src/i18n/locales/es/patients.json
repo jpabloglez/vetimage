@@ -441,7 +441,7 @@
   },
   "view": {
     "owners": "Propietarios",
-    "allPatients": "Todos los pacientes"
+    "allPatients": "Pacientes"
   },
   "searchPatients": "Buscar pacientes por nombre, raza, microchip, propietario…",
   "newPatient": "Nuevo paciente",

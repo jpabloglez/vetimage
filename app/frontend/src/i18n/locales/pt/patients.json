@@ -441,7 +441,7 @@
   },
   "view": {
     "owners": "Tutores",
-    "allPatients": "Todos os pacientes"
+    "allPatients": "Pacientes"
   },
   "searchPatients": "Buscar pacientes por nome, raça, microchip, tutor…",
   "newPatient": "Novo paciente",

@@ -175,7 +175,7 @@ export const StudyBrowser: React.FC<StudyBrowserProps> = ({ onStudySelect, refre
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1 min-w-0">
                   <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate mb-1">
-                    {study.PatientName || 'Unknown Patient'}
+                    {study.AnimalPatientName || study.PatientName || 'Unknown Patient'}
                   </h4>
                   <p className="text-sm text-slate-600 dark:text-slate-400 truncate">
                     {study.StudyDescription || 'No description'}

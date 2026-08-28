@@ -1606,7 +1606,7 @@ const AnimalDetailModal: React.FC<{
   ];
 
   return (
-    <Modal isOpen={animalId != null} onClose={onClose} title={animal?.name ?? t('detail.title')} size="lg">
+    <Modal isOpen={animalId != null} onClose={onClose} title={animal?.name ?? t('detail.title')} size="2xl">
       <ModalContent>
         {loading && <p className="text-slate-500">{t('detail.loading')}</p>}
         {animal && (
@@ -1629,13 +1629,13 @@ const AnimalDetailModal: React.FC<{
               </div>
             )}
 
-            {/* Tab bar */}
-            <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700">
+            {/* Tab bar — scrolls horizontally rather than clipping when it doesn't fit */}
+            <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
               {TABS.map(tab_ => (
                 <button
                   key={tab_}
                   onClick={() => setTab(tab_)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-t transition-colors ${
+                  className={`px-3 py-1.5 text-sm font-medium rounded-t transition-colors whitespace-nowrap shrink-0 ${
                     tab === tab_
                       ? 'border-b-2 border-medical-500 text-medical-600 dark:text-medical-400'
                       : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
@@ -1746,7 +1746,7 @@ const AnimalDetailModal: React.FC<{
 // ---------------------------------------------------------------------------
 const PatientsPage: React.FC = () => {
   const { t } = useTranslation('patients');
-  const [view, setView] = useState<'owners' | 'patients'>('owners');
+  const [view, setView] = useState<'owners' | 'patients'>('patients');
   const [owners, setOwners] = useState<Owner[]>([]);
   const [animals, setAnimals] = useState<AnimalPatientListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1840,7 +1840,7 @@ const PatientsPage: React.FC = () => {
 
       {/* View toggle */}
       <div className="inline-flex rounded-medical border border-slate-200 dark:border-slate-700 p-0.5 mb-4">
-        {(['owners', 'patients'] as const).map((v) => (
+        {(['patients', 'owners'] as const).map((v) => (
           <button
             key={v}
             onClick={() => { setView(v); setSearch(''); }}

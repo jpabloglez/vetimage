@@ -370,10 +370,10 @@ export const OHIFViewer: React.FC<OHIFViewerProps> = ({ studyInstanceUIDs, onClo
             )}
             <div>
               <h1 className="text-lg font-semibold text-slate-100">
-                {study?.PatientName || 'Unknown Patient'}
+                {study?.AnimalPatientName || study?.PatientName || 'Unknown Patient'}
               </h1>
               <p className="text-sm text-slate-400">
-                {study?.StudyDescription || 'No description'} • {study?.PatientID}
+                {study?.StudyDescription || 'No description'} • {study?.AnimalPatientID ?? study?.PatientID}
               </p>
             </div>
           </div>

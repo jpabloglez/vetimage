@@ -62,11 +62,16 @@ describe('ReportDetailPage', () => {
     expect(apiClient.getReport).toHaveBeenCalledWith('r1');
     expect(apiClient.getReportPdfObjectUrl).toHaveBeenCalledWith('r1');
 
-    // Patient signalment appears as the first rows of the analysis table.
-    expect(screen.getByRole('rowheader', { name: 'Patient Name' })).toBeInTheDocument();
+    // Patient signalment appears in the condensed analysis-detail grid.
+    expect(screen.getByText('Patient Name')).toBeInTheDocument();
     expect(screen.getByText('Rex')).toBeInTheDocument();
     expect(screen.getByText('A-1024')).toBeInTheDocument();
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+
+    // "Viewer" links to the OHIF viewer for this report's study.
+    expect(screen.getByRole('link', { name: /Viewer/i })).toHaveAttribute(
+      'href', '/tools?tab=viewer&study=1.2.840.1',
+    );
 
     // Related analysis info + findings
     await waitFor(() => expect(screen.getByText('Cardiomegaly')).toBeInTheDocument());
