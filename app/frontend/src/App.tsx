@@ -274,10 +274,11 @@ function App() {
               </Suspense>
             </main>
 
-            {/* Footer only on non-auth pages */}
+            {/* Footer only on non-auth pages — the landing page has its own */}
             <Suspense fallback={null}>
             <Routes>
               <Route path="/auth/*" element={null} />
+              <Route path="/" element={null} />
               <Route path="*" element={<Footer />} />
             </Routes>
             </Suspense>

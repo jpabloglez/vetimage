@@ -1,59 +1,152 @@
 {
-  "hero": {
-    "titleLine1": "Análisis Veterinario",
-    "titleLine2": "de Imágenes con IA",
-    "subtitle": "Imágenes DICOM modernas para la práctica veterinaria: almacenamiento, análisis asistido por IA e informes estructurados, diseñados en torno al flujo Propietario → Paciente → Estudio que su clínica utiliza realmente. Nativo de DICOM, privacidad primero, adaptado a cada especie.",
-    "openDashboard": "Abrir Panel",
-    "startAnalysis": "Iniciar Análisis",
-    "getStarted": "Comenzar Gratis",
-    "watchDemo": "Ver Demo"
+  "header": {
+    "forClinics": "Para clínicas",
+    "forOwners": "Para propietarios",
+    "platform": "La plataforma",
+    "signIn": "Iniciar sesión",
+    "bookDemo": "Solicitar demo"
   },
-  "stats": {
-    "accuracy": "Precisión",
-    "imagesAnalyzed": "Estudios Analizados",
-    "analysisTime": "Tiempo de Análisis",
-    "healthcarePartners": "Clínicas Veterinarias"
+  "hero": {
+    "badge": "Imagen veterinaria, con un trato más cercano",
+    "titleBefore": "Respuestas más claras para las mascotas a tu",
+    "titleAccent": "cuidado.",
+    "subtitle": "Imagen DICOM moderna con una capa discreta de asistencia por IA: tu equipo clínico lee los estudios más rápido y cada propietario se va entendiendo qué le ocurre a su compañero.",
+    "bookDemo": "Solicitar demo para clínicas",
+    "imOwner": "Soy propietario de una mascota",
+    "trust": {
+      "dicom": "Nativo de DICOM",
+      "species": "Adaptado a cada especie",
+      "privacy": "Privacidad primero"
+    },
+    "chipName": "Bella · Labrador",
+    "chipSub": "Tórax lateral izquierdo",
+    "chipReview": "IA · revisión",
+    "live": "en vivo",
+    "explained": "Explicado con claridad",
+    "explainedSub": "un resumen que los propietarios entienden"
+  },
+  "strip": {
+    "title": "De confianza en la sala de consulta — pensado para las personas que la habitan",
+    "peerReviewed": "Modelos revisados por pares",
+    "gdpr": "RGPD y privacidad de datos del propietario",
+    "dicomweb": "Construido sobre DICOMweb abierto",
+    "fasterReads": "Lecturas más rápidas, visitas más tranquilas"
+  },
+  "audiences": {
+    "eyebrow": "Una plataforma, dos personas a las que sirve",
+    "heading": "El cuidado es una conversación entre la clínica y la familia",
+    "clinic": {
+      "label": "Para tu equipo clínico",
+      "title": "Un segundo par de ojos — nunca un reemplazo de los tuyos",
+      "desc": "Los estudios se abren en el flujo Propietario → Paciente → Estudio que ya usas. La IA señala discretamente regiones que merecen un vistazo; el diagnóstico es del clínico.",
+      "b1": "Lecturas preliminares automatizadas e informes estructurados",
+      "b2": "Triaje rápido para casos críticos en tiempo",
+      "b3": "Comparación lado a lado y métricas transparentes"
+    },
+    "owner": {
+      "label": "Para las familias que atiendes",
+      "title": "Para que los propietarios se vayan sabiendo qué ocurre",
+      "desc": "Cuando el estudio cobra sentido, la preocupación se suaviza. VetImage convierte la imagen en una explicación clara y sencilla que tu equipo puede compartir allí mismo.",
+      "b1": "Resumen en lenguaje sencillo de cada estudio",
+      "b2": "Imágenes anotadas que señalan lo importante",
+      "b3": "Un registro que se pueden llevar a casa"
+    }
+  },
+  "viewer": {
+    "eyebrow": "El paciente detrás de los píxeles",
+    "heading": "El estudio, el paciente y quienes los quieren — en una sola pantalla",
+    "desc": "VetImage mantiene todo el contexto unido. El clínico revisa; la IA asiste; el propietario entiende. Nadie queda reducido a un número de archivo.",
+    "f1Title": "Propietario → Paciente → Estudio",
+    "f1Desc": "El flujo que tu clínica usa de verdad, no un volcado DICOM genérico.",
+    "f2Title": "La IA destaca, el veterinario decide",
+    "f2Desc": "Las regiones sugeridas se marcan para revisión y siempre las confirma un clínico.",
+    "f3Title": "Comparte un resumen que entiendan",
+    "f3Desc": "Convierte un estudio complejo en algo que una familia preocupada pueda comprender.",
+    "mock": {
+      "title": "Visor VetImage — Estudio #VI-2291",
+      "dicom": "DICOM",
+      "owner": "Propietario",
+      "ownerName": "M. Rivera",
+      "ownerPatients": "2 pacientes",
+      "patient": "Paciente",
+      "patientName": "Bella",
+      "patientMeta": "Canino · Labrador · 6a",
+      "patient2Name": "Milo",
+      "patient2Meta": "Felino · DSH · 3a",
+      "regionFlagged": "Región marcada · revisar",
+      "metaName": "Bella — Canino",
+      "metaView": "Tórax lateral izquierdo",
+      "metaTech": "80 kVp · 4 mAs",
+      "aiTitle": "Asistencia IA · opacidad de tejido blando, campo caudodorsal",
+      "aiSub": "Sugerido para revisión clínica — no es un diagnóstico.",
+      "confirm": "Confirmar"
+    }
   },
   "features": {
-    "heading": "Diseñado para Imágenes Veterinarias",
-    "subtitle": "Herramientas de imagen e IA creadas específicamente para animales de compañía, equinos y exóticos",
-    "multiModal": "Imágenes Multi-Modales",
-    "multiModalDesc": "Soporte para rayos X, TC, RM y ecografía en pacientes caninos, felinos, equinos y exóticos.",
-    "realTime": "Procesamiento en Tiempo Real",
-    "realTimeDesc": "Obtenga resultados de análisis en segundos con un pipeline de inferencia optimizado y aceleración por GPU.",
-    "hipaa": "Seguro y Privado",
-    "hipaaDesc": "Seguridad de nivel clínico con cifrado de extremo a extremo, registro de auditoría y anonimización de datos del paciente.",
-    "clinical": "Validación Clínica",
-    "clinicalDesc": "Modelos validados con conjuntos de datos de imágenes veterinarias y métricas transparentes y reproducibles.",
-    "precision": "Centrado en el Paciente",
-    "precisionDesc": "Análisis que tiene en cuenta la especie, la raza y el contexto individual de cada paciente.",
-    "continuousLearning": "Aprendizaje Continuo",
-    "continuousLearningDesc": "Los modelos mejoran continuamente mientras preservan la privacidad del paciente y de la clínica."
+    "eyebrow": "Todo lo que tu clínica necesita",
+    "heading": "Discretamente capaz, nunca abrumador",
+    "modalityTitle": "Toda modalidad",
+    "modalityDesc": "Rayos X, TC, RM y ecografía en pacientes caninos, felinos, equinos y exóticos.",
+    "speciesTitle": "Consciente de especie y raza",
+    "speciesDesc": "Análisis que tiene en cuenta la especie, la raza y al paciente individual que tienes delante.",
+    "privacyTitle": "Privacidad por defecto",
+    "privacyDesc": "Cifrado de extremo a extremo, registros de auditoría y anonimización de datos del propietario, alineado con el RGPD.",
+    "chips": {
+      "xray": "Rayos X",
+      "ct": "TC",
+      "ultrasound": "Ecografía",
+      "patientSpecific": "Específico del paciente",
+      "riskContext": "Contexto de riesgo",
+      "encrypted": "Cifrado",
+      "gdpr": "RGPD"
+    }
   },
-  "useCases": {
-    "heading": "Diseñado para Equipos Veterinarios",
-    "radiologists": "Radiólogos Veterinarios",
-    "radiologistsDesc": "Lecturas preliminares automatizadas, detección de anomalías e informes estructurados para un diagnóstico más rápido.",
-    "emergency": "Urgencias y Cuidados Críticos",
-    "emergencyDesc": "Triaje rápido de hallazgos urgentes para apoyar decisiones críticas en tiempo en urgencias.",
-    "researchers": "Investigadores y Centros de Referencia",
-    "researchersDesc": "Procesamiento por lotes, análisis estadístico y herramientas de comparación de modelos para estudios veterinarios."
+  "testimonial": {
+    "quote": "Hizo nuestra radiología más rápida, pero lo que notan los propietarios es distinto: por fin podemos convertir una imagen en algo que entienden. Se van más tranquilos, y nosotros también.",
+    "author": "Dra. Marta Ibáñez",
+    "role": "Radióloga Jefe, Veterinaria Vallehermoso",
+    "stat1Value": "Segundos",
+    "stat1Desc": "desde la carga hasta una lectura preliminar sobre la que tu clínico puede construir.",
+    "stat2Value": "Validado",
+    "stat2Desc": "frente a conjuntos de datos veterinarios, revisado por pares y con métricas reproducibles."
   },
-  "testimonials": {
-    "quote1": "La precisión y velocidad de VetImage ha transformado nuestro flujo de trabajo en radiología. Ahora ofrecemos diagnósticos más rápidos sin comprometer la calidad.",
-    "author1": "Dra. Sarah Chen",
-    "position1": "Radióloga Veterinaria Jefe, Metro Animal Hospital",
-    "quote2": "Tener información de IA al instante en casos de urgencia ha sido un cambio revolucionario para los resultados de nuestros pacientes.",
-    "author2": "Dr. Michael Rodríguez",
-    "position2": "Urgencias y Cuidados Críticos, City Veterinary Center",
-    "quote3": "Las capacidades de investigación y la transparencia del modelo hacen de esta plataforma una herramienta invaluable para nuestros estudios clínicos.",
-    "author3": "Prof. Lisa Thompson",
-    "position3": "Directora de Investigación en Imagen Veterinaria, University Veterinary Hospital"
+  "ownersBand": {
+    "eyebrow": "Una nota para los propietarios",
+    "heading": "Tu compañero es más que una imagen",
+    "desc": "Si tu clínica usa VetImage, verás las imágenes, escucharás qué significan en palabras sencillas y te llevarás un resumen claro. Menos incógnitas. Más tranquilidad.",
+    "cta": "Pregunta en tu clínica por VetImage",
+    "howItWorks": "Cómo funciona →"
   },
-  "cta": {
-    "heading": "¿Listo para Modernizar el Flujo de Trabajo de Imágenes de su Clínica Veterinaria?",
-    "subtitle": "Únase a las clínicas veterinarias que utilizan análisis impulsado por IA.",
-    "startTrial": "Iniciar Prueba Gratuita",
-    "contactSales": "Contactar Ventas"
+  "finalCta": {
+    "eyebrow": "Cuando estés listo",
+    "heading": "Ofrece a tus pacientes respuestas más claras",
+    "desc": "Descubre cómo VetImage encaja en la forma en que tu clínica ya trabaja — y en las familias que ya cuidas.",
+    "bookDemo": "Solicitar demo para clínicas",
+    "talkToTeam": "Habla con nuestro equipo"
+  },
+  "footer": {
+    "desc": "Imagen veterinaria construida sobre estándares DICOMweb abiertos — con una capa de asistencia por IA tranquila y cercana al propietario.",
+    "compliant": "Compatible con DICOM",
+    "secure": "Seguro",
+    "privacy": "Privacidad primero",
+    "colPlatform": "Plataforma",
+    "platformAbout": "Acerca de",
+    "platformFeatures": "Funciones",
+    "platformClinics": "Para clínicas",
+    "platformOwners": "Para propietarios",
+    "colTools": "Herramientas",
+    "toolsViewer": "Visor",
+    "toolsUpload": "Subir",
+    "toolsAnalysis": "Análisis",
+    "toolsModels": "Modelos",
+    "colResources": "Recursos",
+    "resourcesDocs": "Documentación",
+    "resourcesDicomweb": "Estándar DICOMweb",
+    "resourcesSecurity": "Seguridad",
+    "resourcesSupport": "Soporte",
+    "legal": "© {{year}} VetImage. Creado para equipos veterinarios y las familias que cuidan.",
+    "legalPrivacy": "Privacidad",
+    "legalTerms": "Términos",
+    "legalCompliance": "Cumplimiento"
   }
 }

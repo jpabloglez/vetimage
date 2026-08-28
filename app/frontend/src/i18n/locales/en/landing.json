@@ -1,59 +1,152 @@
 {
-  "hero": {
-    "titleLine1": "AI-Powered Veterinary",
-    "titleLine2": "Imaging Analysis",
-    "subtitle": "Modern DICOM imaging for veterinary practice — storage, AI-assisted analysis, and structured reporting built around the Owner → Patient → Study workflow your clinic actually uses. DICOM-native, privacy-first, species-aware.",
-    "openDashboard": "Open Dashboard",
-    "startAnalysis": "Start Analysis",
-    "getStarted": "Get Started Free",
-    "watchDemo": "Watch Demo"
+  "header": {
+    "forClinics": "For clinics",
+    "forOwners": "For owners",
+    "platform": "The platform",
+    "signIn": "Sign in",
+    "bookDemo": "Book a demo"
   },
-  "stats": {
-    "accuracy": "Accuracy",
-    "imagesAnalyzed": "Studies Analyzed",
-    "analysisTime": "Analysis Time",
-    "healthcarePartners": "Veterinary Clinics"
+  "hero": {
+    "badge": "Veterinary imaging, with a gentler touch",
+    "titleBefore": "Clearer answers for the pets in your",
+    "titleAccent": "care.",
+    "subtitle": "Modern DICOM imaging with a quiet layer of AI assistance — so your clinical team reads studies faster, and every owner leaves understanding what's happening with their companion.",
+    "bookDemo": "Book a clinic demo",
+    "imOwner": "I'm a pet owner",
+    "trust": {
+      "dicom": "DICOM-native",
+      "species": "Species-aware",
+      "privacy": "Privacy-first"
+    },
+    "chipName": "Bella · Labrador",
+    "chipSub": "Left lateral thorax",
+    "chipReview": "AI · review",
+    "live": "live",
+    "explained": "Explained simply",
+    "explainedSub": "a summary owners understand"
+  },
+  "strip": {
+    "title": "Trusted in the exam room — built around the people in it",
+    "peerReviewed": "Peer-reviewed models",
+    "gdpr": "GDPR & owner-data privacy",
+    "dicomweb": "Built on open DICOMweb",
+    "fasterReads": "Faster reads, calmer visits"
+  },
+  "audiences": {
+    "eyebrow": "One platform, two people it serves",
+    "heading": "Care is a conversation between the clinic and the family",
+    "clinic": {
+      "label": "For your clinical team",
+      "title": "A second set of eyes — never a replacement for yours",
+      "desc": "Studies open in the Owner → Patient → Study flow you already use. AI quietly flags regions worth a closer look; the diagnosis stays with the clinician.",
+      "b1": "Automated preliminary reads & structured reports",
+      "b2": "Rapid triage for time-critical cases",
+      "b3": "Side-by-side comparison & transparent metrics"
+    },
+    "owner": {
+      "label": "For the families you treat",
+      "title": "So owners leave knowing what's going on",
+      "desc": "When the study makes sense, the worry softens. VetImage turns the image into a clear, plain-language picture your team can share right at the table.",
+      "b1": "Plain-language summary of each study",
+      "b2": "Annotated images that point to what matters",
+      "b3": "A shareable record to take home"
+    }
+  },
+  "viewer": {
+    "eyebrow": "The patient behind the pixels",
+    "heading": "The study, the patient, and the people who love them — one screen",
+    "desc": "VetImage keeps the whole context together. The clinician reviews; the AI assists; the owner understands. No one is reduced to a file number.",
+    "f1Title": "Owner → Patient → Study",
+    "f1Desc": "The workflow your clinic actually uses, not a generic DICOM dump.",
+    "f2Title": "AI highlights, the vet decides",
+    "f2Desc": "Suggested regions are flagged for review and always confirmed by a clinician.",
+    "f3Title": "Share a summary owners get",
+    "f3Desc": "Turn a complex study into something a worried family can understand.",
+    "mock": {
+      "title": "VetImage Viewer — Study #VI-2291",
+      "dicom": "DICOM",
+      "owner": "Owner",
+      "ownerName": "M. Rivera",
+      "ownerPatients": "2 patients",
+      "patient": "Patient",
+      "patientName": "Bella",
+      "patientMeta": "Canine · Labrador · 6y",
+      "patient2Name": "Milo",
+      "patient2Meta": "Feline · DSH · 3y",
+      "regionFlagged": "Region flagged · review",
+      "metaName": "Bella — Canine",
+      "metaView": "Left lateral thorax",
+      "metaTech": "80 kVp · 4 mAs",
+      "aiTitle": "AI assist · soft-tissue opacity, caudodorsal field",
+      "aiSub": "Suggested for clinician review — not a diagnosis.",
+      "confirm": "Confirm"
+    }
   },
   "features": {
-    "heading": "Built for Veterinary Imaging",
-    "subtitle": "Purpose-built imaging and AI tools for companion, equine, and exotic animal practice",
-    "multiModal": "Multi-Modal Imaging",
-    "multiModalDesc": "Support for X-ray, CT, MRI, and ultrasound across canine, feline, equine, and exotic patients.",
-    "realTime": "Real-Time Processing",
-    "realTimeDesc": "Get analysis results in seconds with an optimized inference pipeline and GPU acceleration.",
-    "hipaa": "Secure & Private",
-    "hipaaDesc": "Clinic-grade security with end-to-end encryption, audit logging, and patient data anonymization.",
-    "clinical": "Clinically Validated",
-    "clinicalDesc": "Models validated against veterinary imaging datasets with transparent, reproducible metrics.",
-    "precision": "Patient-Centered",
-    "precisionDesc": "Analysis that accounts for species, breed, and individual patient context.",
-    "continuousLearning": "Continuous Learning",
-    "continuousLearningDesc": "Models continuously improve while preserving patient and clinic privacy."
+    "eyebrow": "Everything your clinic needs",
+    "heading": "Quietly capable, never overbearing",
+    "modalityTitle": "Every modality",
+    "modalityDesc": "X-ray, CT, MRI and ultrasound across canine, feline, equine and exotic patients.",
+    "speciesTitle": "Species & breed aware",
+    "speciesDesc": "Analysis that accounts for species, breed and the individual patient in front of you.",
+    "privacyTitle": "Privacy, by default",
+    "privacyDesc": "End-to-end encryption, audit trails and owner-data anonymization, GDPR-aligned.",
+    "chips": {
+      "xray": "X-ray",
+      "ct": "CT",
+      "ultrasound": "Ultrasound",
+      "patientSpecific": "Patient-specific",
+      "riskContext": "Risk context",
+      "encrypted": "Encrypted",
+      "gdpr": "GDPR"
+    }
   },
-  "useCases": {
-    "heading": "Built for Veterinary Teams",
-    "radiologists": "Veterinary Radiologists",
-    "radiologistsDesc": "Automated preliminary reads, anomaly detection, and structured reporting for faster diagnosis.",
-    "emergency": "Emergency & Critical Care",
-    "emergencyDesc": "Rapid triage of urgent findings to support time-critical decisions in the ER.",
-    "researchers": "Researchers & Referral Centers",
-    "researchersDesc": "Batch processing, statistical analysis, and model comparison tools for veterinary studies."
+  "testimonial": {
+    "quote": "It made our radiology faster, but the part owners notice is different — we can finally turn a scan into something they understand. They leave calmer, and so do we.",
+    "author": "Dr. Marta Ibáñez",
+    "role": "Lead Radiologist, Vallehermoso Veterinary",
+    "stat1Value": "Seconds",
+    "stat1Desc": "from upload to a preliminary read your clinician can build on.",
+    "stat2Value": "Validated",
+    "stat2Desc": "against veterinary datasets, peer-reviewed, with reproducible metrics."
   },
-  "testimonials": {
-    "quote1": "The accuracy and speed of VetImage has transformed our radiology workflow. We deliver faster diagnoses without compromising quality.",
-    "author1": "Dr. Sarah Chen",
-    "position1": "Lead Veterinary Radiologist, Metro Animal Hospital",
-    "quote2": "Having instant AI insights during emergency cases has been a game-changer for our patients' outcomes.",
-    "author2": "Dr. Michael Rodriguez",
-    "position2": "Emergency & Critical Care, City Veterinary Center",
-    "quote3": "The research capabilities and model transparency make this platform invaluable for our clinical studies.",
-    "author3": "Prof. Lisa Thompson",
-    "position3": "Director of Veterinary Imaging Research, University Veterinary Hospital"
+  "ownersBand": {
+    "eyebrow": "A note for pet owners",
+    "heading": "Your companion is more than a scan",
+    "desc": "If your clinic uses VetImage, you'll see the images, hear what they mean in plain words, and take home a clear summary. Fewer unknowns. More peace of mind.",
+    "cta": "Ask your clinic about VetImage",
+    "howItWorks": "How it works →"
   },
-  "cta": {
-    "heading": "Ready to Modernize Your Veterinary Imaging Workflow?",
-    "subtitle": "Join veterinary clinics using AI-powered analysis.",
-    "startTrial": "Start Free Trial",
-    "contactSales": "Contact Sales"
+  "finalCta": {
+    "eyebrow": "Ready when you are",
+    "heading": "Give your patients clearer answers",
+    "desc": "See how VetImage fits the way your clinic already works — and the families you already care for.",
+    "bookDemo": "Book a clinic demo",
+    "talkToTeam": "Talk to our team"
+  },
+  "footer": {
+    "desc": "Veterinary imaging built on open DICOMweb standards — with a calm, owner-friendly layer of AI assistance.",
+    "compliant": "DICOM-compliant",
+    "secure": "Secure",
+    "privacy": "Privacy-first",
+    "colPlatform": "Platform",
+    "platformAbout": "About",
+    "platformFeatures": "Features",
+    "platformClinics": "For clinics",
+    "platformOwners": "For owners",
+    "colTools": "Tools",
+    "toolsViewer": "Viewer",
+    "toolsUpload": "Upload",
+    "toolsAnalysis": "Analysis",
+    "toolsModels": "Models",
+    "colResources": "Resources",
+    "resourcesDocs": "Documentation",
+    "resourcesDicomweb": "DICOMweb standard",
+    "resourcesSecurity": "Security",
+    "resourcesSupport": "Support",
+    "legal": "© {{year}} VetImage. Built for veterinary teams and the families they care for.",
+    "legalPrivacy": "Privacy",
+    "legalTerms": "Terms",
+    "legalCompliance": "Compliance"
   }
 }

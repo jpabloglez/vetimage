@@ -95,10 +95,40 @@ module.exports = {
           800: '#991b1b',
           900: '#7f1d1d',
         },
+        // Landing "care-first" warm palette (docs/design_handoff_vetimage_home)
+        cream: {
+          DEFAULT: '#FBF8F3', // page background
+          card: '#FFFDF9',    // soft white card
+        },
+        peach: {
+          DEFAULT: '#EE8E6B', // accent
+          solid: '#D9744E',   // owner CTA button
+          text: '#C77A57',    // peach text on light
+          ink: '#5A2E1C',     // peach titles
+          body: '#7A4733',    // peach body
+          bg: '#FBE6DC',      // soft peach surface
+        },
+        brand: {
+          DEFAULT: '#0E9D6E', // solid emerald
+          deep: '#0C8A6B',    // gradient end
+          bright: '#34D7A0',  // emerald on dark
+          text: '#0A7A55',    // emerald text on light
+          mint: '#E6F3EC',    // mint tint surface
+          mintborder: '#CFE9DD',
+        },
+        forest: {
+          DEFAULT: '#0E2A24', // deep teal section
+          footer: '#0A1F1A',  // footer
+          ink: '#13231F',     // display headings
+          ink2: '#16302B',    // body ink
+        },
       },
       fontFamily: {
         'medical': ['Inter', 'system-ui', 'sans-serif'],
         'mono': ['Fira Code', 'monospace'],
+        'display': ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+        'serif-accent': ['Newsreader', 'Georgia', 'serif'],
+        'public': ['"Public Sans"', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],
@@ -135,6 +165,10 @@ module.exports = {
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'slide-up': 'slideUp 0.3s ease-out',
         'pulse-medical': 'pulseMedical 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        // Landing motions
+        'vfade': 'vfade 0.8s ease both',
+        'vfloat': 'vfloat 6s ease-in-out infinite',
+        'vpulse': 'vpulse 1.8s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -148,6 +182,18 @@ module.exports = {
         pulseMedical: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.5' },
+        },
+        vfade: {
+          '0%': { opacity: '0', transform: 'translateY(14px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        vfloat: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        vpulse: {
+          '0%, 100%': { opacity: '0.55' },
+          '50%': { opacity: '1' },
         },
       },
     },
