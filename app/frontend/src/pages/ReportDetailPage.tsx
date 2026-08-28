@@ -6,8 +6,6 @@ import {
   AlertCircle,
   ArrowLeft,
   Brain,
-  ChevronDown,
-  ChevronUp,
   CheckCircle2,
   Download,
   Eye,
@@ -21,7 +19,7 @@ import type { AnalysisTask, Finding, Report, ReportPatientInfo } from '../types/
 /** Normalize the DICOM/report placeholder "N/A" (and empty values) to an em-dash. */
 const field = (value?: string): string => (value && value !== 'N/A' ? value : '—');
 
-/** A single label/value cell inside the condensed two-column analysis-detail grid. */
+/** A single label/value cell inside the condensed three-column analysis-detail grid. */
 const Field: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="min-w-0">
     <dt className="text-xs text-slate-500 dark:text-slate-400">{label}</dt>
@@ -41,7 +39,6 @@ const ReportDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const [detailsExpanded, setDetailsExpanded] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -163,13 +160,13 @@ const ReportDetailPage: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              {/* Analysis detail — condensed two-column grid, above the embedded viewer */}
+              {/* Analysis detail — condensed three-column grid, above the embedded viewer */}
               <div className="medical-card p-6">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <Brain className="h-5 w-5 text-medical-500" />
                   {t('detail.analysisInfo')}
                 </h2>
-                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                <dl className="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-4 text-sm">
                   <Field label={t('detail.patientName')} value={field(patient.patient_name)} />
                   <Field label={t('detail.patientId')} value={field(patient.patient_id)} />
                   <Field label={t('detail.owner')} value={field(patient.owner)} />
@@ -188,52 +185,7 @@ const ReportDetailPage: React.FC = () => {
                       )
                     }
                   />
-
-                  {detailsExpanded && (
-                    <>
-                      {task?.priority && (
-                        <Field label={t('detail.priority')} value={task.priority} />
-                      )}
-                      {typeof task?.processing_duration === 'number' && (
-                        <Field
-                          label={t('detail.duration')}
-                          value={`${task.processing_duration.toFixed(1)}s`}
-                        />
-                      )}
-                      {task?.completed_at && (
-                        <Field
-                          label={t('detail.completedAt')}
-                          value={new Date(task.completed_at).toLocaleString()}
-                        />
-                      )}
-                      {report.study_uid && (
-                        <Field
-                          label={t('detail.studyUid')}
-                          value={<span className="font-mono text-xs">{report.study_uid}</span>}
-                        />
-                      )}
-                    </>
-                  )}
                 </dl>
-
-                {(task?.priority || typeof task?.processing_duration === 'number' || task?.completed_at || report.study_uid) && (
-                  <button
-                    onClick={() => setDetailsExpanded((v) => !v)}
-                    className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-medical-600 dark:text-medical-400 hover:underline"
-                  >
-                    {detailsExpanded ? (
-                      <>
-                        <ChevronUp className="h-4 w-4" />
-                        {t('detail.showLess')}
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="h-4 w-4" />
-                        {t('detail.showMore')}
-                      </>
-                    )}
-                  </button>
-                )}
               </div>
 
               {findings.length > 0 && (

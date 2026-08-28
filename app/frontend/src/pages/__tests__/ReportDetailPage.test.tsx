@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import ReportDetailPage from '../ReportDetailPage';
 import { apiClient } from '../../utils/api';
@@ -57,7 +56,6 @@ describe('ReportDetailPage', () => {
   });
 
   it('renders report title, analysis info, findings and embeds the PDF', async () => {
-    const user = userEvent.setup();
     renderAt('r1');
 
     expect(await screen.findByText('Thoracic Report — Rex')).toBeInTheDocument();
@@ -69,11 +67,6 @@ describe('ReportDetailPage', () => {
     expect(screen.getByText('Rex')).toBeInTheDocument();
     expect(screen.getByText('A-1024')).toBeInTheDocument();
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
-
-    // Secondary fields (priority, duration, study UID) start collapsed.
-    expect(screen.queryByText('1.2.840.1')).not.toBeInTheDocument();
-    await user.click(await screen.findByRole('button', { name: /Show more/i }));
-    expect(await screen.findByText('1.2.840.1')).toBeInTheDocument();
 
     // "Viewer" links to the OHIF viewer for this report's study.
     expect(screen.getByRole('link', { name: /Viewer/i })).toHaveAttribute(

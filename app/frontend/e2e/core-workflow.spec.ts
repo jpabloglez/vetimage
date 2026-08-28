@@ -60,7 +60,7 @@ test.describe('Core workflow: upload -> analyze -> report', () => {
       await patientLink.click();
 
       await expect(page).toHaveURL(/\/reports\/[\w-]+/);
-      await expect(page.getByRole('rowheader', { name: 'Patient Name' })).toBeVisible();
+      await expect(page.getByText('Patient Name')).toBeVisible();
       await expect(page.getByText(FIXTURE_PATIENT)).toBeVisible();
 
       // The PDF loads as an authenticated blob object URL, not a bare path.
