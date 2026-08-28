@@ -6,9 +6,6 @@ import { apiClient } from '../../utils/api';
 import AnalyzePage from '../AnalyzePage';
 
 // Mock heavy child components to keep tests focused on the page shell.
-vi.mock('../../components/uploader/MedicalImageUploader', () => ({
-  MedicalImageUploader: () => <div data-testid="medical-image-uploader">Uploader</div>,
-}));
 vi.mock('../../components/analyze/DragDropUploadZone', () => ({
   DragDropUploadZone: () => <div data-testid="dragdrop-zone">DropZone</div>,
 }));
@@ -52,7 +49,7 @@ describe('AnalyzePage (tabbed shell)', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Analysis' })).toBeInTheDocument();
     });
-    expect(screen.queryByTestId('medical-image-uploader')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('dragdrop-zone')).not.toBeInTheDocument();
   });
 
   it('reveals the upload flow when the New Analysis tab is selected', async () => {
@@ -65,7 +62,7 @@ describe('AnalyzePage (tabbed shell)', () => {
     await user.click(screen.getByRole('button', { name: 'New Analysis' }));
 
     await waitFor(() => {
-      expect(screen.getByTestId('medical-image-uploader')).toBeInTheDocument();
+      expect(screen.getByTestId('dragdrop-zone')).toBeInTheDocument();
     });
   });
 

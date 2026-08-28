@@ -16,7 +16,10 @@
     "studyUid": "UID del estudio",
     "findings": "Hallazgos de IA",
     "aiDisclaimer": "Apoyo diagnóstico asistido por IA — para revisión veterinaria, no es un diagnóstico.",
-    "pdfUnavailable": "La vista previa del PDF no está disponible."
+    "pdfUnavailable": "La vista previa del PDF no está disponible.",
+    "viewDicom": "Visor",
+    "showMore": "Mostrar más",
+    "showLess": "Mostrar menos"
   },
   "title": "Reportes",
   "subtitle": "Reportes de análisis con AI con hallazgos estructurados",

@@ -28,6 +28,8 @@ const owner = {
   animals: [{ id: 10, name: 'Rex', species: 'canine', breed: 'Labrador', sex: 'M', owner_name: 'Jane Smith' }],
 };
 
+const rexListItem = { id: 10, name: 'Rex', species: 'canine', breed: 'Labrador', sex: 'M', owner_name: 'Jane Smith' };
+
 const animalDetail = {
   id: 10, name: 'Rex', species: 'canine', breed: 'Labrador', sex: 'M',
   owner: { id: 1, first_name: 'Jane', last_name: 'Smith' },
@@ -43,30 +45,34 @@ describe('PatientsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (apiClient.getOwners as any).mockResolvedValue([owner]);
+    // Patients is the default view — most tests reach Rex's detail from there.
+    (apiClient.getAnimals as any).mockResolvedValue([rexListItem]);
     (apiClient.getAnimal as any).mockResolvedValue(animalDetail);
   });
 
-  it('switches to the All patients view and lists animals across owners', async () => {
+  it('shows the Patients view by default, listing animals across owners', async () => {
     const user = userEvent.setup();
     (apiClient.getAnimals as any).mockResolvedValue([
-      { id: 10, name: 'Rex', species: 'canine', breed: 'Labrador', sex: 'M', owner_name: 'Jane Smith' },
+      rexListItem,
       { id: 11, name: 'Whiskers', species: 'feline', breed: 'Siamese', sex: 'FS', owner_name: 'Carlos Ruiz' },
     ]);
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-
-    await user.click(screen.getByRole('button', { name: 'All patients' }));
-
     await waitFor(() => expect(screen.getByText('Whiskers')).toBeInTheDocument());
     expect(screen.getByText('Rex')).toBeInTheDocument();
     expect(apiClient.getAnimals).toHaveBeenCalled();
-    // The action button switches to "New patient" in this view.
+    // The action button defaults to "New patient" in this view.
     expect(screen.getByRole('button', { name: /New patient/i })).toBeInTheDocument();
+
+    // Switching to Owners still works.
+    await user.click(screen.getByRole('button', { name: 'Owners' }));
+    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: /New owner/i })).toBeInTheDocument();
   });
 
   it('lists owners and expands to show their animals', async () => {
     const user = userEvent.setup();
     renderPage();
+    await user.click(screen.getByRole('button', { name: 'Owners' }));
     await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
     expect(screen.getByText(/1 patient/i)).toBeInTheDocument();
 
@@ -80,6 +86,7 @@ describe('PatientsPage', () => {
     (apiClient.createOwner as any).mockResolvedValue({ ...owner, id: 2 });
     (apiClient.createAnimal as any).mockResolvedValue({ id: 20 });
     renderPage();
+    await user.click(screen.getByRole('button', { name: 'Owners' }));
     await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
 
     await user.click(screen.getByRole('button', { name: /New owner/i }));
@@ -105,11 +112,8 @@ describe('PatientsPage', () => {
   it('opens a patient detail with the VHS panel and latest score', async () => {
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-
-    await user.click(screen.getByText('Jane Smith'));      // expand owner
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
-    await user.click(screen.getByText('Rex'));              // open detail
+    await user.click(screen.getByText('Rex'));
 
     await waitFor(() => expect(apiClient.getAnimal).toHaveBeenCalledWith(10));
     // VHS section + latest value rendered (appears in summary and history row)
@@ -122,8 +126,6 @@ describe('PatientsPage', () => {
     const user = userEvent.setup();
     (apiClient.createVHSMeasurement as any).mockResolvedValue({ id: 2 });
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await screen.findByText(/Vertebral Heart Score/i);
@@ -145,8 +147,6 @@ describe('PatientsPage', () => {
   it('renders tabs in animal detail modal', async () => {
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await waitFor(() => expect(apiClient.getAnimal).toHaveBeenCalledWith(10));
@@ -160,8 +160,6 @@ describe('PatientsPage', () => {
   it('vaccinations tab shows empty state when no records', async () => {
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await waitFor(() => expect(apiClient.getAnimal).toHaveBeenCalledWith(10));
@@ -173,8 +171,6 @@ describe('PatientsPage', () => {
   it('weight tab shows empty state and loads records', async () => {
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await waitFor(() => expect(apiClient.getAnimal).toHaveBeenCalledWith(10));
@@ -186,8 +182,6 @@ describe('PatientsPage', () => {
   it('appointments tab shows empty state', async () => {
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await waitFor(() => expect(apiClient.getAnimal).toHaveBeenCalledWith(10));
@@ -201,8 +195,6 @@ describe('PatientsPage', () => {
   it('renders all P2 tabs in the animal detail modal', async () => {
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await waitFor(() => expect(apiClient.getAnimal).toHaveBeenCalledWith(10));
@@ -218,8 +210,6 @@ describe('PatientsPage', () => {
     ]);
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await waitFor(() => expect(apiClient.getAllergies).toHaveBeenCalledWith(10));
@@ -230,8 +220,6 @@ describe('PatientsPage', () => {
     (apiClient.createPrescription as any).mockResolvedValue({ id: 1 });
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await user.click(await screen.findByRole('button', { name: /Prescriptions/i }));
@@ -251,8 +239,6 @@ describe('PatientsPage', () => {
   it('lab results tab shows empty state and loads records', async () => {
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await user.click(await screen.findByRole('button', { name: /Lab Results/i }));
@@ -266,8 +252,6 @@ describe('PatientsPage', () => {
     (apiClient.createReproductiveEvent as any).mockResolvedValue({ id: 1 });
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await user.click(await screen.findByRole('button', { name: /Reproductive/i }));
@@ -292,8 +276,6 @@ describe('PatientsPage', () => {
     });
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await waitFor(() => expect(apiClient.getAnimal).toHaveBeenCalledWith(10));
@@ -305,8 +287,6 @@ describe('PatientsPage', () => {
     (apiClient.importLabHl7 as any).mockResolvedValue({ id: 99 });
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await user.click(await screen.findByRole('button', { name: /Lab Results/i }));
@@ -324,8 +304,6 @@ describe('PatientsPage', () => {
     (apiClient.downloadPassport as any).mockResolvedValue(undefined);
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(screen.getByText('Jane Smith')).toBeInTheDocument());
-    await user.click(screen.getByText('Jane Smith'));
     await waitFor(() => expect(screen.getByText('Rex')).toBeInTheDocument());
     await user.click(screen.getByText('Rex'));
     await waitFor(() => expect(apiClient.getAnimal).toHaveBeenCalledWith(10));

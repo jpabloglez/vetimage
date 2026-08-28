@@ -441,7 +441,7 @@
   },
   "view": {
     "owners": "Owners",
-    "allPatients": "All patients"
+    "allPatients": "Patients"
   },
   "searchPatients": "Search patients by name, breed, microchip, owner…",
   "newPatient": "New patient",

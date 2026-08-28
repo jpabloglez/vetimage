@@ -1746,7 +1746,7 @@ const AnimalDetailModal: React.FC<{
 // ---------------------------------------------------------------------------
 const PatientsPage: React.FC = () => {
   const { t } = useTranslation('patients');
-  const [view, setView] = useState<'owners' | 'patients'>('owners');
+  const [view, setView] = useState<'owners' | 'patients'>('patients');
   const [owners, setOwners] = useState<Owner[]>([]);
   const [animals, setAnimals] = useState<AnimalPatientListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1840,7 +1840,7 @@ const PatientsPage: React.FC = () => {
 
       {/* View toggle */}
       <div className="inline-flex rounded-medical border border-slate-200 dark:border-slate-700 p-0.5 mb-4">
-        {(['owners', 'patients'] as const).map((v) => (
+        {(['patients', 'owners'] as const).map((v) => (
           <button
             key={v}
             onClick={() => { setView(v); setSearch(''); }}

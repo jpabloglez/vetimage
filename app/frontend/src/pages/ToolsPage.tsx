@@ -10,6 +10,7 @@
  */
 
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Eye,
@@ -82,9 +83,13 @@ const TOOLS: ToolCard[] = [
 
 const ToolsPage: React.FC = () => {
   const { t } = useTranslation('tools');
-  const [activeTool, setActiveTool] = useState<ActiveTool>(null);
-  const [selectedStudyUID, setSelectedStudyUID] = useState<string | null>(null);
-  const [viewerMode, setViewerMode] = useState(false);
+  const [searchParams] = useSearchParams();
+  // Deep-link support: /tools?tab=viewer&study=<uid> jumps straight into the
+  // full-screen OHIF viewer for that study (e.g. from a report's "Viewer" button).
+  const linkedStudyUID = searchParams.get('tab') === 'viewer' ? searchParams.get('study') : null;
+  const [activeTool, setActiveTool] = useState<ActiveTool>(linkedStudyUID ? 'viewer' : null);
+  const [selectedStudyUID, setSelectedStudyUID] = useState<string | null>(linkedStudyUID);
+  const [viewerMode, setViewerMode] = useState(!!linkedStudyUID);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Full-screen OHIF viewer

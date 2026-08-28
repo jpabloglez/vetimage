@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import { useWebSocket } from '../hooks/useWebSocket';
 
-import { MedicalImageUploader } from '../components/uploader/MedicalImageUploader';
 import { DragDropUploadZone } from '../components/analyze/DragDropUploadZone';
 import { MetadataViewer } from '../components/analysis/MetadataViewer';
 import { ModelRecommendation } from '../components/analysis/ModelRecommendation';
@@ -558,19 +557,6 @@ const NewAnalysisTab: React.FC = () => {
         {currentStep === 'upload' && (
           <div className="space-y-6">
             <DragDropUploadZone onUploadComplete={handleUploadComplete} />
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200 dark:border-slate-700" />
-              </div>
-              <div className="relative flex justify-center">
-                <span className="px-3 bg-white dark:bg-slate-900 text-sm text-slate-500 dark:text-slate-400">
-                  or use the standard uploader
-                </span>
-              </div>
-            </div>
-
-            <MedicalImageUploader onUploadComplete={handleUploadComplete} />
 
             {uploadedImages.length > 0 && (
               <>

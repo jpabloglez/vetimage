@@ -175,7 +175,7 @@ export const DragDropUploadZone: React.FC<DragDropUploadZoneProps> = ({ onUpload
 
           <div>
             <p className="text-lg font-semibold text-slate-900 dark:text-white">
-              {isDragOver ? t('upload.dragDrop') : t('upload.dragDrop')}
+              {t('upload.dragDrop')}
             </p>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               {t('upload.supportedFormats')}

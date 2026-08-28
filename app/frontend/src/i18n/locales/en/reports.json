@@ -16,7 +16,10 @@
     "studyUid": "Study UID",
     "findings": "AI findings",
     "aiDisclaimer": "AI-assisted decision support — for veterinary review, not a diagnosis.",
-    "pdfUnavailable": "PDF preview is unavailable."
+    "pdfUnavailable": "PDF preview is unavailable.",
+    "viewDicom": "Viewer",
+    "showMore": "Show more",
+    "showLess": "Show less"
   },
   "title": "Reports",
   "subtitle": "AI analysis reports with structured findings",
