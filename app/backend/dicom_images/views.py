@@ -611,6 +611,7 @@ class DeleteStudyView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        update_fields = ['animal_patient', 'updated_at']
         animal_id = request.data.get('animal_patient_id')
         if animal_id is None:
             study.animal_patient = None
@@ -628,8 +629,17 @@ class DeleteStudyView(APIView):
                     status=status.HTTP_404_NOT_FOUND
                 )
             study.animal_patient = animal
+            # Keep the study's display fields (PatientName/PatientID in the
+            # viewer, study browser, etc.) in sync with the linked patient —
+            # otherwise they stay frozen at whatever the source DICOM file's
+            # tags were (often blank/generic), showing "Unknown Patient"
+            # despite a real patient being linked.
+            study.patient_name = animal.name
+            study.patient_id = str(animal.id)
+            study.patient_name_normalized = normalize_text_for_search(animal.name)
+            update_fields += ['patient_name', 'patient_id', 'patient_name_normalized']
 
-        study.save(update_fields=['animal_patient', 'updated_at'])
+        study.save(update_fields=update_fields)
         return Response(
             {
                 'success': True,
