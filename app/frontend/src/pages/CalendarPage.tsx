@@ -355,7 +355,7 @@ const CalendarPage: React.FC = () => {
             return (
               <div
                 key={ds}
-                className="bg-white dark:bg-slate-800 min-h-[80px] p-1 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors"
+                className="bg-white dark:bg-slate-800 min-h-[80px] p-1 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 onClick={() => { setPrefillDate(ds); setFormOpen(true); }}
               >
                 <span className={`text-xs font-medium inline-block w-6 h-6 flex items-center justify-center rounded-full mb-1 ${isToday ? 'bg-medical-500 text-white' : 'text-slate-600 dark:text-slate-300'}`}>
