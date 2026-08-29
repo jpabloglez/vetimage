@@ -411,6 +411,33 @@ def extract_all_dicom_tags(dcm: pydicom.Dataset, include_pixels: bool = False) -
     return tags_dict
 
 
+def get_flat_dicom_tags(dicom_tags: dict) -> dict:
+    """
+    `MedicalImage.dicom_tags` can be either the full upload-time extractor
+    output (`{format, modality, dimensions, all_tags: {tag_hex: {...}}}`) or,
+    for images that predate that shape, a flat `{tag_hex: {...}}` map
+    directly. Return the flat tag map either way.
+    """
+    dicom_tags = dicom_tags or {}
+    all_tags = dicom_tags.get('all_tags')
+    return all_tags if isinstance(all_tags, dict) else dicom_tags
+
+
+def merge_refreshed_dicom_tags(dicom_tags: dict, refreshed_flat_tags: dict) -> dict:
+    """
+    Write *refreshed_flat_tags* (fresh `extract_all_dicom_tags` output) back
+    into *dicom_tags*, preserving the `format`/`modality`/`dimensions` keys
+    when the wrapped shape is present — overwriting the whole field with just
+    the flat tag map would silently delete `modality`, which AI model
+    recommendation reads directly.
+    """
+    dicom_tags = dict(dicom_tags or {})
+    if isinstance(dicom_tags.get('all_tags'), dict):
+        dicom_tags['all_tags'] = refreshed_flat_tags
+        return dicom_tags
+    return refreshed_flat_tags
+
+
 def normalize_text_for_search(text: str) -> str:
     """
     Normalize text for full-text search (case-insensitive, remove special chars).

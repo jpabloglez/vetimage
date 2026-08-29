@@ -13,7 +13,7 @@ import logging
 import pydicom
 
 from dicom_images.models import MedicalImage
-from dicom_images.utils import extract_all_dicom_tags, normalize_text_for_search
+from dicom_images.utils import extract_all_dicom_tags, merge_refreshed_dicom_tags, normalize_text_for_search
 
 logger = logging.getLogger(__name__)
 
@@ -82,15 +82,6 @@ class StudyTagReviewService:
 
         dcm.save_as(image.file.path)
 
-        # image.dicom_tags is the full extractor output — {format, modality,
-        # dimensions, all_tags: {...}} — not just the tag dump. Model
-        # recommendation reads the top-level `modality`, so refresh only the
-        # nested all_tags map and leave the rest of the structure intact.
         refreshed_all_tags = extract_all_dicom_tags(dcm)
-        dicom_tags = dict(image.dicom_tags or {})
-        if 'all_tags' in dicom_tags:
-            dicom_tags['all_tags'] = refreshed_all_tags
-        else:
-            dicom_tags = refreshed_all_tags
-        image.dicom_tags = dicom_tags
+        image.dicom_tags = merge_refreshed_dicom_tags(image.dicom_tags, refreshed_all_tags)
         image.save(update_fields=['dicom_tags'])
