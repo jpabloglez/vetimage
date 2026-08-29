@@ -34,6 +34,13 @@
   },
   "tagEditor": {
     "title": "Editor de Tags",
-    "description": "Visualize e edite tags de metadados DICOM de estudos e imagens."
+    "description": "Visualize e edite tags de metadados DICOM de estudos e imagens.",
+    "study": "Estudo",
+    "selectStudy": "Selecione um estudo…",
+    "series": "Série",
+    "selectSeries": "Selecione uma série…",
+    "instance": "Instância",
+    "selectInstance": "Selecione uma instância…",
+    "loadStudiesError": "Falha ao carregar os estudos"
   }
 }

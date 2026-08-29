@@ -81,6 +81,7 @@ export interface Series {
 }
 
 export interface Instance {
+  id: number;
   SOPInstanceUID: string;
   SOPClassUID: string;
   InstanceNumber: number;

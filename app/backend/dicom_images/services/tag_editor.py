@@ -10,7 +10,7 @@ import re
 import pydicom
 
 from dicom_images.models import MedicalImage
-from dicom_images.utils import extract_all_dicom_tags
+from dicom_images.utils import extract_all_dicom_tags, get_flat_dicom_tags, merge_refreshed_dicom_tags
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class DicomTagEditorService:
             'series__study'
         ).get(id=image_id, series__study__uploaded_by=user)
 
-        tags = image.dicom_tags or {}
+        tags = get_flat_dicom_tags(image.dicom_tags)
 
         if search:
             search_lower = search.lower()
@@ -106,9 +106,12 @@ class DicomTagEditorService:
         # Save modified file
         dcm.save_as(image.file.path)
 
-        # Refresh stored tags
+        # Refresh stored tags — image.dicom_tags may be the full upload-time
+        # extractor output ({format, modality, dimensions, all_tags}), not
+        # just a flat tag dump; merge in place instead of overwriting it, or
+        # AI model recommendation (which reads `modality` directly) breaks.
         refreshed_tags = extract_all_dicom_tags(dcm)
-        image.dicom_tags = refreshed_tags
+        image.dicom_tags = merge_refreshed_dicom_tags(image.dicom_tags, refreshed_tags)
         image.save(update_fields=['dicom_tags'])
 
         return refreshed_tags

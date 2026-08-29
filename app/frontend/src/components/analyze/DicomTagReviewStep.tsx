@@ -2,10 +2,11 @@
  * DicomTagReviewStep
  *
  * Wizard step shown right after upload, before AI dispatch: lets the user
- * confirm/correct the study's PatientName/PatientID/AccessionNumber. Saving
- * writes these to the MedicalStudy row AND to every on-disk instance file
- * (via apiClient.updateStudyTagReview), so the DICOM files themselves never
- * disagree with what the app displays.
+ * confirm/correct PatientName/PatientID/AccessionNumber for every study in
+ * this upload (usually one, but a single drop can span several — each gets
+ * reviewed in turn). Saving writes these to the MedicalStudy row AND to
+ * every on-disk instance file (via apiClient.updateStudyTagReview), so the
+ * DICOM files themselves never disagree with what the app displays.
  */
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +18,7 @@ import type { StudyTagReviewFields } from '../../types/api';
 import Button from '../ui/Button';
 
 interface DicomTagReviewStepProps {
-  studyUID: string;
+  studyUIDs: string[];
   onContinue: () => void;
   onBack: () => void;
 }
@@ -28,11 +29,15 @@ const EMPTY_FIELDS: StudyTagReviewFields = {
   accession_number: '',
 };
 
-export const DicomTagReviewStep: React.FC<DicomTagReviewStepProps> = ({ studyUID, onContinue, onBack }) => {
+export const DicomTagReviewStep: React.FC<DicomTagReviewStepProps> = ({ studyUIDs, onContinue, onBack }) => {
   const { t } = useTranslation('analyze');
+  const [index, setIndex] = useState(0);
   const [fields, setFields] = useState<StudyTagReviewFields>(EMPTY_FIELDS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const studyUID = studyUIDs[index];
+  const isLastStudy = index === studyUIDs.length - 1;
 
   useEffect(() => {
     let cancelled = false;
@@ -57,7 +62,11 @@ export const DicomTagReviewStep: React.FC<DicomTagReviewStepProps> = ({ studyUID
     setSaving(true);
     try {
       await apiClient.updateStudyTagReview(studyUID, fields);
-      onContinue();
+      if (isLastStudy) {
+        onContinue();
+      } else {
+        setIndex((prev) => prev + 1);
+      }
     } catch {
       toast.error(t('reviewTags.saveError'));
     } finally {
@@ -65,14 +74,29 @@ export const DicomTagReviewStep: React.FC<DicomTagReviewStepProps> = ({ studyUID
     }
   };
 
+  const handleBack = () => {
+    if (index === 0) {
+      onBack();
+    } else {
+      setIndex((prev) => prev - 1);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <Button variant="ghost" onClick={onBack}>{t('backToUpload')}</Button>
+      <Button variant="ghost" onClick={handleBack}>{t('backToUpload')}</Button>
 
       <div className="medical-card p-6 max-w-2xl">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1">
-          {t('reviewTags.title')}
-        </h3>
+        <div className="flex items-baseline justify-between mb-1">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            {t('reviewTags.title')}
+          </h3>
+          {studyUIDs.length > 1 && (
+            <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+              {t('reviewTags.studyProgress', { current: index + 1, total: studyUIDs.length })}
+            </span>
+          )}
+        </div>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
           {t('reviewTags.description')}
         </p>
@@ -122,7 +146,7 @@ export const DicomTagReviewStep: React.FC<DicomTagReviewStepProps> = ({ studyUID
 
             <div className="pt-2">
               <Button onClick={handleContinue} disabled={saving} loading={saving}>
-                {t('reviewTags.continue')}
+                {isLastStudy ? t('reviewTags.continue') : t('reviewTags.nextStudy')}
               </Button>
             </div>
           </div>

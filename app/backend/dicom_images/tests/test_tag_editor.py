@@ -45,6 +45,21 @@ class TestDicomTagEditorService:
         assert '00100010' in tags
         assert '00080060' not in tags
 
+    def test_get_tags_unwraps_full_extractor_output(self, image, user):
+        """Real uploads store {format, modality, dimensions, all_tags}, not
+        a flat tag dump — get_tags must return the nested tag map, not the
+        wrapper itself."""
+        image.dicom_tags = {
+            'format': 'dicom', 'modality': 'CR', 'dimensions': {'width': 8, 'height': 8},
+            'all_tags': {'00100020': {'vr': 'LO', 'name': 'PatientID', 'value': 'PAT001'}},
+        }
+        image.save(update_fields=['dicom_tags'])
+
+        service = DicomTagEditorService()
+        tags = service.get_tags(image.id, user)
+
+        assert tags == {'00100020': {'vr': 'LO', 'name': 'PatientID', 'value': 'PAT001'}}
+
     def test_ownership_check(self, image, other_user):
         """get_tags raises DoesNotExist for non-owner."""
         from dicom_images.models import MedicalImage
@@ -69,6 +84,32 @@ class TestDicomTagEditorService:
 
         assert tags['00100020']['value'] == 'NEW'
         mock_dcm.save_as.assert_called_once()
+
+    @patch('dicom_images.services.tag_editor.pydicom.dcmread')
+    def test_update_preserves_modality_and_format(self, mock_dcmread, image, user):
+        """update_tags must not wipe the `modality`/`format` keys that AI
+        model recommendation reads directly from image.dicom_tags."""
+        image.dicom_tags = {
+            'format': 'dicom', 'modality': 'CR', 'dimensions': {'width': 8, 'height': 8},
+            'all_tags': {'00100020': {'vr': 'LO', 'name': 'PatientID', 'value': 'PAT001'}},
+        }
+        image.save(update_fields=['dicom_tags'])
+
+        mock_dcm = MagicMock()
+        mock_tag = MagicMock()
+        mock_dcm.__contains__ = MagicMock(return_value=True)
+        mock_dcm.__getitem__ = MagicMock(return_value=mock_tag)
+        mock_dcmread.return_value = mock_dcm
+
+        with patch('dicom_images.services.tag_editor.extract_all_dicom_tags') as mock_extract:
+            mock_extract.return_value = {'00100020': {'vr': 'LO', 'name': 'PatientID', 'value': 'NEW'}}
+            service = DicomTagEditorService()
+            service.update_tags(image.id, [{'tag': '00100020', 'value': 'NEW'}], user)
+
+        image.refresh_from_db()
+        assert image.dicom_tags['modality'] == 'CR'
+        assert image.dicom_tags['format'] == 'dicom'
+        assert image.dicom_tags['all_tags'] == {'00100020': {'vr': 'LO', 'name': 'PatientID', 'value': 'NEW'}}
 
     def test_invalid_hex_rejected(self, image, user):
         """update_tags rejects non-hex tag strings."""

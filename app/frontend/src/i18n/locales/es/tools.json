@@ -34,6 +34,13 @@
   },
   "tagEditor": {
     "title": "Editor de Etiquetas",
-    "description": "Vea y edite las etiquetas de metadatos DICOM para estudios e imágenes."
+    "description": "Vea y edite las etiquetas de metadatos DICOM para estudios e imágenes.",
+    "study": "Estudio",
+    "selectStudy": "Seleccione un estudio…",
+    "series": "Serie",
+    "selectSeries": "Seleccione una serie…",
+    "instance": "Instancia",
+    "selectInstance": "Seleccione una instancia…",
+    "loadStudiesError": "Error al cargar los estudios"
   }
 }

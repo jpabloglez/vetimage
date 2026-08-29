@@ -34,6 +34,13 @@
   },
   "tagEditor": {
     "title": "Tag Editor",
-    "description": "View and edit DICOM metadata tags for studies and images."
+    "description": "View and edit DICOM metadata tags for studies and images.",
+    "study": "Study",
+    "selectStudy": "Select a study…",
+    "series": "Series",
+    "selectSeries": "Select a series…",
+    "instance": "Instance",
+    "selectInstance": "Select an instance…",
+    "loadStudiesError": "Failed to load studies"
   }
 }

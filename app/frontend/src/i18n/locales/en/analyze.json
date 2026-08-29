@@ -45,6 +45,8 @@
     "patientId": "Patient ID",
     "accessionNumber": "Accession Number",
     "continue": "Looks Good — Continue",
+    "nextStudy": "Looks Good — Next Study",
+    "studyProgress": "Study {{current}} of {{total}}",
     "loadError": "Failed to load patient info",
     "saveError": "Failed to save patient info"
   },
