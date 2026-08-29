@@ -82,5 +82,15 @@ class StudyTagReviewService:
 
         dcm.save_as(image.file.path)
 
-        image.dicom_tags = extract_all_dicom_tags(dcm)
+        # image.dicom_tags is the full extractor output — {format, modality,
+        # dimensions, all_tags: {...}} — not just the tag dump. Model
+        # recommendation reads the top-level `modality`, so refresh only the
+        # nested all_tags map and leave the rest of the structure intact.
+        refreshed_all_tags = extract_all_dicom_tags(dcm)
+        dicom_tags = dict(image.dicom_tags or {})
+        if 'all_tags' in dicom_tags:
+            dicom_tags['all_tags'] = refreshed_all_tags
+        else:
+            dicom_tags = refreshed_all_tags
+        image.dicom_tags = dicom_tags
         image.save(update_fields=['dicom_tags'])

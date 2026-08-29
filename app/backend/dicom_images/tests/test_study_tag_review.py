@@ -27,6 +27,14 @@ class TestStudyTagReviewService:
 
     @patch('dicom_images.services.study_tag_review.pydicom.dcmread')
     def test_update_writes_db_and_files(self, mock_dcmread, study, image):
+        # Real upload metadata is {format, modality, dimensions, all_tags},
+        # not just a flat tag dump — model recommendation reads `modality`.
+        image.dicom_tags = {
+            'format': 'dicom', 'modality': 'CR', 'dimensions': {'width': 8, 'height': 8},
+            'all_tags': {'00100020': {'value': 'PAT001'}},
+        }
+        image.save(update_fields=['dicom_tags'])
+
         mock_dcm = MagicMock()
         mock_dcm.__contains__ = MagicMock(return_value=True)
         mock_dcmread.return_value = mock_dcm
@@ -46,6 +54,25 @@ class TestStudyTagReviewService:
         assert study.patient_name == 'Rex'
         assert study.patient_id == 'REX-001'
         assert study.patient_name_normalized == 'rex'
+
+        image.refresh_from_db()
+        # `modality`/`format`/`dimensions` must survive — only `all_tags` refreshes.
+        assert image.dicom_tags['modality'] == 'CR'
+        assert image.dicom_tags['format'] == 'dicom'
+        assert image.dicom_tags['all_tags'] == {'00100020': {'value': 'REX-001'}}
+
+    @patch('dicom_images.services.study_tag_review.pydicom.dcmread')
+    def test_update_falls_back_to_flat_tags_when_no_wrapper(self, mock_dcmread, study, image):
+        image.dicom_tags = {}  # no prior extractor output at all
+        image.save(update_fields=['dicom_tags'])
+
+        mock_dcm = MagicMock()
+        mock_dcm.__contains__ = MagicMock(return_value=True)
+        mock_dcmread.return_value = mock_dcm
+
+        with patch('dicom_images.services.study_tag_review.extract_all_dicom_tags') as mock_extract:
+            mock_extract.return_value = {'00100020': {'value': 'REX-001'}}
+            StudyTagReviewService().update_review_fields(study, {'patient_id': 'REX-001'})
 
         image.refresh_from_db()
         assert image.dicom_tags == {'00100020': {'value': 'REX-001'}}
