@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Heart,
   ArrowRight,
+  ArrowUp,
   ShieldCheck,
   PawPrint,
   Lock,
@@ -72,6 +73,32 @@ const LanguageFlags: React.FC = () => {
   );
 };
 
+/** Floating "back to top" button — fades in once the user scrolls past the hero. */
+const ScrollToTopButton: React.FC = () => {
+  const { t } = useTranslation('landing');
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 600);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return (
+    <button
+      type="button"
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      aria-label={t('scrollToTop')}
+      className={`fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[#13B886] to-brand-deep text-white shadow-[0_10px_24px_rgba(12,138,107,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-105 ${
+        visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'
+      }`}
+    >
+      <ArrowUp className="h-5 w-5" strokeWidth={2.4} />
+    </button>
+  );
+};
+
 const LandingPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation('landing');
@@ -110,12 +137,12 @@ const LandingPage: React.FC = () => {
             >
               {t('header.signIn')}
             </Link>
-            <a
-              href="#demo"
+            <Link
+              to={demoTarget}
               className="rounded-[11px] bg-gradient-to-br from-[#13B886] to-brand-deep px-5 py-[11px] font-semibold text-white shadow-[0_8px_18px_rgba(12,138,107,0.26)] transition-all hover:-translate-y-px hover:brightness-105"
             >
               {t('header.bookDemo')}
-            </a>
+            </Link>
           </nav>
         </div>
       </header>
@@ -689,6 +716,8 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      <ScrollToTopButton />
     </div>
   );
 };

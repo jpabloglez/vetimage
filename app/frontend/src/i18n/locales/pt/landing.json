@@ -124,6 +124,7 @@
     "bookDemo": "Agendar demo para clínicas",
     "talkToTeam": "Fale com nossa equipe"
   },
+  "scrollToTop": "Voltar ao topo",
   "footer": {
     "desc": "Imagem veterinária construída sobre padrões DICOMweb abertos — com uma camada de assistência por IA tranquila e próxima do tutor.",
     "compliant": "Compatível com DICOM",
