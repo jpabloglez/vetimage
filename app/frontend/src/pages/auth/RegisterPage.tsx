@@ -53,7 +53,7 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-medical dark:bg-gradient-medical-dark flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-2xl">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
           <div className="mx-auto w-16 h-16 bg-medical-500 rounded-full flex items-center justify-center mb-4">
@@ -75,63 +75,65 @@ const RegisterPage: React.FC = () => {
 
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {/* Name Input */}
-              <Input
-                {...register('name')}
-                type="text"
-                label={t('register.fullName')}
-                leftIcon={User}
-                error={errors.name?.message}
-                placeholder="Dr. John Smith"
-                required
-                disabled={isSubmitting}
-              />
-
-              {/* Email Input */}
-              <Input
-                {...register('email')}
-                type="email"
-                label={t('register.email')}
-                leftIcon={Mail}
-                error={errors.email?.message}
-                placeholder="vet@clinic.com"
-                required
-                disabled={isSubmitting}
-              />
-
-              {/* Role Selection */}
-              <div className="space-y-2">
-                <label htmlFor="role" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                  {t('register.role')} <span className="text-error-500">*</span>
-                </label>
-                <select
-                  {...register('role')}
-                  id="role"
-                  className="medical-input"
+              {/* Name + Email */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
+                <Input
+                  {...register('name')}
+                  type="text"
+                  label={t('register.fullName')}
+                  leftIcon={User}
+                  error={errors.name?.message}
+                  placeholder="Dr. John Smith"
+                  required
                   disabled={isSubmitting}
-                >
-                  <option value="doctor">{t('register.roleDoctor')}</option>
-                  <option value="researcher">{t('register.roleResearcher')}</option>
-                  <option value="user">{t('register.roleMedStudent')}</option>
-                </select>
-                {errors.role && (
-                  <p className="text-sm text-error-600 dark:text-error-400">
-                    {errors.role.message}
-                  </p>
-                )}
+                />
+
+                <Input
+                  {...register('email')}
+                  type="email"
+                  label={t('register.email')}
+                  leftIcon={Mail}
+                  error={errors.email?.message}
+                  placeholder="vet@clinic.com"
+                  required
+                  disabled={isSubmitting}
+                />
               </div>
 
-              {/* Institution Input */}
-              <Input
-                {...register('institution')}
-                type="text"
-                label={t('register.institution')}
-                leftIcon={Building}
-                error={errors.institution?.message}
-                placeholder="Your veterinary clinic"
-                helper={t('register.institutionPlaceholder')}
-                disabled={isSubmitting}
-              />
+              {/* Role + Institution */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
+                <div className="space-y-2">
+                  <label htmlFor="role" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    {t('register.role')} <span className="text-error-500">*</span>
+                  </label>
+                  <select
+                    {...register('role')}
+                    id="role"
+                    className="medical-input"
+                    disabled={isSubmitting}
+                  >
+                    <option value="doctor">{t('register.roleDoctor')}</option>
+                    <option value="researcher">{t('register.roleResearcher')}</option>
+                    <option value="user">{t('register.roleMedStudent')}</option>
+                  </select>
+                  {errors.role && (
+                    <p className="text-sm text-error-600 dark:text-error-400">
+                      {errors.role.message}
+                    </p>
+                  )}
+                </div>
+
+                <Input
+                  {...register('institution')}
+                  type="text"
+                  label={t('register.institution')}
+                  leftIcon={Building}
+                  error={errors.institution?.message}
+                  placeholder="Your veterinary clinic"
+                  helper={t('register.institutionPlaceholder')}
+                  disabled={isSubmitting}
+                />
+              </div>
 
               {/* Specialization (if doctor) */}
               {selectedRole === 'doctor' && (
@@ -161,56 +163,57 @@ const RegisterPage: React.FC = () => {
                 />
               )}
 
-              {/* Password Input */}
-              <div className="relative">
-                <Input
-                  {...register('password')}
-                  type={showPassword ? 'text' : 'password'}
-                  label={t('register.password')}
-                  leftIcon={Lock}
-                  error={errors.password?.message}
-                  placeholder={t('register.passwordPlaceholder')}
-                  required
-                  disabled={isSubmitting}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-9 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                  disabled={isSubmitting}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
+              {/* Password + Confirm Password */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
+                <div className="relative">
+                  <Input
+                    {...register('password')}
+                    type={showPassword ? 'text' : 'password'}
+                    label={t('register.password')}
+                    leftIcon={Lock}
+                    error={errors.password?.message}
+                    placeholder={t('register.passwordPlaceholder')}
+                    required
+                    disabled={isSubmitting}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-9 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    disabled={isSubmitting}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
 
-              {/* Confirm Password Input */}
-              <div className="relative">
-                <Input
-                  {...register('confirmPassword')}
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  label={t('register.confirmPassword')}
-                  leftIcon={Lock}
-                  error={errors.confirmPassword?.message}
-                  placeholder="Confirm your password"
-                  required
-                  disabled={isSubmitting}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-9 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                  disabled={isSubmitting}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
+                <div className="relative">
+                  <Input
+                    {...register('confirmPassword')}
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    label={t('register.confirmPassword')}
+                    leftIcon={Lock}
+                    error={errors.confirmPassword?.message}
+                    placeholder="Confirm your password"
+                    required
+                    disabled={isSubmitting}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-9 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    disabled={isSubmitting}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {/* Terms and Conditions */}
