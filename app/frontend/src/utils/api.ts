@@ -93,6 +93,7 @@ import type {
   CreateAnonymizationJobRequest,
   DicomTag,
   TagUpdate,
+  StudyTagReviewFields,
   ConversionJob,
   CreateConversionJobRequest,
   BatchJob,
@@ -1781,6 +1782,22 @@ class ApiClient {
     return this.request<{ tags: Record<string, DicomTag> }>(`/api/dicom/images/${imageId}/tags/update/`, {
       method: 'PATCH',
       body: JSON.stringify({ tags }),
+    });
+  }
+
+  /** Get a study's reviewable identity tags. GET /api/dicom/studies/{uid}/tags/ */
+  async getStudyTagReview(studyUID: string): Promise<StudyTagReviewFields> {
+    return this.request<StudyTagReviewFields>(`/api/dicom/studies/${studyUID}/tags/`);
+  }
+
+  /** Confirm/correct a study's identity tags across all instances. PATCH /api/dicom/studies/{uid}/tags/ */
+  async updateStudyTagReview(
+    studyUID: string,
+    fields: Partial<StudyTagReviewFields>,
+  ): Promise<StudyTagReviewFields & { success: boolean; files_updated: number; files_total: number }> {
+    return this.request(`/api/dicom/studies/${studyUID}/tags/`, {
+      method: 'PATCH',
+      body: JSON.stringify(fields),
     });
   }
 

@@ -31,10 +31,22 @@
   "steps": {
     "upload": "Upload Images",
     "uploadDesc": "Upload DICOM, NIfTI, or standard image files",
+    "reviewTags": "Review Patient Info",
+    "reviewTagsDesc": "Confirm or correct the patient details on this study",
     "selectModel": "Select Model",
     "selectModelDesc": "Choose the best AI model for your images",
     "configure": "Configure",
     "configureDesc": "Set analysis parameters"
+  },
+  "reviewTags": {
+    "title": "Review Patient Info",
+    "description": "Confirm or correct the patient details recorded on this study before continuing. These are written into the DICOM files themselves, so the viewer and any exports stay consistent.",
+    "patientName": "Patient Name",
+    "patientId": "Patient ID",
+    "accessionNumber": "Accession Number",
+    "continue": "Looks Good — Continue",
+    "loadError": "Failed to load patient info",
+    "saveError": "Failed to save patient info"
   },
   "upload": {
     "dragDrop": "Drag & drop medical images here",
@@ -54,6 +66,7 @@
   "continueToModel": "Continue to Model Selection",
   "selectOtherModel": "Choose another model…",
   "backToUpload": "← Back to Upload",
+  "backToReview": "← Back to Patient Info",
   "backToModel": "← Back to Model Selection",
   "selectedModel": "Selected Model",
   "changeModel": "Change Model",

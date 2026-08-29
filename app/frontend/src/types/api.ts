@@ -666,6 +666,7 @@ export interface UploadedMedicalImage {
   size_bytes: number;
   metadata: Record<string, any>;
   study_id: number;
+  study_instance_uid: string;
   series_id: number;
 }
 
@@ -1175,6 +1176,12 @@ export interface DicomTag {
 export interface TagUpdate {
   tag: string;
   value: string;
+}
+
+export interface StudyTagReviewFields {
+  patient_name: string;
+  patient_id: string;
+  accession_number: string;
 }
 
 // ---------------------------------------------------------------------------

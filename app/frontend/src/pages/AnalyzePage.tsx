@@ -13,11 +13,12 @@ import { useTranslation } from 'react-i18next';
 import {
   ChevronRight, Upload, Brain, Settings, CheckCircle,
   Search, RefreshCw, Clock, FileText, Eye, Plus,
-  GitCompare, Loader2,
+  GitCompare, Loader2, UserCheck,
 } from 'lucide-react';
 import { useWebSocket } from '../hooks/useWebSocket';
 
 import { DragDropUploadZone } from '../components/analyze/DragDropUploadZone';
+import { DicomTagReviewStep } from '../components/analyze/DicomTagReviewStep';
 import { MetadataViewer } from '../components/analysis/MetadataViewer';
 import { ModelRecommendation } from '../components/analysis/ModelRecommendation';
 import { ParameterConfigurator } from '../components/analysis/ParameterConfigurator';
@@ -38,7 +39,7 @@ import toast from 'react-hot-toast';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type AnalyzePageTab = 'worklist' | 'new' | 'reports' | 'models';
-type WorkflowStep = 'upload' | 'select' | 'configure';
+type WorkflowStep = 'upload' | 'reviewTags' | 'select' | 'configure';
 
 interface StepConfig {
   key: WorkflowStep;
@@ -51,9 +52,10 @@ interface StepConfig {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const WORKFLOW_STEPS: StepConfig[] = [
-  { key: 'upload',    number: 1, titleKey: 'steps.upload',      icon: Upload,   descriptionKey: 'steps.uploadDesc' },
-  { key: 'select',    number: 2, titleKey: 'steps.selectModel',  icon: Brain,    descriptionKey: 'steps.selectModelDesc' },
-  { key: 'configure', number: 3, titleKey: 'steps.configure',    icon: Settings, descriptionKey: 'steps.configureDesc' },
+  { key: 'upload',     number: 1, titleKey: 'steps.upload',      icon: Upload,     descriptionKey: 'steps.uploadDesc' },
+  { key: 'reviewTags', number: 2, titleKey: 'steps.reviewTags',  icon: UserCheck,  descriptionKey: 'steps.reviewTagsDesc' },
+  { key: 'select',     number: 3, titleKey: 'steps.selectModel', icon: Brain,      descriptionKey: 'steps.selectModelDesc' },
+  { key: 'configure',  number: 4, titleKey: 'steps.configure',   icon: Settings,   descriptionKey: 'steps.configureDesc' },
 ];
 
 const STATUS_COLORS: Record<AnalysisTask['status'], string> = {
@@ -494,6 +496,11 @@ const NewAnalysisTab: React.FC = () => {
     setSelectedImage(images[0]);
     setCompletedSteps((prev) => new Set(prev).add('upload'));
     toast.success(t('upload.uploadComplete'));
+    setCurrentStep('reviewTags');
+  };
+
+  const handleTagsReviewed = () => {
+    setCompletedSteps((prev) => new Set(prev).add('reviewTags'));
     setCurrentStep('select');
   };
 
@@ -595,10 +602,19 @@ const NewAnalysisTab: React.FC = () => {
           </div>
         )}
 
-        {/* Step 2: Select Model */}
+        {/* Step 2: Review DICOM tags */}
+        {currentStep === 'reviewTags' && selectedImage && (
+          <DicomTagReviewStep
+            studyUID={selectedImage.study_instance_uid}
+            onContinue={handleTagsReviewed}
+            onBack={() => setCurrentStep('upload')}
+          />
+        )}
+
+        {/* Step 3: Select Model */}
         {currentStep === 'select' && selectedImage && (
           <div className="space-y-6">
-            <Button variant="ghost" onClick={() => setCurrentStep('upload')}>{t('backToUpload')}</Button>
+            <Button variant="ghost" onClick={() => setCurrentStep('reviewTags')}>{t('backToReview')}</Button>
             <ModelRecommendation imageId={selectedImage.id} onModelSelect={handleModelSelect} />
           </div>
         )}

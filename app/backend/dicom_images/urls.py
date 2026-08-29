@@ -28,6 +28,7 @@ from .views import (
 )
 from .views_anonymization import AnonymizationJobViewSet
 from .views_tag_editor import DicomTagListView, DicomTagUpdateView
+from .views_study_tags import StudyTagReviewView
 from .views_conversion import ConversionJobViewSet
 from .views_batch import BatchOperationViewSet
 from .views import StudyShareViewSet, PublicStudyWADOView, StudyCDExportView
@@ -68,6 +69,7 @@ urlpatterns = [
     # Study management
     path('studies/<str:study_uid>/export/', StudyCDExportView.as_view(), name='study-cd-export'),
     path('studies/<str:study_uid>', DeleteStudyView.as_view(), name='delete-study'),
+    path('studies/<str:study_uid>/tags/', StudyTagReviewView.as_view(), name='study-tag-review'),
 
     # Storage quota
     path('storage/', StorageQuotaView.as_view(), name='storage-quota'),

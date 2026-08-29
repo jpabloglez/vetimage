@@ -35,7 +35,7 @@ const API_METHODS = [
   'uploadAvatar', 'getFrontendConfig',
   // DICOM studies
   'getStudies', 'getSeries', 'getInstances', 'getStorageInfo', 'deleteStudy',
-  'searchStudies', 'linkStudyToAnimal',
+  'searchStudies', 'linkStudyToAnimal', 'getStudyTagReview', 'updateStudyTagReview',
   // Veterinary patients
   'getOwners', 'getOwner', 'createOwner', 'updateOwner', 'deleteOwner',
   'getAnimals', 'getAnimal', 'createAnimal', 'updateAnimal', 'deleteAnimal',

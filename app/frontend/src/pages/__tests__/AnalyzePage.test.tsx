@@ -7,10 +7,30 @@ import AnalyzePage from '../AnalyzePage';
 
 // Mock heavy child components to keep tests focused on the page shell.
 vi.mock('../../components/analyze/DragDropUploadZone', () => ({
-  DragDropUploadZone: () => <div data-testid="dragdrop-zone">DropZone</div>,
+  DragDropUploadZone: ({ onUploadComplete }: any) => (
+    <div data-testid="dragdrop-zone">
+      DropZone
+      <button
+        onClick={() =>
+          onUploadComplete([
+            { id: 1, filename: 'chest.dcm', format: 'dicom', size_bytes: 1024, metadata: {}, study_id: 1, study_instance_uid: '1.2.3', series_id: 1 },
+          ])
+        }
+      >
+        Simulate upload
+      </button>
+    </div>
+  ),
+}));
+vi.mock('../../components/analyze/DicomTagReviewStep', () => ({
+  DicomTagReviewStep: ({ onContinue }: any) => (
+    <div data-testid="review-tags-step">
+      <button onClick={onContinue}>Confirm tags</button>
+    </div>
+  ),
 }));
 vi.mock('../../components/analysis/MetadataViewer', () => ({ MetadataViewer: () => <div /> }));
-vi.mock('../../components/analysis/ModelRecommendation', () => ({ ModelRecommendation: () => <div /> }));
+vi.mock('../../components/analysis/ModelRecommendation', () => ({ ModelRecommendation: () => <div data-testid="model-recommendation" /> }));
 vi.mock('../../components/analysis/ParameterConfigurator', () => ({ ParameterConfigurator: () => <div /> }));
 vi.mock('../../components/analysis/TaskMonitor', () => ({ TaskMonitor: () => <div /> }));
 
@@ -64,6 +84,24 @@ describe('AnalyzePage (tabbed shell)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('dragdrop-zone')).toBeInTheDocument();
     });
+  });
+
+  it('shows the tag-review step after upload, before model recommendation', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<AnalyzePage />);
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'New Analysis' })).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('button', { name: 'New Analysis' }));
+
+    await user.click(screen.getByText('Simulate upload'));
+
+    expect(await screen.findByTestId('review-tags-step')).toBeInTheDocument();
+    expect(screen.queryByTestId('model-recommendation')).not.toBeInTheDocument();
+
+    await user.click(screen.getByText('Confirm tags'));
+
+    expect(await screen.findByTestId('model-recommendation')).toBeInTheDocument();
   });
 
   it('reports tab shows a View report link to the embedded detail page', async () => {
