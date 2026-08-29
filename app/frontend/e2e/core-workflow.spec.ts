@@ -24,6 +24,14 @@ test.describe('Core workflow: upload -> analyze -> report', () => {
       // target it directly; it's the first of two uploaders on this step.
       await page.locator('input[type="file"]').first().setInputFiles(SAMPLE_DICOM);
 
+      // Upload lands on the tag-review step before model selection — confirm
+      // the fixture's own PatientName and continue.
+      await expect(page.getByRole('heading', { name: 'Review Patient Info' })).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByLabel('Patient Name')).toHaveValue(FIXTURE_PATIENT);
+      await page.getByRole('button', { name: /Looks Good/i }).click();
+
       await expect(page.getByRole('heading', { name: 'Recommended Model' })).toBeVisible({
         timeout: 20_000,
       });

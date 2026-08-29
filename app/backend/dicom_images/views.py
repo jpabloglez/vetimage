@@ -2045,6 +2045,7 @@ class MedicalImageUploadView(APIView):
                             'size_bytes': file_obj.size,
                             'metadata': metadata,
                             'study_id': study.id,
+                            'study_instance_uid': study.study_instance_uid,
                             'series_id': series.id,
                             'created': created,  # Indicate if newly created or already existed
                         })

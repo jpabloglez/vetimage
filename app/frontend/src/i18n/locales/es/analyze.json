@@ -31,10 +31,22 @@
   "steps": {
     "upload": "Subir Imágenes",
     "uploadDesc": "Suba archivos DICOM, NIfTI o imágenes estándar",
+    "reviewTags": "Revisar Información del Paciente",
+    "reviewTagsDesc": "Confirme o corrija los datos del paciente en este estudio",
     "selectModel": "Seleccionar Modelo",
     "selectModelDesc": "Elija el mejor modelo de AI para sus imágenes",
     "configure": "Configurar",
     "configureDesc": "Establezca los parámetros de análisis"
+  },
+  "reviewTags": {
+    "title": "Revisar Información del Paciente",
+    "description": "Confirme o corrija los datos del paciente registrados en este estudio antes de continuar. Estos se escriben directamente en los archivos DICOM, para que el visor y cualquier exportación se mantengan consistentes.",
+    "patientName": "Nombre del Paciente",
+    "patientId": "ID del Paciente",
+    "accessionNumber": "Número de Acceso",
+    "continue": "Todo Correcto — Continuar",
+    "loadError": "Error al cargar la información del paciente",
+    "saveError": "Error al guardar la información del paciente"
   },
   "upload": {
     "dragDrop": "Arrastre y suelte imágenes médicas aquí",
@@ -54,6 +66,7 @@
   "continueToModel": "Continuar a Selección de Modelo",
   "selectOtherModel": "Elige otro modelo…",
   "backToUpload": "← Volver a Subir",
+  "backToReview": "← Volver a Información del Paciente",
   "backToModel": "← Volver a Selección de Modelo",
   "selectedModel": "Modelo Seleccionado",
   "changeModel": "Cambiar Modelo",
