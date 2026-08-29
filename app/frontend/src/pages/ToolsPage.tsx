@@ -27,6 +27,7 @@ import StudyBrowser from '../components/viewer/StudyBrowser';
 import OHIFViewer from '../components/viewer/OHIFViewer';
 import AnonymizationPanel from '../components/anonymization/AnonymizationPanel';
 import DicomTagEditor from '../components/tags/DicomTagEditor';
+import TagEditorImagePicker from '../components/tags/TagEditorImagePicker';
 import ConversionPanel from '../components/conversion/ConversionPanel';
 import PageHeader from '../components/ui/PageHeader';
 import Button from '../components/ui/Button';
@@ -91,6 +92,7 @@ const ToolsPage: React.FC = () => {
   const [selectedStudyUID, setSelectedStudyUID] = useState<string | null>(linkedStudyUID);
   const [viewerMode, setViewerMode] = useState(!!linkedStudyUID);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [tagEditorImageId, setTagEditorImageId] = useState<number | null>(null);
 
   // Full-screen OHIF viewer
   if (viewerMode && selectedStudyUID) {
@@ -185,8 +187,9 @@ const ToolsPage: React.FC = () => {
           )}
 
           {activeTool === 'tags' && (
-            <div className="max-w-6xl mx-auto">
-              <DicomTagEditor imageId={null} />
+            <div className="max-w-6xl mx-auto space-y-6">
+              <TagEditorImagePicker onSelect={setTagEditorImageId} />
+              <DicomTagEditor imageId={tagEditorImageId} />
             </div>
           )}
         </div>

@@ -403,6 +403,10 @@ class TestInstanceListView:
         assert response.status_code == 200
         assert isinstance(response.data, list)
         assert len(response.data) >= 1
+        # `id` is the internal MedicalImage PK — the Tag Editor tool's image
+        # picker needs it since DICOM UIDs alone can't address the tag
+        # list/update endpoints.
+        assert response.data[0]['id'] == image.id
 
     def test_unauthenticated_401(self, api_client, study, series):
         """Unauthenticated request returns 401."""

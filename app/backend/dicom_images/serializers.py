@@ -179,6 +179,7 @@ class DICOMwebInstanceSerializer(serializers.Serializer):
     """
     Serializer for DICOMweb QIDO-RS instance query response
     """
+    id = serializers.IntegerField(help_text='Internal MedicalImage id — used by the DICOM Tag Editor tool.')
     SOPInstanceUID = serializers.CharField(source='sop_instance_uid')
     SOPClassUID = serializers.CharField(source='sop_class_uid')
     InstanceNumber = serializers.IntegerField(source='instance_number', allow_null=True)

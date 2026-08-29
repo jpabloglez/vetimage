@@ -110,6 +110,8 @@ export function createApiClientMock(overrides: ApiClientMock = {}): ApiClientMoc
   mock.getAnalysisTasks = vi.fn().mockResolvedValue([]);
   mock.getReports = vi.fn().mockResolvedValue([]);
   mock.getStudies = vi.fn().mockResolvedValue([]);
+  mock.getSeries = vi.fn().mockResolvedValue([]);
+  mock.getInstances = vi.fn().mockResolvedValue([]);
 
   return { ...mock, ...overrides };
 }
