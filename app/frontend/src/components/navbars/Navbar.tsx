@@ -117,6 +117,20 @@ const Navbar: React.FC = () => {
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
+  // Opening the dropdown is the user "seeing" their notifications — clear
+  // the pending badge right away instead of requiring a separate explicit
+  // "Mark all read" click (which remains available for a mid-session batch
+  // of newly-arrived notifications while the dropdown is still open).
+  const handleToggleNotifications = () => {
+    setShowNotifications((prev) => {
+      const next = !prev;
+      if (next && unreadCount > 0) {
+        handleMarkAllRead();
+      }
+      return next;
+    });
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -251,7 +265,7 @@ const Navbar: React.FC = () => {
               <div className="relative" ref={notifRef}>
                 <NotificationBell
                   unreadCount={unreadCount}
-                  onClick={() => setShowNotifications(!showNotifications)}
+                  onClick={handleToggleNotifications}
                   isOpen={showNotifications}
                 />
                 {showNotifications && (
