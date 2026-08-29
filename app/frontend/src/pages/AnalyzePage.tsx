@@ -602,10 +602,10 @@ const NewAnalysisTab: React.FC = () => {
           </div>
         )}
 
-        {/* Step 2: Review DICOM tags */}
+        {/* Step 2: Review DICOM tags — one or more studies, reviewed in turn */}
         {currentStep === 'reviewTags' && selectedImage && (
           <DicomTagReviewStep
-            studyUID={selectedImage.study_instance_uid}
+            studyUIDs={Array.from(new Set(uploadedImages.map((img) => img.study_instance_uid)))}
             onContinue={handleTagsReviewed}
             onBack={() => setCurrentStep('upload')}
           />

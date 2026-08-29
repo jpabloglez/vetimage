@@ -45,6 +45,8 @@
     "patientId": "ID do Paciente",
     "accessionNumber": "Número de Acesso",
     "continue": "Tudo Certo — Continuar",
+    "nextStudy": "Tudo Certo — Próximo Estudo",
+    "studyProgress": "Estudo {{current}} de {{total}}",
     "loadError": "Falha ao carregar os dados do paciente",
     "saveError": "Falha ao salvar os dados do paciente"
   },
