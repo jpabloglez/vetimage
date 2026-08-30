@@ -242,9 +242,6 @@
     "notDevice": "Não é um dispositivo médico. Não tem autorização da FDA. Apenas para apoio à decisão veterinária e pesquisa."
   },
   "features": {
-    "title": "Tudo o que sua clínica precisa, em uma única plataforma",
-    "subtitle": "Do envio à leitura assistida por IA até um relatório que o tutor consiga entender — o VetImage cobre todo o fluxo de trabalho de imagem veterinária.",
-    "capabilitiesTitle": "Capacidades da plataforma",
     "capabilities": {
       "analysis": "Análise Assistida por IA",
       "analysisDesc": "Envie um estudo, obtenha uma recomendação de modelo e despache a análise de apoio à decisão em poucos cliques — cada resultado permanece um rascunho para revisão de um veterinário.",
@@ -258,25 +255,7 @@
       "monitoringDesc": "Uma lista de trabalho ao vivo e um registro de auditoria acompanham cada tarefa de análise e quem a executou, com atualizações via WebSocket em tempo real.",
       "multiClinic": "Multi-Clínica, Multi-Idioma",
       "multiClinicDesc": "Isolamento de dados por organização com suporte integrado para inglês, espanhol e português."
-    },
-    "toolsTitle": "Ferramentas DICOM",
-    "toolsSubtitle": "Utilitários independentes para trabalhar com dados DICOM além do fluxo de análise.",
-    "tools": {
-      "viewer": "Visualizador",
-      "viewerDesc": "Navegue pelos estudos enviados e abra o visualizador de imagens médicas em tela cheia.",
-      "anonymizer": "Anonimizador",
-      "anonymizerDesc": "Remova informações identificadoras do tutor e do paciente dos arquivos DICOM antes de compartilhar ou usar em pesquisa.",
-      "converter": "Conversor",
-      "converterDesc": "Converta arquivos DICOM para NIfTI, JPEG ou PNG para uso fora da plataforma.",
-      "tagEditor": "Editor de Tags",
-      "tagEditorDesc": "Revise e corrija as tags de metadados DICOM — nome do paciente, ID, número de acesso — em um estudo ou em uma única instância.",
-      "sharing": "Links de Compartilhamento e Encaminhamentos",
-      "sharingDesc": "Links protegidos por token permitem que tutores vejam um relatório compartilhado ou que um especialista revise um pacote de encaminhamento, sem necessidade de login."
-    },
-    "ctaTitle": "Pronto para testar com seus próprios estudos?",
-    "ctaDesc": "Crie uma conta gratuita e envie seu primeiro estudo em minutos.",
-    "ctaButton": "Começar",
-    "ctaDocs": "Ler a Documentação"
+    }
   },
   "aiDisclaimer": {
     "short": "Apoio à decisão, não um diagnóstico. Um veterinário qualificado deve revisar e aprovar todos os resultados de IA. A IA pode não detectar achados."

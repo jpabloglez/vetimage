@@ -3,7 +3,6 @@
     "forClinics": "Para clínicas",
     "forOwners": "Para propietarios",
     "platform": "La plataforma",
-    "features": "Funcionalidades",
     "signIn": "Iniciar sesión",
     "bookDemo": "Solicitar demo"
   },
@@ -63,6 +62,7 @@
     "f2Desc": "Las regiones sugeridas se marcan para revisión y siempre las confirma un clínico.",
     "f3Title": "Comparte un resumen que entiendan",
     "f3Desc": "Convierte un estudio complejo en algo que una familia preocupada pueda comprender.",
+    "capabilitiesEyebrow": "Capacidades",
     "mock": {
       "title": "Visor VetImage — Estudio #VI-2291",
       "dicom": "DICOM",
@@ -135,7 +135,6 @@
     "platformClinics": "Para clínicas",
     "platformOwners": "Para propietarios",
     "platformThePlatform": "La plataforma",
-    "platformFeatures": "Funcionalidades",
     "colResources": "Recursos",
     "resourcesModels": "Modelos",
     "resourcesDocs": "Documentación",

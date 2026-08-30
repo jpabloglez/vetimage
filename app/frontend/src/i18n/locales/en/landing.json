@@ -3,7 +3,6 @@
     "forClinics": "For clinics",
     "forOwners": "For owners",
     "platform": "The platform",
-    "features": "Features",
     "signIn": "Sign in",
     "bookDemo": "Book a demo"
   },
@@ -63,6 +62,7 @@
     "f2Desc": "Suggested regions are flagged for review and always confirmed by a clinician.",
     "f3Title": "Share a summary owners get",
     "f3Desc": "Turn a complex study into something a worried family can understand.",
+    "capabilitiesEyebrow": "Capabilities",
     "mock": {
       "title": "VetImage Viewer — Study #VI-2291",
       "dicom": "DICOM",
@@ -135,7 +135,6 @@
     "platformClinics": "For clinics",
     "platformOwners": "For owners",
     "platformThePlatform": "The platform",
-    "platformFeatures": "Features",
     "colResources": "Resources",
     "resourcesModels": "Models",
     "resourcesDocs": "Documentation",

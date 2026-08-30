@@ -20,6 +20,11 @@ import {
   BadgeCheck,
   Image as ImageIcon,
   Star,
+  Brain,
+  Eye,
+  FileText,
+  Activity,
+  Globe,
 } from 'lucide-react';
 
 import { useAuth, useLanguage } from '../contexts';
@@ -130,9 +135,6 @@ const LandingPage: React.FC = () => {
             <a href="#viewer" className="hidden hover:text-brand-text lg:inline">
               {t('header.platform')}
             </a>
-            <Link to="/features" className="hidden hover:text-brand-text lg:inline">
-              {t('header.features')}
-            </Link>
             <LanguageFlags />
             <Link
               to={isAuthenticated ? '/dashboard' : '/auth/login'}
@@ -481,6 +483,36 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Capabilities */}
+        <div className={`${CONTAINER} border-t border-[#16302A] py-[60px]`}>
+          <Eyebrow className="text-brand-bright">{t('viewer.capabilitiesEyebrow')}</Eyebrow>
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { icon: Brain, key: 'analysis' },
+              { icon: Eye, key: 'viewer' },
+              { icon: PawPrint, key: 'patients' },
+              { icon: FileText, key: 'reports' },
+              { icon: Activity, key: 'monitoring' },
+              { icon: Globe, key: 'multiClinic' },
+            ].map(({ icon: Icon, key }) => (
+              <div
+                key={key}
+                className="rounded-2xl border border-[#1E3A33] bg-white/[0.03] p-6 transition-colors hover:border-brand-bright/40"
+              >
+                <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-[11px] bg-brand-bright/[0.12]">
+                  <Icon className="h-5 w-5 text-brand-bright" strokeWidth={2.2} />
+                </span>
+                <h3 className="mb-1.5 text-[16.5px] font-semibold text-white">
+                  {t(`common:features.capabilities.${key}`)}
+                </h3>
+                <p className="text-[14px] leading-[1.55] text-[#9FBBB2]">
+                  {t(`common:features.capabilities.${key}Desc`)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ----------------------------------------------------------------- */}
@@ -678,7 +710,6 @@ const LandingPage: React.FC = () => {
               { label: t('footer.platformClinics'), to: '#care' },
               { label: t('footer.platformOwners'), to: '#owners' },
               { label: t('footer.platformThePlatform'), to: '#viewer' },
-              { label: t('footer.platformFeatures'), to: '/features' },
             ]}
           />
           <FooterColumn

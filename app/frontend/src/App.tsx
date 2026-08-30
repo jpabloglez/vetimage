@@ -32,7 +32,6 @@ const MonitorPage      = lazy(() => import('./pages/MonitorPage'));
 const StatisticsPage   = lazy(() => import('./pages/StatisticsPage'));
 const DocumentationPage = lazy(() => import('./pages/DocumentationPage'));
 const SecurityPage     = lazy(() => import('./pages/SecurityPage'));
-const FeaturesPage     = lazy(() => import('./pages/FeaturesPage'));
 const ProfilePage      = lazy(() =>
   import('./pages/ProfilePage').then((m) => ({ default: m.ProfilePage }))
 );
@@ -161,7 +160,6 @@ function App() {
                 {/* Public Information Pages */}
                 <Route path="/docs" element={<DocumentationPage />} />
                 <Route path="/security" element={<SecurityPage />} />
-                <Route path="/features" element={<FeaturesPage />} />
 
                 {/* Protected Routes */}
                 <Route

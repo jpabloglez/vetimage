@@ -3,7 +3,6 @@
     "forClinics": "Para clínicas",
     "forOwners": "Para tutores",
     "platform": "A plataforma",
-    "features": "Funcionalidades",
     "signIn": "Entrar",
     "bookDemo": "Agendar demo"
   },
@@ -63,6 +62,7 @@
     "f2Desc": "As regiões sugeridas são sinalizadas para revisão e sempre confirmadas por um clínico.",
     "f3Title": "Compartilhe um resumo que eles entendam",
     "f3Desc": "Transforme um estudo complexo em algo que uma família preocupada possa compreender.",
+    "capabilitiesEyebrow": "Capacidades",
     "mock": {
       "title": "Visualizador VetImage — Estudo #VI-2291",
       "dicom": "DICOM",
@@ -135,7 +135,6 @@
     "platformClinics": "Para clínicas",
     "platformOwners": "Para tutores",
     "platformThePlatform": "A plataforma",
-    "platformFeatures": "Funcionalidades",
     "colResources": "Recursos",
     "resourcesModels": "Modelos",
     "resourcesDocs": "Documentação",

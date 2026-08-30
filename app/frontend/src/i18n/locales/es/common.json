@@ -242,9 +242,6 @@
     "notDevice": "No es un dispositivo médico. No está autorizado por la FDA. Solo para apoyo a la decisión veterinaria e investigación."
   },
   "features": {
-    "title": "Todo lo que su clínica necesita, en una sola plataforma",
-    "subtitle": "Desde la subida hasta la lectura asistida por IA y un informe que el propietario pueda entender: VetImage cubre todo el flujo de trabajo de imagen veterinaria.",
-    "capabilitiesTitle": "Capacidades de la plataforma",
     "capabilities": {
       "analysis": "Análisis Asistido por IA",
       "analysisDesc": "Suba un estudio, obtenga una recomendación de modelo y despache el análisis de apoyo a la decisión en pocos clics; cada resultado sigue siendo un borrador para que lo revise un veterinario.",
@@ -258,25 +255,7 @@
       "monitoringDesc": "Una lista de trabajo en vivo y un registro de auditoría hacen seguimiento de cada tarea de análisis y quién la tocó, con actualizaciones por WebSocket en tiempo real.",
       "multiClinic": "Multi-Clínica, Multi-Idioma",
       "multiClinicDesc": "Aislamiento de datos por organización con soporte integrado para inglés, español y portugués."
-    },
-    "toolsTitle": "Herramientas DICOM",
-    "toolsSubtitle": "Utilidades independientes para trabajar con datos DICOM más allá del flujo de análisis.",
-    "tools": {
-      "viewer": "Visor",
-      "viewerDesc": "Explore los estudios subidos y abra el visor de imágenes médicas a pantalla completa.",
-      "anonymizer": "Anonimizador",
-      "anonymizerDesc": "Elimine la información identificativa del propietario y del paciente de los archivos DICOM antes de compartirlos o usarlos en investigación.",
-      "converter": "Convertidor",
-      "converterDesc": "Convierta archivos DICOM a NIfTI, JPEG o PNG para usarlos fuera de la plataforma.",
-      "tagEditor": "Editor de Etiquetas",
-      "tagEditorDesc": "Revise y corrija las etiquetas de metadatos DICOM (nombre del paciente, ID, número de acceso) en un estudio o en una sola instancia.",
-      "sharing": "Enlaces para Compartir y Referencias",
-      "sharingDesc": "Los enlaces protegidos por token permiten a los propietarios ver un informe compartido o a un especialista revisar un paquete de referencia, sin necesidad de iniciar sesión."
-    },
-    "ctaTitle": "¿Listo para probarlo con sus propios estudios?",
-    "ctaDesc": "Cree una cuenta gratuita y suba su primer estudio en minutos.",
-    "ctaButton": "Comenzar",
-    "ctaDocs": "Leer la Documentación"
+    }
   },
   "aiDisclaimer": {
     "short": "Apoyo a la decisión, no un diagnóstico. Un veterinario cualificado debe revisar y aprobar todos los resultados de IA. La IA puede omitir hallazgos."
