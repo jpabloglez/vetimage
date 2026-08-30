@@ -71,6 +71,8 @@ const API_METHODS = [
   'approveReport', 'unapproveReport', 'shareReport', 'unshareReport', 'getSharedReport',
   // Monitoring
   'getMonitorTasks', 'getTaskStats', 'getDicomTransfers', 'getTransferStats',
+  // Notifications
+  'getNotifications', 'markNotificationRead', 'markAllNotificationsRead',
 ];
 
 /**
@@ -109,6 +111,7 @@ export function createApiClientMock(overrides: ApiClientMock = {}): ApiClientMoc
   mock.getAIModels = vi.fn().mockResolvedValue([]);
   mock.getAnalysisTasks = vi.fn().mockResolvedValue([]);
   mock.getReports = vi.fn().mockResolvedValue([]);
+  mock.getNotifications = vi.fn().mockResolvedValue([]);
   mock.getStudies = vi.fn().mockResolvedValue([]);
   mock.getSeries = vi.fn().mockResolvedValue([]);
   mock.getInstances = vi.fn().mockResolvedValue([]);

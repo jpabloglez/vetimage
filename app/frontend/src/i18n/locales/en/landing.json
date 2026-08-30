@@ -124,6 +124,7 @@
     "bookDemo": "Book a clinic demo",
     "talkToTeam": "Talk to our team"
   },
+  "scrollToTop": "Scroll to top",
   "footer": {
     "desc": "Veterinary imaging built on open DICOMweb standards — with a calm, owner-friendly layer of AI assistance.",
     "compliant": "DICOM-compliant",
