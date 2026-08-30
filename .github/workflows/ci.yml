@@ -76,6 +76,44 @@ jobs:
         run: python manage.py makemigrations --check --dry-run
       - run: pytest --tb=short -q
 
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: app/frontend/package-lock.json
+
+      # Fails the build on any known CVE in the pinned Python dependencies.
+      # The tree went ~2 years without an upgrade and accumulated 68 advisories
+      # across 12 packages before this job existed — that must not recur silently.
+      - name: Audit Python dependencies
+        run: |
+          pip install pip-audit==2.9.0
+          for req in setup/requirements.txt \
+                     app/dicom-gateway/requirements.txt \
+                     app/orchestrator/requirements.txt \
+                     app/services/vet-thorax/requirements.txt; do
+            echo "::group::$req"
+            pip-audit --requirement "$req" --progress-spinner off --strict
+            echo "::endgroup::"
+          done
+
+      # The frontend's only known issues are transitive through cornerstone-*
+      # and are moderate, so the gate is set at high: new high/critical findings
+      # break the build, moderate ones are reported without blocking.
+      - name: Audit npm dependencies
+        working-directory: app/frontend
+        run: |
+          npm ci --ignore-scripts
+          npm audit --audit-level=high
+
   frontend-lint:
     name: Frontend Lint
     runs-on: ubuntu-latest
