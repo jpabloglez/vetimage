@@ -241,6 +241,43 @@
     "aiDesc": "VetImage AI is clinical decision support — not a diagnosis. Every AI result is a draft for a qualified veterinarian to review and approve. AI may miss findings; it never replaces professional judgement.",
     "notDevice": "Not a medical device. Not FDA-cleared. For veterinary decision support and research only."
   },
+  "features": {
+    "title": "Everything your clinic needs, in one platform",
+    "subtitle": "From upload to AI-assisted read to a report the owner can understand — VetImage covers the whole veterinary imaging workflow.",
+    "capabilitiesTitle": "Platform capabilities",
+    "capabilities": {
+      "analysis": "AI-Assisted Analysis",
+      "analysisDesc": "Upload a study, get a model recommendation, and dispatch decision-support analysis in a few clicks — every result stays a draft for a vet to review.",
+      "viewer": "DICOMweb Viewer",
+      "viewerDesc": "Browse studies and open a full Cornerstone/OHIF-based viewer with AI findings overlaid directly on the image.",
+      "patients": "Patient Registry",
+      "patientsDesc": "Owners, animals, visits, vaccinations, weight trends, appointments, prescriptions, allergies, and lab results in one record.",
+      "reports": "Structured Reports & Sharing",
+      "reportsDesc": "Vet-approved reports export to PDF, share with owners via a plain-language portal, or hand off to a referral specialist.",
+      "monitoring": "Real-Time Monitoring",
+      "monitoringDesc": "A live worklist and audit log keep track of every analysis task and who touched what, with WebSocket updates as things happen.",
+      "multiClinic": "Multi-Clinic, Multi-Language",
+      "multiClinicDesc": "Organization-scoped data isolation with English, Spanish, and Portuguese support built in."
+    },
+    "toolsTitle": "DICOM tools",
+    "toolsSubtitle": "Standalone utilities for working with DICOM data beyond the analysis workflow.",
+    "tools": {
+      "viewer": "Viewer",
+      "viewerDesc": "Browse uploaded studies and open the full-screen medical image viewer.",
+      "anonymizer": "Anonymizer",
+      "anonymizerDesc": "Remove owner and patient identifying information from DICOM files before sharing or research use.",
+      "converter": "Converter",
+      "converterDesc": "Convert DICOM files to NIfTI, JPEG, or PNG for use outside the platform.",
+      "tagEditor": "Tag Editor",
+      "tagEditorDesc": "Review and correct DICOM metadata tags — patient name, ID, accession number — on a study or a single instance.",
+      "sharing": "Share Links & Referrals",
+      "sharingDesc": "Token-gated links let owners view a shared report or a specialist review a referral package, no login required."
+    },
+    "ctaTitle": "Ready to see it on your own studies?",
+    "ctaDesc": "Create a free account and upload your first study in minutes.",
+    "ctaButton": "Get Started",
+    "ctaDocs": "Read the Docs"
+  },
   "aiDisclaimer": {
     "short": "Decision support — not a diagnosis. A qualified veterinarian must review and approve all AI results. AI may miss findings."
   }

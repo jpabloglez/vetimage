@@ -10,6 +10,7 @@ import { ThemeProvider, AuthProvider, LanguageProvider } from './contexts';
 import Navbar from './components/navbars/Navbar';
 import Footer from './components/footers/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
 import { KeyboardShortcutsHelp } from './components/ui/KeyboardShortcutsHelp';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
@@ -31,6 +32,7 @@ const MonitorPage      = lazy(() => import('./pages/MonitorPage'));
 const StatisticsPage   = lazy(() => import('./pages/StatisticsPage'));
 const DocumentationPage = lazy(() => import('./pages/DocumentationPage'));
 const SecurityPage     = lazy(() => import('./pages/SecurityPage'));
+const FeaturesPage     = lazy(() => import('./pages/FeaturesPage'));
 const ProfilePage      = lazy(() =>
   import('./pages/ProfilePage').then((m) => ({ default: m.ProfilePage }))
 );
@@ -103,6 +105,7 @@ function App() {
       <AuthProvider>
         <LanguageProvider>
         <Router>
+          <ScrollToTop />
           <AppShell>
           <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
             <Navbar />
@@ -158,6 +161,7 @@ function App() {
                 {/* Public Information Pages */}
                 <Route path="/docs" element={<DocumentationPage />} />
                 <Route path="/security" element={<SecurityPage />} />
+                <Route path="/features" element={<FeaturesPage />} />
 
                 {/* Protected Routes */}
                 <Route

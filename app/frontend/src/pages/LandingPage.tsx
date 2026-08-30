@@ -130,6 +130,9 @@ const LandingPage: React.FC = () => {
             <a href="#viewer" className="hidden hover:text-brand-text lg:inline">
               {t('header.platform')}
             </a>
+            <Link to="/features" className="hidden hover:text-brand-text lg:inline">
+              {t('header.features')}
+            </Link>
             <LanguageFlags />
             <Link
               to={isAuthenticated ? '/dashboard' : '/auth/login'}
@@ -650,7 +653,7 @@ const LandingPage: React.FC = () => {
       {/* ----------------------------------------------------------------- */}
       <footer className="bg-forest-footer text-[#9FBBB2]">
         <div
-          className={`${CONTAINER} grid grid-cols-2 gap-8 pb-7 pt-14 md:grid-cols-[1.6fr_1fr_1fr_1fr]`}
+          className={`${CONTAINER} grid grid-cols-2 gap-8 pb-7 pt-14 md:grid-cols-[1.6fr_1fr_1fr]`}
         >
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="mb-4 flex items-center gap-[11px]">
@@ -672,28 +675,18 @@ const LandingPage: React.FC = () => {
           <FooterColumn
             heading={t('footer.colPlatform')}
             links={[
-              { label: t('footer.platformAbout'), to: '/docs' },
-              { label: t('footer.platformFeatures'), to: '/models' },
               { label: t('footer.platformClinics'), to: '#care' },
               { label: t('footer.platformOwners'), to: '#owners' },
-            ]}
-          />
-          <FooterColumn
-            heading={t('footer.colTools')}
-            links={[
-              { label: t('footer.toolsViewer'), to: '/analyze' },
-              { label: t('footer.toolsUpload'), to: '/analyze' },
-              { label: t('footer.toolsAnalysis'), to: '/analyze' },
-              { label: t('footer.toolsModels'), to: '/models' },
+              { label: t('footer.platformThePlatform'), to: '#viewer' },
+              { label: t('footer.platformFeatures'), to: '/features' },
             ]}
           />
           <FooterColumn
             heading={t('footer.colResources')}
             links={[
+              { label: t('footer.resourcesModels'), to: '/models' },
               { label: t('footer.resourcesDocs'), to: '/docs' },
-              { label: t('footer.resourcesDicomweb'), to: '/docs' },
               { label: t('footer.resourcesSecurity'), to: '/security' },
-              { label: t('footer.resourcesSupport'), to: '/docs' },
             ]}
           />
         </div>
