@@ -45,6 +45,7 @@ from .utils import (
 from django.http import HttpResponse, FileResponse
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from drf_spectacular.types import OpenApiTypes
+from core.query_params import bounded_int, MAX_PAGE_SIZE, MAX_OFFSET
 
 logger = logging.getLogger(__name__)
 
@@ -411,8 +412,18 @@ class StudyListView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        # Get user's studies (user-scoped access)
-        studies = MedicalStudy.objects.filter(uploaded_by=user).select_related('animal_patient')
+        # Get user's studies (user-scoped access).
+        # The counts are annotated rather than left to the model properties:
+        # each property runs its own COUNT, so a page of 100 studies cost ~201
+        # queries. Annotating serves the same data in one.
+        studies = (
+            MedicalStudy.objects.filter(uploaded_by=user)
+            .select_related('animal_patient')
+            .annotate(
+                _series_count=django_models.Count('series', distinct=True),
+                _instance_count=django_models.Count('series__images', distinct=True),
+            )
+        )
 
         # Apply filters from query parameters
         patient_id = request.query_params.get('PatientID')
@@ -435,8 +446,10 @@ class StudyListView(APIView):
             studies = studies.filter(series__modality=modality).distinct()
 
         # Pagination
-        limit = int(request.query_params.get('limit', 100))
-        offset = int(request.query_params.get('offset', 0))
+        limit = bounded_int(
+            request.query_params.get('limit'), default=100, minimum=1, maximum=MAX_PAGE_SIZE)
+        offset = bounded_int(
+            request.query_params.get('offset'), default=0, minimum=0, maximum=MAX_OFFSET)
         studies = studies[offset:offset + limit]
 
         # Serialize using DICOMweb format
@@ -481,8 +494,10 @@ class SeriesListView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-        # Get series for this study
-        series = MedicalSeries.objects.filter(study=study)
+        # Get series for this study (count annotated — see StudyListView)
+        series = MedicalSeries.objects.filter(study=study).annotate(
+            _instance_count=django_models.Count('images', distinct=True),
+        )
 
         # Serialize using DICOMweb format
         serializer = DICOMwebSeriesSerializer(series, many=True)
@@ -1387,8 +1402,10 @@ class AdvancedSearchView(APIView):
         date_from = request.data.get('date_from')
         date_to = request.data.get('date_to')
         body_part = request.data.get('body_part', '')
-        limit = int(request.data.get('limit', 50))
-        offset = int(request.data.get('offset', 0))
+        limit = bounded_int(
+            request.data.get('limit'), default=50, minimum=1, maximum=MAX_PAGE_SIZE)
+        offset = bounded_int(
+            request.data.get('offset'), default=0, minimum=0, maximum=MAX_OFFSET)
 
         # Build query
         from .utils import normalize_text_for_search

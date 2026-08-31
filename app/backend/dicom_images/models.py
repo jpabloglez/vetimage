@@ -96,12 +96,22 @@ class MedicalStudy(models.Model):
 
     @property
     def number_of_series(self):
-        """Count of series in this study"""
-        return self.series.count()
+        """
+        Count of series in this study.
+
+        Prefers a `_series_count` annotation when the queryset supplied one.
+        Without it, serializing a page of N studies issued 2N extra COUNT
+        queries (~201 for the default limit=100) — see StudyListView.
+        """
+        annotated = getattr(self, '_series_count', None)
+        return annotated if annotated is not None else self.series.count()
 
     @property
     def number_of_instances(self):
-        """Total count of images across all series"""
+        """Total count of images across all series (see number_of_series)."""
+        annotated = getattr(self, '_instance_count', None)
+        if annotated is not None:
+            return annotated
         return MedicalImage.objects.filter(series__study=self).count()
 
 
@@ -209,8 +219,9 @@ class MedicalSeries(models.Model):
 
     @property
     def number_of_instances(self):
-        """Count of images in this series"""
-        return self.images.count()
+        """Count of images in this series (prefers a `_instance_count` annotation)."""
+        annotated = getattr(self, '_instance_count', None)
+        return annotated if annotated is not None else self.images.count()
 
 
 class MedicalImage(models.Model):
