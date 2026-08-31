@@ -272,6 +272,10 @@ Other:
 - **Public token-gated endpoints** increment their access counter with a *conditional* `UPDATE` (limit + expiry in the `WHERE` clause), so the cap holds under concurrency. Never read-modify-write these counters.
 - CI's **Dependency Audit** job runs `pip-audit --strict` over all four Python manifests + `npm audit`. When it goes red, upgrade — don't suppress.
 
+### Query performance
+- `MedicalStudy.number_of_series` / `number_of_instances` and `MedicalSeries.number_of_instances` each run their own `COUNT`. List views **must** annotate `_series_count` / `_instance_count` (the properties prefer the annotation when present) — without it, a page of N rows costs 2N extra queries. `dicom_images/tests/test_query_performance.py` fails if the annotation is dropped. Use `distinct=True` on both counts: two aggregates over the same multi-valued join multiply each other otherwise.
+- Never call `int()` directly on request parameters. Use `core.query_params.bounded_int(raw, default=..., minimum=..., maximum=...)`, which coerces, clamps, and falls back instead of raising — a bare `int()` returns 500 on junk input and accepts `?limit=99999999`.
+
 ### Deployment & Observability
 - Prod: `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build`; see `docs/DEPLOYMENT.md`. Settings refuse to boot when `DJANGO_ENVIRONMENT=production` with the insecure fallback `SECRET_KEY`. Security hardening (HSTS, secure cookies, SSL redirect) auto-enables under `not DEBUG`. WhiteNoise serves collected static (conditional on the package being installed).
 - Observability (`core/observability.py` + `core/middleware.py`): every request gets an `X-Request-ID` (honours inbound header, echoed on response); structured JSON logs when `DJANGO_ENVIRONMENT=production` (`LOG_FORMAT=json`), else console; `LOG_LEVEL` env. Sentry is env-gated on `SENTRY_DSN` (inert otherwise; `sentry-sdk` optional).
