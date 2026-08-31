@@ -24,6 +24,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { apiClient } from '../utils/api';
 
 // WebSocket base URL from environment
 const WS_BASE_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3081';
@@ -133,8 +134,10 @@ export const useWebSocket = (
       return;
     }
 
-    // Get JWT access token from global (set by AuthContext)
-    const token = (window as any).__auth_token__;
+    // Read the access token from the apiClient singleton, where it lives in a
+    // private field. It used to be mirrored onto window.__auth_token__, which
+    // made it readable by any injected script — see the Phase 2 security work.
+    const token = apiClient.getAccessToken();
 
     // Construct full WebSocket URL with token query parameter
     const url = token
@@ -248,7 +251,7 @@ export const useWebSocket = (
 
     // Wait for token to be available before connecting
     const checkTokenAndConnect = () => {
-      const token = (window as any).__auth_token__;
+      const token = apiClient.getAccessToken();
       if (token) {
         console.log('[WebSocket] Token available, connecting...');
         connect();
