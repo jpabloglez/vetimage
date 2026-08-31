@@ -5,9 +5,11 @@ This module processes webhook callbacks from AI services.
 It validates webhooks, enforces status transitions, and updates task records.
 """
 
+import hmac
+import logging
+
 from django.utils import timezone
 from ..models import AnalysisTask
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -64,8 +66,10 @@ class WebhookHandler:
             logger.error(f"Webhook error: {error_msg}")
             raise ValueError(error_msg)
 
-        # Validate webhook secret
-        if task.webhook_secret != secret:
+        # Validate webhook secret. This is the only unauthenticated write path
+        # in the system, so compare in constant time — a plain `!=` short-circuits
+        # on the first differing byte and leaks the match length via timing.
+        if not hmac.compare_digest(str(task.webhook_secret), str(secret or '')):
             logger.warning(
                 f"Invalid webhook secret for task {task_id}. "
                 f"Possible security breach or misconfiguration."

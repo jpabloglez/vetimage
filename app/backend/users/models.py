@@ -1,5 +1,6 @@
-import secrets
 import hashlib
+import hmac
+import secrets
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import (
@@ -290,8 +291,8 @@ class UserAPIKey(models.Model):
         return api_key, plaintext_key
 
     def verify_key(self, plaintext_key: str) -> bool:
-        """Verify a plaintext key against this instance's hash."""
-        return self.hash_key(plaintext_key) == self.key_hash
+        """Verify a plaintext key against this instance's hash (constant time)."""
+        return hmac.compare_digest(self.hash_key(plaintext_key), self.key_hash)
 
     def is_valid(self) -> bool:
         """Check if key is active and not expired."""
