@@ -226,6 +226,7 @@ class PublicSharedReportView(APIView):
     payload only — never internal IDs, model internals, or unapproved drafts.
     """
     permission_classes = [AllowAny]
+    throttle_scope = 'public_share'
     authentication_classes = []
 
     def get(self, request, token):

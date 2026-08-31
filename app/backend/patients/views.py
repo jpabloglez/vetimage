@@ -650,6 +650,7 @@ class ReferralPackageViewSet(viewsets.ModelViewSet):
 class PublicReferralPackageView(APIView):
     """Unauthenticated, token-gated referral landing page for the receiving vet."""
     permission_classes = [permissions.AllowAny]
+    throttle_scope = 'public_share'
     authentication_classes = []
 
     def get(self, request, token):

@@ -78,6 +78,11 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'core.middleware.RequestIDMiddleware',  # assign/propagate X-Request-ID for log correlation
+    'core.middleware.SecurityHeadersMiddleware',  # CSP / Referrer-Policy / Permissions-Policy
+    # CorsMiddleware must run before CommonMiddleware (and anything else that
+    # can return a response early), or redirects and CSRF rejections go out
+    # without CORS headers and surface in the browser as opaque failures.
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -85,7 +90,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'credentials.middleware.RequestContextMiddleware',  # Store request context for signal handlers
     'credentials.middleware.AuditLoggingMiddleware',  # Audit logging and brute force protection
 ]
@@ -244,16 +248,49 @@ REST_FRAMEWORK = {
     # API Schema generation
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
-    # Rate limiting — protects unauthenticated auth endpoints (brute force /
-    # credential stuffing) and provides a default ceiling for the rest.
+    # Rate limiting. ScopedRateThrottle alone is inert on any view that doesn't
+    # declare a throttle_scope, which previously left everything except the five
+    # auth endpoints completely unlimited. Anon/User throttles supply a baseline
+    # ceiling for the whole API; the scoped rates below tighten specific views.
     'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
         'rest_framework.throttling.ScopedRateThrottle',
     ],
+    # How many trusted reverse proxies sit in front of the app. This decides
+    # which address the throttles count against, so it is a security setting,
+    # not a tuning knob:
+    #   None  - DRF keys on the raw, client-supplied X-Forwarded-For header.
+    #           Any client can send a fake value and get a fresh bucket, which
+    #           makes every throttle below bypassable. Never use this.
+    #   0     - key on REMOTE_ADDR (default here). Unspoofable, and correct
+    #           when nothing proxies the app.
+    #   N     - key on the Nth-from-last X-Forwarded-For entry, i.e. the address
+    #           your own proxy appended. Set this to your proxy count in any
+    #           deployment behind nginx/Traefik/a cloud LB — otherwise every
+    #           client shares the proxy's address and one busy site throttles
+    #           everyone. See docs/DEPLOYMENT.md.
+    'NUM_PROXIES': int(os.getenv('NUM_PROXIES', 0)),
+
     'DEFAULT_THROTTLE_RATES': {
+        # Baseline ceilings. Generous enough not to interfere with the viewer,
+        # which fans out many WADO-RS frame requests per study.
+        'anon': os.getenv('THROTTLE_ANON', '60/min'),
+        'user': os.getenv('THROTTLE_USER', '1000/min'),
+
+        # Unauthenticated auth endpoints — brute force / credential stuffing.
         'login': os.getenv('THROTTLE_LOGIN', '10/min'),
         'register': os.getenv('THROTTLE_REGISTER', '5/min'),
         'password_reset': os.getenv('THROTTLE_PASSWORD_RESET', '5/min'),
         'token_refresh': os.getenv('THROTTLE_TOKEN_REFRESH', '30/min'),
+
+        # Token-gated public links. Unguessable UUID4 tokens make brute force
+        # impractical, so these cap scraping of a leaked link rather than guessing.
+        'public_share': os.getenv('THROTTLE_PUBLIC_SHARE', '30/min'),
+        # AI result webhook — one task should post a handful of updates, not a flood.
+        'webhook': os.getenv('THROTTLE_WEBHOOK', '120/min'),
+        # Uploads are the most resource-intensive authenticated operation.
+        'upload': os.getenv('THROTTLE_UPLOAD', '60/min'),
     },
 }
 
@@ -389,6 +426,34 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SESSION_COOKIE_HTTPONLY = True
+
+# ---------------------------------------------------------------------------
+# Content Security Policy (applied by core.middleware.SecurityHeadersMiddleware)
+# ---------------------------------------------------------------------------
+# Covers Django-rendered pages only — the admin, Swagger UI, ReDoc, and the DRF
+# browsable API. The React SPA is served by a separate container and sets its
+# own policy (app/frontend/vite.config.ts).
+#
+# 'unsafe-inline' on script/style is required by Swagger UI and ReDoc, which
+# both inject inline bootstrap code. That is why this policy is scoped to
+# Django's own pages rather than being reused for the SPA, whose policy is
+# stricter.
+#
+# Ships REPORT-ONLY by default: violations are reported to the browser console
+# without blocking. Flip CSP_ENFORCE=True once a report-only run is clean.
+CSP_ENFORCE = os.getenv('CSP_ENFORCE', 'False') == 'True'
+CONTENT_SECURITY_POLICY = os.getenv('CONTENT_SECURITY_POLICY', '; '.join([
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net",
+    "style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net",
+    "font-src 'self' fonts.gstatic.com data:",
+    "img-src 'self' data: blob:",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "object-src 'none'",
+]))
 
 # GDPR owner-PII retention window (days). 0 = disabled. The purge_expired_pii
 # management command anonymizes owners not updated within this window.

@@ -644,6 +644,7 @@ class WebhookReceiverView(APIView):
     """
 
     permission_classes = [AllowAny]  # Security via webhook_secret
+    throttle_scope = 'webhook'
 
     def post(self, request, task_id):
         """
