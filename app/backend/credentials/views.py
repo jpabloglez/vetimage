@@ -42,6 +42,7 @@ from .services import (
     terminate_session_by_id
 )
 from .permissions import IsAdminOrManager
+from core.query_params import bounded_int, MAX_STATS_DAYS
 
 logger = logging.getLogger(__name__)
 
@@ -305,7 +306,8 @@ class EnhancedAPIKeyViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         # Get time range from query params (default: last 30 days)
-        days = int(request.query_params.get('days', 30))
+        days = bounded_int(
+            request.query_params.get('days'), default=30, minimum=1, maximum=MAX_STATS_DAYS)
         start_date = timezone.now() - timedelta(days=days)
 
         # Get usage logs for this API key

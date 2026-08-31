@@ -43,6 +43,7 @@ from .services.webhook_handler import WebhookHandler
 from .services.model_recommender import ModelRecommender
 from dicom_images.models import MedicalImage
 import logging
+from core.query_params import bounded_int
 
 logger = logging.getLogger(__name__)
 
@@ -470,10 +471,8 @@ class AnalysisTaskViewSet(viewsets.ModelViewSet):
 
         # Paginate
         paginator = PageNumberPagination()
-        paginator.page_size = min(
-            int(request.query_params.get('page_size', 50)),
-            200  # Max 200 items per page
-        )
+        paginator.page_size = bounded_int(
+            request.query_params.get('page_size'), default=50, minimum=1, maximum=200)
 
         paginated_tasks = paginator.paginate_queryset(queryset, request)
         serializer = AnalysisTaskMonitorSerializer(
