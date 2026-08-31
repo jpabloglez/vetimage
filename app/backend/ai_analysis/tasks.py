@@ -85,14 +85,23 @@ def dispatch_ai_job(self, task_id):
             f"at {task.model.endpoint_url}"
         )
 
+        # Mark DISPATCHED *before* the outbound call. A fast AI service can
+        # deliver its PROCESSING webhook while dispatch_job() is still
+        # returning; if the task were still QUEUED at that moment the webhook
+        # handler would reject the transition, and the later COMPLETED webhook
+        # would then have no valid DISPATCHED->COMPLETED path — stranding the
+        # task until the timeout sweeper kills it, losing a real AI result.
+        # Both failure branches below reset the status, so claiming it early is
+        # safe.
+        task.status = 'DISPATCHED'
+        task.dispatched_at = timezone.now()
+        task.save(update_fields=['status', 'dispatched_at'])
+
         # Dispatch job to AI service
         result = connector.dispatch_job(task)
 
-        # Update task with service job ID and status
-        task.status = 'DISPATCHED'
         task.service_job_id = result.get('service_job_id')
-        task.dispatched_at = timezone.now()
-        task.save(update_fields=['status', 'service_job_id', 'dispatched_at'])
+        task.save(update_fields=['service_job_id'])
 
         logger.info(
             f"Task {task_id} dispatched successfully. "
