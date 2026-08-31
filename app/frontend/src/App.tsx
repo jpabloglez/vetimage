@@ -10,6 +10,7 @@ import { ThemeProvider, AuthProvider, LanguageProvider } from './contexts';
 import Navbar from './components/navbars/Navbar';
 import Footer from './components/footers/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
 import { KeyboardShortcutsHelp } from './components/ui/KeyboardShortcutsHelp';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
@@ -103,6 +104,7 @@ function App() {
       <AuthProvider>
         <LanguageProvider>
         <Router>
+          <ScrollToTop />
           <AppShell>
           <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
             <Navbar />

@@ -241,6 +241,22 @@
     "aiDesc": "A IA do VetImage é apoio à decisão clínica, não um diagnóstico. Cada resultado de IA é um rascunho para um veterinário qualificado revisar e aprovar. A IA pode não detectar achados; nunca substitui o julgamento profissional.",
     "notDevice": "Não é um dispositivo médico. Não tem autorização da FDA. Apenas para apoio à decisão veterinária e pesquisa."
   },
+  "features": {
+    "capabilities": {
+      "analysis": "Análise Assistida por IA",
+      "analysisDesc": "Envie um estudo, obtenha uma recomendação de modelo e despache a análise de apoio à decisão em poucos cliques — cada resultado permanece um rascunho para revisão de um veterinário.",
+      "viewer": "Visualizador DICOMweb",
+      "viewerDesc": "Navegue pelos estudos e abra um visualizador completo baseado em Cornerstone/OHIF com os achados de IA sobrepostos diretamente na imagem.",
+      "patients": "Cadastro de Pacientes",
+      "patientsDesc": "Tutores, animais, visitas, vacinações, tendências de peso, agendamentos, prescrições, alergias e resultados de exames em um único registro.",
+      "reports": "Relatórios Estruturados e Compartilhamento",
+      "reportsDesc": "Relatórios aprovados pelo veterinário são exportados em PDF, compartilhados com os tutores por um portal em linguagem simples, ou encaminhados a um especialista.",
+      "monitoring": "Monitoramento em Tempo Real",
+      "monitoringDesc": "Uma lista de trabalho ao vivo e um registro de auditoria acompanham cada tarefa de análise e quem a executou, com atualizações via WebSocket em tempo real.",
+      "multiClinic": "Multi-Clínica, Multi-Idioma",
+      "multiClinicDesc": "Isolamento de dados por organização com suporte integrado para inglês, espanhol e português."
+    }
+  },
   "aiDisclaimer": {
     "short": "Apoio à decisão, não um diagnóstico. Um veterinário qualificado deve revisar e aprovar todos os resultados de IA. A IA pode não detectar achados."
   }

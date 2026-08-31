@@ -241,6 +241,22 @@
     "aiDesc": "VetImage AI is clinical decision support — not a diagnosis. Every AI result is a draft for a qualified veterinarian to review and approve. AI may miss findings; it never replaces professional judgement.",
     "notDevice": "Not a medical device. Not FDA-cleared. For veterinary decision support and research only."
   },
+  "features": {
+    "capabilities": {
+      "analysis": "AI-Assisted Analysis",
+      "analysisDesc": "Upload a study, get a model recommendation, and dispatch decision-support analysis in a few clicks — every result stays a draft for a vet to review.",
+      "viewer": "DICOMweb Viewer",
+      "viewerDesc": "Browse studies and open a full Cornerstone/OHIF-based viewer with AI findings overlaid directly on the image.",
+      "patients": "Patient Registry",
+      "patientsDesc": "Owners, animals, visits, vaccinations, weight trends, appointments, prescriptions, allergies, and lab results in one record.",
+      "reports": "Structured Reports & Sharing",
+      "reportsDesc": "Vet-approved reports export to PDF, share with owners via a plain-language portal, or hand off to a referral specialist.",
+      "monitoring": "Real-Time Monitoring",
+      "monitoringDesc": "A live worklist and audit log keep track of every analysis task and who touched what, with WebSocket updates as things happen.",
+      "multiClinic": "Multi-Clinic, Multi-Language",
+      "multiClinicDesc": "Organization-scoped data isolation with English, Spanish, and Portuguese support built in."
+    }
+  },
   "aiDisclaimer": {
     "short": "Decision support — not a diagnosis. A qualified veterinarian must review and approve all AI results. AI may miss findings."
   }
