@@ -27,6 +27,14 @@ is Django + DRF + Channels (ASGI/Daphne) · PostgreSQL · Redis · Celery
 - [ ] **TLS terminated** at a reverse proxy (nginx/Traefik/cloud LB). The app
       sets `SECURE_PROXY_SSL_HEADER = (HTTP_X_FORWARDED_PROTO, https)`, so the
       proxy must send `X-Forwarded-Proto: https`.
+- [ ] **`NUM_PROXIES`** — set to the number of reverse proxies in front of the
+      app (usually `1`). This decides which address API rate limits count
+      against. Left at the default `0`, every client behind the proxy shares a
+      single bucket and one busy site can throttle everyone. Your proxy must
+      also append the real client IP to `X-Forwarded-For` (nginx:
+      `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;`).
+      Do **not** set this to an empty value — DRF then trusts the raw
+      client-supplied header and every throttle becomes bypassable.
 - [ ] **Database** — managed Postgres or a backed-up volume; rotate the default
       `postgres/postgres` credentials.
 - [ ] **Secrets** delivered via environment / secret manager, not committed.
