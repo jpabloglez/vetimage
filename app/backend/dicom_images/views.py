@@ -12,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.db import transaction
 from django.db import models as django_models
+from django.utils import timezone
 import pydicom
 from datetime import datetime, date
 import os
@@ -109,6 +110,7 @@ class DicomUploadView(APIView):
     POST /api/dicom/upload/
     """
     parser_classes = [MultiPartParser, FormParser]
+    throttle_scope = 'upload'
 
     def post(self, request):
         """
@@ -1841,6 +1843,7 @@ class MedicalImageUploadView(APIView):
     Returns extracted metadata for model recommendation.
     """
     permission_classes = [IsAuthenticated]
+    throttle_scope = 'upload'
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
@@ -2120,6 +2123,7 @@ class PublicStudyWADOView(APIView):
     No authentication required — access is controlled solely by the unguessable token.
     """
     permission_classes = [AllowAny]
+    throttle_scope = 'public_share'
 
     def get(self, request, token):
         try:
@@ -2127,11 +2131,27 @@ class PublicStudyWADOView(APIView):
         except StudyShareLink.DoesNotExist:
             return Response({'error': 'Invalid or expired share link.'}, status=status.HTTP_404_NOT_FOUND)
 
-        if not link.is_valid():
-            return Response({'error': 'This share link has expired or reached its access limit.'}, status=status.HTTP_403_FORBIDDEN)
+        # Atomically claim one access. Checking is_valid() and then saving an
+        # incremented counter is a read-modify-write: concurrent requests can
+        # both pass the check and overshoot max_accesses. Putting the limit and
+        # expiry into the UPDATE's WHERE clause makes the database enforce them,
+        # so exactly max_accesses requests can ever succeed. A 0-row result means
+        # the link was already exhausted or expired.
+        now = timezone.now()
+        claimed = StudyShareLink.objects.filter(pk=link.pk).filter(
+            django_models.Q(max_accesses__isnull=True)
+            | django_models.Q(access_count__lt=django_models.F('max_accesses'))
+        ).filter(
+            django_models.Q(expires_at__isnull=True)
+            | django_models.Q(expires_at__gte=now)
+        ).update(access_count=django_models.F('access_count') + 1)
 
-        link.access_count += 1
-        link.save(update_fields=['access_count'])
+        if not claimed:
+            return Response(
+                {'error': 'This share link has expired or reached its access limit.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        link.refresh_from_db(fields=['access_count'])
 
         study = link.study
         return Response({
@@ -2139,7 +2159,14 @@ class PublicStudyWADOView(APIView):
             'study_description': study.study_description,
             'study_date': study.study_date,
             'patient_id': study.patient_id,
-            'modality': study.modality,
+            # Modality is a property of each series, not of the study — this
+            # previously read study.modality, which does not exist, so every
+            # successful share-link access raised AttributeError (HTTP 500).
+            # Report the distinct set, as DICOMweb's ModalitiesInStudy does.
+            'modalities': sorted(
+                study.series.exclude(modality='')
+                .values_list('modality', flat=True).distinct()
+            ),
             'expires_at': link.expires_at,
             'accesses_remaining': (link.max_accesses - link.access_count) if link.max_accesses else None,
         })
