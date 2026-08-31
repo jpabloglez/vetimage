@@ -1,11 +1,14 @@
 # Core Django Framework
-Django==5.1.4
-djangorestframework==3.15.2
-django-cors-headers==4.6.0
+# Django is pinned to the 5.2 LTS line. 5.1.4 accumulated 24 published
+# security advisories before this upgrade — keep this current, and let the
+# pip-audit CI job (.github/workflows/ci.yml) fail the build if it drifts.
+Django==5.2.17
+djangorestframework==3.18.0
+django-cors-headers==4.9.0
 
 # Image Processing
-Pillow==11.0.0
-pydicom==3.0.1
+Pillow==12.3.0
+pydicom==3.0.2
 numpy==2.1.3
 nibabel==5.3.2
 
@@ -16,17 +19,17 @@ imagecodecs==2024.6.1
 
 # Utilities
 python-dateutil==2.9.0.post0
-python-dotenv==1.0.1
+python-dotenv==1.2.2
 
 # Django Extensions
-django-filter==24.3
-djangorestframework-simplejwt==5.3.1
-drf-spectacular==0.28.0
+django-filter==26.1
+djangorestframework-simplejwt==5.5.1
+drf-spectacular==0.30.0
 
 # Development & Testing
 rich==13.9.4
 faker==33.1.0
-pytest==8.3.4
+pytest==9.0.3
 pytest-django==4.9.0
 pytest-cov==6.0.0
 
@@ -36,12 +39,12 @@ psycopg2-binary==2.9.10
 # Celery & Redis (for AI Analysis Orchestrator)
 celery==5.4.0
 redis==5.2.1
-requests==2.32.3
+requests==2.33.0
 
 # WebSocket Support (for real-time Monitor page updates)
-channels==4.0.0
-channels-redis==4.2.0
-daphne==4.1.0
+channels==4.3.2
+channels-redis==4.3.0
+daphne==4.2.3
 
 # Static file serving in production (collected admin/DRF/Swagger assets)
 whitenoise==6.8.2
@@ -53,5 +56,16 @@ sentry-sdk==2.20.0
 reportlab==4.1.0
 
 # gRPC for Orchestrator Communication
-grpcio==1.60.0
-grpcio-tools==1.60.0
+grpcio==1.83.1
+grpcio-tools==1.83.1
+
+# Transitive pins held above their resolved floor for security fixes only.
+# Each is pulled in by a package above; without these pins pip resolves to a
+# version with a published advisory.
+cryptography==50.0.0   # via daphne/channels TLS stack
+sqlparse==0.6.0        # via Django
+# protobuf is not pinned: grpcio-tools 1.83.1 already resolves it well past
+# the advisory fix (PYSEC-2026-1805), and pinning it here conflicts.
+
+# Security auditing (used by the pip-audit CI job)
+pip-audit==2.9.0

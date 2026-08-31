@@ -260,7 +260,11 @@ class TestTokenRefreshView:
 
         assert response.status_code == status.HTTP_200_OK
         token = AccessToken(response.data['access'])
-        assert token['user_id'] == test_user.pk
+        # simplejwt >= 5.5 serialises user_id as a string (JWT claims are
+        # StringOrURI per RFC 7519), where older versions emitted an int.
+        # Every consumer feeds this straight to the ORM, which coerces it, so
+        # compare on value rather than type.
+        assert str(token['user_id']) == str(test_user.pk)
 
     def test_refresh_cookie_has_httponly(self, api_client, test_user):
         """Refresh cookie must have httponly flag."""

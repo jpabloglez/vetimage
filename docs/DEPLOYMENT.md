@@ -31,6 +31,11 @@ is Django + DRF + Channels (ASGI/Daphne) · PostgreSQL · Redis · Celery
       `postgres/postgres` credentials.
 - [ ] **Secrets** delivered via environment / secret manager, not committed.
       `.env*` is git-ignored.
+- [ ] **Dependencies audited** — CI runs `pip-audit --strict` over all four
+      Python manifests and `npm audit --audit-level=high` on every PR
+      (the `Dependency Audit` job). A green build means no known CVEs in the
+      pinned Python tree. Re-run locally before a release:
+      `docker compose exec backend-vetimage pip-audit`.
 
 When `DEBUG=False`, settings automatically enable: `SECURE_SSL_REDIRECT`,
 HSTS (1 year, subdomains, preload), `SESSION_COOKIE_SECURE`,
@@ -102,6 +107,12 @@ to anonymize owner PII past the retention window.
 - **AI model services** — see [AI-WORKFLOW.md](AI-WORKFLOW.md). The vet-thorax
   reference service is a CPU fixture (no ML); replace with real model services
   for clinical use. GPU model services need the NVIDIA container runtime.
+- **Dependency upgrades** — Django is held on the **5.2 LTS** line. Treat the
+  `Dependency Audit` CI job as the tripwire: when it goes red, upgrade rather
+  than suppress. Four manifests are audited and must be upgraded together —
+  `setup/requirements.txt` (backend, Celery), `app/dicom-gateway/`,
+  `app/orchestrator/`, and `app/services/vet-thorax/`. Rebuild the affected
+  images afterwards; the workers share the backend image.
 
 ---
 
