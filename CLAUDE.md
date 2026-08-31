@@ -38,7 +38,9 @@ docker compose exec backend-vetimage pytest users/tests/test_views.py::TestLogin
 docker compose exec backend-vetimage pytest --cov=. --cov-report=term-missing
 ```
 
-Config in `app/backend/pytest.ini`: uses `--no-migrations`, `--reuse-db`. Shared fixtures in `app/backend/conftest.py` (`user`, `auth_client`, `organization`, `owner`, `animal_patient`, `study`, `series`, `image`, `ai_model`, `analysis_task`, `completed_task`, `report`). When a model field changes, re-run with `--create-db` to rebuild the cached test schema.
+Config in `app/backend/pytest.ini`: uses `--no-migrations`, `--reuse-db`. Note the
+explicit `testpaths` — a new test directory is **not** collected until it is added
+there (this silently hid `tests/` for a while). Shared fixtures in `app/backend/conftest.py` (`user`, `auth_client`, `organization`, `owner`, `animal_patient`, `study`, `series`, `image`, `ai_model`, `analysis_task`, `completed_task`, `report`). When a model field changes, re-run with `--create-db` to rebuild the cached test schema.
 
 ## API Documentation (OpenAPI / drf-spectacular)
 
@@ -261,6 +263,14 @@ Other:
 - JWT: 5-min access tokens, 7-day refresh in HttpOnly cookies
 - API keys for services: `oml_` prefix, SHA-256 hashed
 - Custom User: email as USERNAME_FIELD, integer `role` (1=Veterinarian, 2=Guest, 3=Clinic Admin, 4=Veterinary Radiologist, 5=Superuser, 6=Pet Owner). `PET_OWNER_ROLE = 6` constant in `users/models.py` gates the owner portal.
+- The access token lives **only** in the `apiClient` singleton's private field. Never mirror it onto `window` or into `localStorage` — read it via `apiClient.getAccessToken()` (this is how `useWebSocket` gets it).
+- Secrets are compared with `hmac.compare_digest`, never `==` (webhook secret, API key hash).
+
+### Security posture
+- **Throttling:** `AnonRateThrottle` + `UserRateThrottle` give every endpoint a baseline; tighter per-view limits use `throttle_scope` (`login`, `register`, `password_reset`, `token_refresh`, `public_share`, `webhook`, `upload`). All rates are env-tunable (`THROTTLE_*`). `NUM_PROXIES` **must** be an explicit int — left unset, DRF keys throttles on the client-supplied `X-Forwarded-For` and every limit becomes bypassable.
+- **CSP:** two separate policies. `core.middleware.SecurityHeadersMiddleware` covers Django-rendered pages (admin, Swagger, ReDoc, DRF browsable API); `app/frontend/vite.config.ts` covers the SPA. Both ship **report-only** — flip the backend with `CSP_ENFORCE=True` after a clean run. Whatever serves the production bundle must reproduce the SPA policy.
+- **Public token-gated endpoints** increment their access counter with a *conditional* `UPDATE` (limit + expiry in the `WHERE` clause), so the cap holds under concurrency. Never read-modify-write these counters.
+- CI's **Dependency Audit** job runs `pip-audit --strict` over all four Python manifests + `npm audit`. When it goes red, upgrade — don't suppress.
 
 ### Deployment & Observability
 - Prod: `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build`; see `docs/DEPLOYMENT.md`. Settings refuse to boot when `DJANGO_ENVIRONMENT=production` with the insecure fallback `SECRET_KEY`. Security hardening (HSTS, secure cookies, SSL redirect) auto-enables under `not DEBUG`. WhiteNoise serves collected static (conditional on the package being installed).
