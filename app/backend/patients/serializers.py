@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
+
+from core.protected_media import signed_media_url
 from .models import (
     Owner, AnimalPatient, VHSMeasurement, VHS_REFERENCE,
     ClinicalVisit, VaccinationRecord, WeightRecord, Appointment,
@@ -416,10 +418,9 @@ class ClinicalPhotoSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_photo_url(self, obj):
-        request = self.context.get('request')
-        if obj.photo and request:
-            return request.build_absolute_uri(obj.photo.url)
-        return None
+        # Signed + expiring: the browser loads this via <img src>, which can't
+        # carry the Authorization header. See core.protected_media.
+        return signed_media_url(obj.photo, self.context.get('request'))
 
 
 # ---------------------------------------------------------------------------
@@ -444,10 +445,7 @@ class LabResultSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_pdf_url(self, obj):
-        request = self.context.get('request')
-        if obj.pdf_file and request:
-            return request.build_absolute_uri(obj.pdf_file.url)
-        return None
+        return signed_media_url(obj.pdf_file, self.context.get('request'))
 
 
 # ---------------------------------------------------------------------------

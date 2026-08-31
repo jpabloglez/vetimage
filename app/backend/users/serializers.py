@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from core.protected_media import signed_media_url
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 from users.models import (
@@ -164,13 +166,10 @@ class UserAuthSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj) -> str:
         try:
-            if obj.userprofile.image:
-                request = self.context.get('request')
-                url = obj.userprofile.image.url
-                return request.build_absolute_uri(url) if request else url
+            # Signed + expiring; <img src> can't send the Authorization header.
+            return signed_media_url(obj.userprofile.image, self.context.get('request'))
         except Exception:
-            pass
-        return None
+            return None
 
 
 class ChangePasswordSerializer(serializers.Serializer):

@@ -14,9 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.conf import settings
-from django.conf.urls.static import static
-from django.urls import path, include
+from django.urls import path, include, re_path
+
+from core.protected_media import ProtectedMediaView
 from files.views import ImageUploadView
 from backend.views import get_frontend_config
 from backend.health import health_liveness, health_readiness
@@ -53,5 +53,10 @@ urlpatterns = [
     path('api/portal/', include('patients.urls_portal')),  # Pet-owner portal (#21)
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Uploaded patient files (DICOM, clinical photos, lab PDFs) are served through
+# a signature-checked view in EVERY environment. This used to be Django's
+# static() helper under DEBUG only, which served all of MEDIA_ROOT with no
+# authorization — and left production depending on whatever the proxy did.
+urlpatterns += [
+    re_path(r'^media/(?P<path>.+)$', ProtectedMediaView.as_view(), name='protected-media'),
+]
