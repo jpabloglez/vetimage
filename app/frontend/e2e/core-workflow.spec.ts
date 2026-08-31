@@ -68,12 +68,18 @@ test.describe('Core workflow: upload -> analyze -> report', () => {
       await patientLink.click();
 
       await expect(page).toHaveURL(/\/reports\/[\w-]+/);
-      await expect(page.getByText('Patient Name')).toBeVisible();
-      await expect(page.getByText(FIXTURE_PATIENT)).toBeVisible();
 
-      // The PDF loads as an authenticated blob object URL, not a bare path.
+      // Wait for the detail page to actually render before asserting on its
+      // content. toHaveURL passes the moment the SPA route changes, while the
+      // dashboard is still mounted — and the dashboard has its own "Patient
+      // Name" column header and one patient link per report, so asserting too
+      // early matches those instead (and fails strict mode once more than one
+      // report exists). The PDF iframe only exists on the detail page.
       const iframe = page.locator('iframe');
       await expect(iframe).toHaveAttribute('src', /^blob:/, { timeout: 15_000 });
+
+      await expect(page.getByText('Patient Name')).toBeVisible();
+      await expect(page.getByText(FIXTURE_PATIENT).first()).toBeVisible();
     });
   });
 });
