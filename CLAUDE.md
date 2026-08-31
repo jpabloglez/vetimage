@@ -272,6 +272,8 @@ Other:
 - **Public token-gated endpoints** increment their access counter with a *conditional* `UPDATE` (limit + expiry in the `WHERE` clause), so the cap holds under concurrency. Never read-modify-write these counters.
 - CI's **Dependency Audit** job runs `pip-audit --strict` over all four Python manifests + `npm audit`. When it goes red, upgrade — don't suppress.
 
+- **Uploaded files** (`MEDIA_ROOT`: DICOM, clinical photos, lab PDFs) are served only by `core.protected_media.ProtectedMediaView`, which requires a signed, expiring URL. Serializers must emit `signed_media_url(file_field, request)` — never `file_field.url`, which yields an unprotected path. Signed URLs are used because the browser loads these via `<img src>`, which cannot send the `Authorization` header. `/media/` must never be mapped to a public location by the proxy; use `MEDIA_ACCEL_REDIRECT_PREFIX` + an nginx `internal;` block.
+
 ### Query performance
 - `MedicalStudy.number_of_series` / `number_of_instances` and `MedicalSeries.number_of_instances` each run their own `COUNT`. List views **must** annotate `_series_count` / `_instance_count` (the properties prefer the annotation when present) — without it, a page of N rows costs 2N extra queries. `dicom_images/tests/test_query_performance.py` fails if the annotation is dropped. Use `distinct=True` on both counts: two aggregates over the same multi-valued join multiply each other otherwise.
 - Never call `int()` directly on request parameters. Use `core.query_params.bounded_int(raw, default=..., minimum=..., maximum=...)`, which coerces, clamps, and falls back instead of raising — a bare `int()` returns 500 on junk input and accepts `?limit=99999999`.
