@@ -14,8 +14,15 @@ import react from '@vitejs/plugin-react'
  *  - 'unsafe-inline'/'unsafe-eval' in script-src are needed by the Vite dev
  *    server's HMR client. A production build should drop both — whatever
  *    serves the built bundle must set its own, stricter policy.
- *  - connect-src allows ws:/wss: for the Django Channels live updates.
+ *  - connect-src must include the backend origin (VITE_API_URL), not just
+ *    'self': the SPA is served from :3001 but calls the API on :3081, so a
+ *    bare 'self' put every API call and every WebSocket in violation. It was
+ *    report-only, so nothing broke — but enforcing it would have taken the
+ *    whole app down. ws:/wss: cover the Channels live updates.
  */
+// The SPA is served from :3001 but calls the API on a different origin.
+const API_ORIGIN = process.env.VITE_API_URL || 'http://localhost:3081'
+
 const CSP_REPORT_ONLY = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
@@ -23,7 +30,7 @@ const CSP_REPORT_ONLY = [
   "font-src 'self' https://fonts.gstatic.com data:",
   "img-src 'self' data: blob: https://images.unsplash.com",
   "worker-src 'self' blob:",
-  "connect-src 'self' ws: wss: https://fonts.googleapis.com https://fonts.gstatic.com",
+  `connect-src 'self' ${API_ORIGIN} ${API_ORIGIN.replace(/^http/, 'ws')} ws: wss: https://fonts.googleapis.com https://fonts.gstatic.com`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

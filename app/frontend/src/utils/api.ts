@@ -389,6 +389,21 @@ class ApiClient {
    * Logout user
    * POST /users/auth/logout/
    */
+  /**
+   * Mint a single-use ticket for opening a WebSocket.
+   *
+   * The socket URL can't carry an Authorization header, and putting the JWT in
+   * the query string leaks it into proxy access logs — so the token is
+   * exchanged here (over an authenticated POST) for an opaque ticket that
+   * expires in 30s and is consumed on first use.
+   */
+  async getWebSocketTicket(): Promise<string> {
+    const res = await this.request<{ ticket: string; expires_in: number }>(
+      '/users/auth/ws-ticket/', { method: 'POST' },
+    );
+    return res.ticket;
+  }
+
   async logout(): Promise<void> {
     try {
       await fetch(`${this.baseUrl}/users/auth/logout/`, {

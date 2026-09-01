@@ -291,6 +291,8 @@ REST_FRAMEWORK = {
         'webhook': os.getenv('THROTTLE_WEBHOOK', '120/min'),
         # Uploads are the most resource-intensive authenticated operation.
         'upload': os.getenv('THROTTLE_UPLOAD', '60/min'),
+        # WebSocket tickets: one per socket open, plus reconnects.
+        'ws_ticket': os.getenv('THROTTLE_WS_TICKET', '60/min'),
     },
 }
 

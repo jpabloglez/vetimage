@@ -268,6 +268,7 @@ Other:
 - Custom User: email as USERNAME_FIELD, integer `role` (1=Veterinarian, 2=Guest, 3=Clinic Admin, 4=Veterinary Radiologist, 5=Superuser, 6=Pet Owner). `PET_OWNER_ROLE = 6` constant in `users/models.py` gates the owner portal.
 - The access token lives **only** in the `apiClient` singleton's private field. Never mirror it onto `window` or into `localStorage` — read it via `apiClient.getAccessToken()` (this is how `useWebSocket` gets it).
 - Secrets are compared with `hmac.compare_digest`, never `==` (webhook secret, API key hash).
+- **WebSockets authenticate with a single-use ticket**, never a JWT in the query string (query strings land in proxy access logs). The client `POST`s `/users/auth/ws-ticket/`, then connects with `?ticket=<opaque>`; the ticket expires in 30s and is consumed on redemption (`core/ws_tickets.py`, `backend/middleware.py`).
 
 ### Security posture
 - **Throttling:** `AnonRateThrottle` + `UserRateThrottle` give every endpoint a baseline; tighter per-view limits use `throttle_scope` (`login`, `register`, `password_reset`, `token_refresh`, `public_share`, `webhook`, `upload`). All rates are env-tunable (`THROTTLE_*`). `NUM_PROXIES` **must** be an explicit int — left unset, DRF keys throttles on the client-supplied `X-Forwarded-For` and every limit becomes bypassable.
