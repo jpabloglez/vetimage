@@ -128,20 +128,32 @@ export const useWebSocket = (
   /**
    * Establish WebSocket connection
    */
-  const connect = useCallback(() => {
+  const connect = useCallback(async () => {
     // Don't connect if already connected or explicitly disconnected
     if (wsRef.current?.readyState === WebSocket.OPEN || !shouldConnectRef.current) {
       return;
     }
 
-    // Read the access token from the apiClient singleton, where it lives in a
-    // private field. It used to be mirrored onto window.__auth_token__, which
-    // made it readable by any injected script — see the Phase 2 security work.
-    const token = apiClient.getAccessToken();
+    // Exchange the (in-memory) access token for a single-use ticket. The JWT
+    // used to travel in this query string, which put live credentials into
+    // proxy access logs; the ticket expires in 30s and is spent on first use.
+    let ticket: string | null;
+    try {
+      ticket = await apiClient.getWebSocketTicket();
+    } catch {
+      // Not authenticated, or the ticket endpoint is unreachable. Fall through
+      // to an unauthenticated connect so the consumer closes it and the normal
+      // reconnect/backoff path applies, rather than silently doing nothing.
+      ticket = null;
+    }
 
-    // Construct full WebSocket URL with token query parameter
-    const url = token
-      ? `${WS_BASE_URL}${path}?token=${encodeURIComponent(token)}`
+    // A late-arriving ticket is useless if the caller disconnected meanwhile.
+    if (!shouldConnectRef.current) {
+      return;
+    }
+
+    const url = ticket
+      ? `${WS_BASE_URL}${path}?ticket=${encodeURIComponent(ticket)}`
       : `${WS_BASE_URL}${path}`;
 
     try {
@@ -189,7 +201,7 @@ export const useWebSocket = (
           );
 
           reconnectTimeoutRef.current = setTimeout(() => {
-            connect();
+            void connect();
           }, currentDelayRef.current);
 
           // Exponential backoff with max delay cap
@@ -238,30 +250,38 @@ export const useWebSocket = (
     shouldConnectRef.current = true;
     reconnectAttemptsRef.current = 0;
     currentDelayRef.current = reconnectDelay;
-    connect();
+    void connect();
   }, [disconnect, connect, reconnectDelay]);
 
-  // Connect on mount if autoConnect is true, but wait for token
+  // Connect on mount if autoConnect is true, but wait until we're authenticated
+  // — the ticket endpoint requires it.
   useEffect(() => {
     if (!autoConnect) return;
+
+    // Re-arm on every mount. The cleanup below sets this false, and nothing
+    // else reset it — so under React StrictMode (which mounts, unmounts, then
+    // remounts in development) the second mount found it false and every
+    // subsequent connect() bailed out at the guard, silently leaving live
+    // updates dead for the rest of the session.
+    shouldConnectRef.current = true;
 
     let retryCount = 0;
     const maxRetries = 50; // 50 * 100ms = 5 seconds max wait
     let retryTimeout: NodeJS.Timeout | null = null;
 
-    // Wait for token to be available before connecting
+    // Wait for the access token before connecting: it's what authenticates the
+    // request for a WebSocket ticket.
     const checkTokenAndConnect = () => {
       const token = apiClient.getAccessToken();
       if (token) {
-        console.log('[WebSocket] Token available, connecting...');
-        connect();
+        void connect();
       } else if (retryCount < maxRetries) {
         retryCount++;
         // Retry after 100ms if no token yet
         retryTimeout = setTimeout(checkTokenAndConnect, 100);
       } else {
-        console.warn('[WebSocket] Token not available after 5 seconds, connecting without token');
-        connect();
+        console.warn('[WebSocket] Not authenticated after 5s; attempting connect anyway');
+        void connect();
       }
     };
 
