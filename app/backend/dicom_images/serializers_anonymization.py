@@ -5,6 +5,7 @@ DICOM Anonymization Serializers
 from rest_framework import serializers
 from dicom_images.models import AnonymizationJob
 from dicom_images.services.anonymization import AnonymizationProfile
+from .scoping import visible_studies
 
 
 class CreateAnonymizationJobSerializer(serializers.Serializer):
@@ -38,12 +39,9 @@ class CreateAnonymizationJobSerializer(serializers.Serializer):
         return data
 
     def validate_study_id(self, value):
-        from dicom_images.models import MedicalStudy
 
         request = self.context.get('request')
-        if not MedicalStudy.objects.filter(
-            id=value, uploaded_by=request.user
-        ).exists():
+        if not visible_studies(request.user).filter(id=value).exists():
             raise serializers.ValidationError('Study not found.')
         return value
 
@@ -53,7 +51,7 @@ class CreateAnonymizationJobSerializer(serializers.Serializer):
         request = self.context.get('request')
         count = MedicalImage.objects.filter(
             id__in=value,
-            series__study__uploaded_by=request.user,
+            series__study__in=visible_studies(request.user),
         ).count()
         if count != len(value):
             raise serializers.ValidationError(

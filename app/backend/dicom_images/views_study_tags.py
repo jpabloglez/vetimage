@@ -16,6 +16,7 @@ from rest_framework.views import APIView
 from dicom_images.models import MedicalStudy
 from dicom_images.serializers_study_tags import StudyTagReviewSerializer
 from dicom_images.services.study_tag_review import StudyTagReviewService
+from dicom_images.scoping import visible_studies
 
 
 class StudyTagReviewView(APIView):
@@ -27,10 +28,12 @@ class StudyTagReviewView(APIView):
     permission_classes = [IsAuthenticated]
 
     def _get_study(self, request, study_uid):
-        return MedicalStudy.objects.get(
+        study = visible_studies(request.user).filter(
             study_instance_uid=study_uid,
-            uploaded_by=request.user,
-        )
+        ).order_by('-uploaded_at').first()
+        if study is None:
+            raise MedicalStudy.DoesNotExist
+        return study
 
     @extend_schema(
         summary="Get a study's reviewable identity tags",

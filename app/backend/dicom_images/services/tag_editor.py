@@ -11,6 +11,7 @@ import pydicom
 
 from dicom_images.models import MedicalImage
 from dicom_images.utils import extract_all_dicom_tags, get_flat_dicom_tags, merge_refreshed_dicom_tags
+from dicom_images.scoping import visible_studies
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,7 @@ class DicomTagEditorService:
         """
         image = MedicalImage.objects.select_related(
             'series__study'
-        ).get(id=image_id, series__study__uploaded_by=user)
+        ).get(id=image_id, series__study__in=visible_studies(user))
 
         tags = get_flat_dicom_tags(image.dicom_tags)
 
@@ -66,7 +67,7 @@ class DicomTagEditorService:
         """
         image = MedicalImage.objects.select_related(
             'series__study'
-        ).get(id=image_id, series__study__uploaded_by=user)
+        ).get(id=image_id, series__study__in=visible_studies(user))
 
         # Validate all updates first
         for update in tag_updates:

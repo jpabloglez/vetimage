@@ -12,7 +12,8 @@ from pathlib import Path
 
 from django.conf import settings
 
-from dicom_images.models import MedicalStudy, MedicalImage
+from dicom_images.models import MedicalImage
+from dicom_images.scoping import visible_studies
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +27,7 @@ class BatchOperationService:
 
         Returns the count of deleted studies.
         """
-        studies = MedicalStudy.objects.filter(
-            id__in=study_ids, uploaded_by=user,
-        )
+        studies = visible_studies(user).filter(id__in=study_ids)
         count = studies.count()
         studies.delete()
         return count
@@ -39,9 +38,7 @@ class BatchOperationService:
 
         Returns the path to the output ZIP relative to MEDIA_ROOT.
         """
-        studies = MedicalStudy.objects.filter(
-            id__in=study_ids, uploaded_by=user,
-        )
+        studies = visible_studies(user).filter(id__in=study_ids)
         images = MedicalImage.objects.filter(
             series__study__in=studies,
         ).select_related('series__study')
@@ -75,7 +72,7 @@ class BatchOperationService:
         model = AIModel.objects.get(key=model_key, is_active=True)
         images = MedicalImage.objects.filter(
             series__study__id__in=study_ids,
-            series__study__uploaded_by=user,
+            series__study__in=visible_studies(user),
         )
 
         task_ids = []

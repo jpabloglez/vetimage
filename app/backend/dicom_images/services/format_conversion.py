@@ -13,8 +13,9 @@ from pathlib import Path
 import pydicom
 from django.conf import settings
 
-from dicom_images.models import MedicalImage, MedicalSeries, MedicalStudy
+from dicom_images.models import MedicalImage, MedicalSeries
 from dicom_images.utils import dicom_to_image
+from dicom_images.scoping import visible_studies
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ class FormatConversionService:
         """
         image = MedicalImage.objects.select_related(
             'series__study'
-        ).get(id=image_id, series__study__uploaded_by=user)
+        ).get(id=image_id, series__study__in=visible_studies(user))
 
         if fmt not in ('jpeg', 'png'):
             raise ValueError(f"Unsupported image format: {fmt}")
@@ -51,7 +52,7 @@ class FormatConversionService:
         import numpy as np
 
         series = MedicalSeries.objects.select_related('study').get(
-            id=series_id, study__uploaded_by=user,
+            id=series_id, study__in=visible_studies(user),
         )
 
         images = (
@@ -92,7 +93,7 @@ class FormatConversionService:
 
         Returns the path to the output ZIP relative to MEDIA_ROOT.
         """
-        study = MedicalStudy.objects.get(id=study_id, uploaded_by=user)
+        study = visible_studies(user).get(id=study_id)
         images = MedicalImage.objects.filter(
             series__study=study
         ).select_related('series')

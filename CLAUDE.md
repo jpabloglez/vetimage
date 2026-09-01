@@ -255,6 +255,9 @@ Other:
 - `UserProfile.organization` FK scopes data access — queries must filter by user's organization
 - Backend views use patterns like `filter(uploaded_by__userprofile__organization=org)` or `filter(owner__organization=org)`
 - `patients` views use `get_or_create_organization(user)` (auto-provisions org if missing)
+- **DICOM records go through `dicom_images.scoping`** — `visible_studies(user)` / `visible_series(user)` / `visible_images(user)`. Never filter on `uploaded_by=user` directly (that was the old per-user rule and is now a scoping bug); the only legitimate uses of `uploaded_by=user` are `create()` calls that set the uploader. On related models use the kwarg form: `series__study__in=visible_studies(user)`.
+- The rule is deliberately `own OR same-organization`, not just `same-organization`: a user whose profile has no organization would otherwise drop out of the join and lose access to **their own** studies.
+- Org scoping makes duplicate `study_instance_uid` across colleagues possible, so lookups by UID must use `.filter(...).order_by('-uploaded_at').first()`, never `.get()` (which would raise `MultipleObjectsReturned` → 500).
 
 ### DICOM Hierarchy
 `MedicalStudy` → `MedicalSeries` → `MedicalImage`, using UID natural identifiers (`study_instance_uid`, `series_instance_uid`, `sop_instance_uid`). `MedicalStudy.animal_patient` optionally links to a patient.

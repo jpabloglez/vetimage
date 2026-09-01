@@ -4,6 +4,7 @@ Batch Operations Serializers
 
 from rest_framework import serializers
 from dicom_images.models import BatchJob
+from .scoping import visible_studies
 
 
 class CreateBatchJobSerializer(serializers.Serializer):
@@ -26,12 +27,9 @@ class CreateBatchJobSerializer(serializers.Serializer):
         return data
 
     def validate_study_ids(self, value):
-        from dicom_images.models import MedicalStudy
 
         request = self.context.get('request')
-        count = MedicalStudy.objects.filter(
-            id__in=value, uploaded_by=request.user,
-        ).count()
+        count = visible_studies(request.user).filter(id__in=value).count()
         if count != len(value):
             raise serializers.ValidationError(
                 'One or more study IDs not found or not owned by you.'

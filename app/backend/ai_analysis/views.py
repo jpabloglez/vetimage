@@ -44,6 +44,7 @@ from .services.model_recommender import ModelRecommender
 from dicom_images.models import MedicalImage
 import logging
 from core.query_params import bounded_int
+from dicom_images.scoping import visible_studies
 
 logger = logging.getLogger(__name__)
 
@@ -186,7 +187,7 @@ class AnalysisTaskViewSet(viewsets.ModelViewSet):
         input_image = get_object_or_404(
             MedicalImage,
             id=serializer.validated_data['input_image_id'],
-            series__study__uploaded_by=request.user  # Security: verify ownership
+            series__study__in=visible_studies(request.user)  # Security: verify ownership
         )
 
         # Gate: model requires prior anonymization
@@ -742,7 +743,7 @@ class ModelRecommendationView(APIView):
             try:
                 image = MedicalImage.objects.get(
                     id=image_id,
-                    series__study__uploaded_by=request.user  # Security: verify ownership
+                    series__study__in=visible_studies(request.user)  # Security: verify ownership
                 )
 
                 # Use DICOM tags as metadata
