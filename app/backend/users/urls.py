@@ -11,6 +11,7 @@ from users.views import (
     RegisterView,
     CustomTokenObtainPairView,
     CustomTokenRefreshView,
+    WebSocketTicketView,
     LogoutView,
     UserProfileAuthView,
     ChangePasswordView,
@@ -51,6 +52,7 @@ auth_patterns = [
     path('auth/refresh/', CustomTokenRefreshView.as_view(), name='refresh'),
     path('auth/logout/', LogoutView.as_view(), name='logout'),
     path('auth/api-key/', api_key_auth, name='api-key-auth'),
+    path('auth/ws-ticket/', WebSocketTicketView.as_view(), name='ws-ticket'),
 
     # User Profile
     path('auth/profile/', UserProfileAuthView.as_view(), name='profile'),

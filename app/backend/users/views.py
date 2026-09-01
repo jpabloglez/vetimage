@@ -26,6 +26,8 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
+
+from core.ws_tickets import TICKET_TTL_SECONDS, issue_ticket
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -703,3 +705,29 @@ class PasswordResetConfirmView(APIView):
             {'message': 'Password has been reset successfully.'},
             status=status.HTTP_200_OK,
         )
+
+
+class WebSocketTicketView(APIView):
+    """
+    Mint a short-lived, single-use ticket for opening a WebSocket.
+
+    POST /users/auth/ws-ticket/  ->  {"ticket": "...", "expires_in": 30}
+
+    The client connects with `?ticket=<ticket>` instead of putting its JWT in
+    the query string, where proxies would log it. See core.ws_tickets.
+    """
+
+    permission_classes = [IsAuthenticated]
+    throttle_scope = 'ws_ticket'
+
+    @extend_schema(
+        summary='Issue a single-use WebSocket authentication ticket',
+        request=None,
+        responses={200: OpenApiTypes.OBJECT},
+        tags=['Authentication'],
+    )
+    def post(self, request):
+        return Response({
+            'ticket': issue_ticket(request.user),
+            'expires_in': TICKET_TTL_SECONDS,
+        })

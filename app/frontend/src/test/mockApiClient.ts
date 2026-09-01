@@ -32,7 +32,7 @@ const API_METHODS = [
   // Auth / session
   'login', 'register', 'logout', 'getProfile', 'refreshToken', 'getAccessToken',
   'setAccessToken', 'forgotPassword', 'resetPassword', 'changePassword',
-  'uploadAvatar', 'getFrontendConfig',
+  'uploadAvatar', 'getFrontendConfig', 'getWebSocketTicket',
   // DICOM studies
   'getStudies', 'getSeries', 'getInstances', 'getStorageInfo', 'deleteStudy',
   'searchStudies', 'linkStudyToAnimal', 'getStudyTagReview', 'updateStudyTagReview',
