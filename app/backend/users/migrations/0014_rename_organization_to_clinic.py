@@ -18,8 +18,15 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
+    # Every historical migration that references `users.Organization` by name
+    # must be applied *before* the model is renamed, or replaying history on a
+    # fresh database fails with "Related model 'users.organization' cannot be
+    # resolved". An existing database never hits this — the old migrations are
+    # already applied — so it only shows up on a clean install (i.e. CI).
     dependencies = [
         ('users', '0013_alter_user_role'),
+        ('patients', '0008_message'),
+        ('dicom_gateway', '0004_enhance_pacs_config_with_api_keys'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
