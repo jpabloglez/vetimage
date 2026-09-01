@@ -441,6 +441,19 @@ if not DEBUG:
 #
 # Ships REPORT-ONLY by default: violations are reported to the browser console
 # without blocking. Flip CSP_ENFORCE=True once a report-only run is clean.
+# ---------------------------------------------------------------------------
+# Protected media (core.protected_media)
+# ---------------------------------------------------------------------------
+# Everything under MEDIA_ROOT is patient data. It is served only through a
+# signature-checked view; MEDIA_URL is never mapped to a public location.
+# Set this to an nginx `internal;` location pointed at MEDIA_ROOT to hand the
+# byte-pushing back to the proxy (X-Accel-Redirect). Empty = Django streams it.
+MEDIA_ACCEL_REDIRECT_PREFIX = os.getenv('MEDIA_ACCEL_REDIRECT_PREFIX', '')
+
+# Largest bitmap Pillow will decode from an upload (decompression-bomb guard).
+# Applied in core.apps.CoreConfig.ready(). A 4k x 4k radiograph is ~17M pixels.
+PILLOW_MAX_IMAGE_PIXELS = int(os.getenv('PILLOW_MAX_IMAGE_PIXELS', 200_000_000))
+
 CSP_ENFORCE = os.getenv('CSP_ENFORCE', 'False') == 'True'
 CONTENT_SECURITY_POLICY = os.getenv('CONTENT_SECURITY_POLICY', '; '.join([
     "default-src 'self'",

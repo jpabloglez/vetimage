@@ -39,6 +39,22 @@ is Django + DRF + Channels (ASGI/Daphne) · PostgreSQL · Redis · Celery
       `postgres/postgres` credentials.
 - [ ] **Secrets** delivered via environment / secret manager, not committed.
       `.env*` is git-ignored.
+- [ ] **`/media/` is NOT mapped to a public location.** Everything under
+      `MEDIA_ROOT` is patient data — DICOM pixel data, clinical photographs,
+      lab result PDFs. It is served *only* through the signature-checked
+      `ProtectedMediaView`; pointing nginx at that directory would make every
+      file world-readable to anyone who can guess a path, bypassing the app
+      entirely. To let nginx push the bytes (recommended), set
+      `MEDIA_ACCEL_REDIRECT_PREFIX=/internal-media/` and add an **`internal;`**
+      location — the `internal` directive is what stops it being reachable
+      from outside:
+
+      ```nginx
+      location /internal-media/ {
+          internal;
+          alias /var/www/app/backend/media/;
+      }
+      ```
 - [ ] **Dependencies audited** — CI runs `pip-audit --strict` over all four
       Python manifests and `npm audit --audit-level=high` on every PR
       (the `Dependency Audit` job). A green build means no known CVEs in the
