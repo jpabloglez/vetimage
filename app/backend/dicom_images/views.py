@@ -46,6 +46,7 @@ from django.http import HttpResponse, FileResponse
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from drf_spectacular.types import OpenApiTypes
 from core.query_params import bounded_int, MAX_PAGE_SIZE, MAX_OFFSET
+from .scoping import visible_studies
 
 logger = logging.getLogger(__name__)
 
@@ -417,7 +418,7 @@ class StudyListView(APIView):
         # each property runs its own COUNT, so a page of 100 studies cost ~201
         # queries. Annotating serves the same data in one.
         studies = (
-            MedicalStudy.objects.filter(uploaded_by=user)
+            visible_studies(user)
             .select_related('animal_patient')
             .annotate(
                 _series_count=django_models.Count('series', distinct=True),
@@ -477,9 +478,8 @@ class SeriesListView(APIView):
         # Get study (ensure user owns it)
         # Note: With duplicate uploads allowed, we get the most recent study with this UID
         try:
-            study = MedicalStudy.objects.filter(
+            study = visible_studies(user).filter(
                 study_instance_uid=study_uid,
-                uploaded_by=user
             ).order_by('-uploaded_at').first()
 
             if not study:
@@ -527,7 +527,7 @@ class InstanceListView(APIView):
             series = MedicalSeries.objects.select_related('study').filter(
                 series_instance_uid=series_uid,
                 study__study_instance_uid=study_uid,
-                study__uploaded_by=user
+                study__in=visible_studies(user)
             ).order_by('-study__uploaded_at', '-created_at').first()
 
             if not series:
@@ -612,10 +612,11 @@ class DeleteStudyView(APIView):
             )
 
         try:
-            study = MedicalStudy.objects.get(
+            study = visible_studies(user).filter(
                 study_instance_uid=study_uid,
-                uploaded_by=user
-            )
+            ).order_by('-uploaded_at').first()
+            if study is None:
+                raise MedicalStudy.DoesNotExist
         except MedicalStudy.DoesNotExist:
             return Response(
                 {'error': 'Study not found'},
@@ -683,10 +684,11 @@ class DeleteStudyView(APIView):
 
         # Get study (ensure user owns it)
         try:
-            study = MedicalStudy.objects.get(
+            study = visible_studies(user).filter(
                 study_instance_uid=study_uid,
-                uploaded_by=user
-            )
+            ).order_by('-uploaded_at').first()
+            if study is None:
+                raise MedicalStudy.DoesNotExist
         except MedicalStudy.DoesNotExist:
             return Response(
                 {'error': 'Study not found'},
@@ -807,7 +809,7 @@ class WADORSFrameRetrieveView(APIView):
                 sop_instance_uid=sop_uid,
                 series__series_instance_uid=series_uid,
                 series__study__study_instance_uid=study_uid,
-                series__study__uploaded_by=user
+                series__study__in=visible_studies(user)
             ).order_by('-series__study__uploaded_at', '-uploaded_at').first()
 
             if not instance:
@@ -1035,7 +1037,7 @@ class WADORSInstanceRetrieveView(APIView):
                 sop_instance_uid=sop_uid,
                 series__series_instance_uid=series_uid,
                 series__study__study_instance_uid=study_uid,
-                series__study__uploaded_by=user
+                series__study__in=visible_studies(user)
             ).order_by('-series__study__uploaded_at', '-uploaded_at').first()
 
             if not instance:
@@ -1105,7 +1107,7 @@ class WADORSMetadataRetrieveView(APIView):
                     sop_instance_uid=sop_uid,
                     series__series_instance_uid=series_uid,
                     series__study__study_instance_uid=study_uid,
-                    series__study__uploaded_by=user
+                    series__study__in=visible_studies(user)
                 ).order_by('-series__study__uploaded_at', '-uploaded_at').first()
 
                 if not instance:
@@ -1127,7 +1129,7 @@ class WADORSMetadataRetrieveView(APIView):
                 series_obj = MedicalSeries.objects.select_related('study').get(
                     series_instance_uid=series_uid,
                     study__study_instance_uid=study_uid,
-                    study__uploaded_by=user
+                    study__in=visible_studies(user)
                 )
                 instances = MedicalImage.objects.filter(series=series_obj)
             except MedicalSeries.DoesNotExist:
@@ -1139,10 +1141,11 @@ class WADORSMetadataRetrieveView(APIView):
         else:
             # Study-level metadata (all instances in study)
             try:
-                study = MedicalStudy.objects.get(
+                study = visible_studies(user).filter(
                     study_instance_uid=study_uid,
-                    uploaded_by=user
-                )
+                ).order_by('-uploaded_at').first()
+                if study is None:
+                    raise MedicalStudy.DoesNotExist
                 instances = MedicalImage.objects.filter(
                     series__study=study
                 ).select_related('series')
@@ -1409,7 +1412,7 @@ class AdvancedSearchView(APIView):
 
         # Build query
         from .utils import normalize_text_for_search
-        queryset = MedicalStudy.objects.filter(uploaded_by=user)
+        queryset = visible_studies(user)
 
         # Text search on normalized fields
         if patient_name:

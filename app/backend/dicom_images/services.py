@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.db import transaction
 from django.db.models import Sum
 from faker import Faker
+from .scoping import visible_studies
 
 
 class DicomDataGenerationService:
@@ -209,7 +210,7 @@ class StorageVerificationService:
 
         # Calculate actual usage
         actual_bytes = MedicalImage.objects.filter(
-            series__study__uploaded_by=user
+            series__study__in=visible_studies(user)
         ).aggregate(
             total=Sum('file_size_bytes')
         )['total'] or 0
@@ -268,7 +269,7 @@ class StorageVerificationService:
 
         # Calculate correct usage
         actual_bytes = MedicalImage.objects.filter(
-            series__study__uploaded_by=user
+            series__study__in=visible_studies(user)
         ).aggregate(
             total=Sum('file_size_bytes')
         )['total'] or 0

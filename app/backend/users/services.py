@@ -8,6 +8,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.db import transaction
 from faker import Faker
+from dicom_images.scoping import visible_studies
 
 
 class UserCreationService:
@@ -164,7 +165,6 @@ class AnonymizationService:
                 }
         """
         from users.models import User, UserProfile
-        from dicom_images.models import MedicalStudy
 
         # Get user
         user = User.objects.get(id=user_id)
@@ -201,7 +201,7 @@ class AnonymizationService:
 
         if keep_studies:
             # Anonymize patient data in studies
-            studies = MedicalStudy.objects.filter(uploaded_by=user)
+            studies = visible_studies(user)
             for study in studies:
                 study.patient_name = f'ANONYMIZED_{study.id}'
                 study.patient_id = f'ANON{study.id}'
@@ -209,7 +209,7 @@ class AnonymizationService:
                 studies_anonymized += 1
         else:
             # Delete all studies (cascades to series and images)
-            studies = MedicalStudy.objects.filter(uploaded_by=user)
+            studies = visible_studies(user)
             studies_deleted = studies.count()
             studies.delete()
 

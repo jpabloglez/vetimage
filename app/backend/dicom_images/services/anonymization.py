@@ -20,6 +20,7 @@ from pathlib import Path
 
 import pydicom
 from django.conf import settings
+from dicom_images.scoping import visible_studies
 
 
 # -------------------------------------------------------------------------
@@ -125,9 +126,9 @@ class AnonymizationService:
         Returns:
             str: Path to the output ZIP file relative to MEDIA_ROOT.
         """
-        from dicom_images.models import MedicalImage, MedicalStudy
+        from dicom_images.models import MedicalImage
 
-        study = MedicalStudy.objects.get(id=study_id, uploaded_by=user)
+        study = visible_studies(user).get(id=study_id)
         images = MedicalImage.objects.filter(
             series__study=study
         ).select_related('series')
@@ -150,7 +151,7 @@ class AnonymizationService:
 
         images = MedicalImage.objects.filter(
             id__in=image_ids,
-            series__study__uploaded_by=user,
+            series__study__in=visible_studies(user),
         ).select_related('series')
 
         return self._anonymize_to_zip(images, profile, prefix='BATCH')
