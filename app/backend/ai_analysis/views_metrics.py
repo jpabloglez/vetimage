@@ -27,10 +27,10 @@ class ModelMetricsViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def _base_queryset(self, request):
-        """Organization-scoped queryset."""
+        """Clinic-scoped queryset."""
         user = request.user
         return AnalysisTask.objects.filter(
-            input_image__series__study__uploaded_by__userprofile__organization=user.userprofile.organization
+            input_image__series__study__uploaded_by__userprofile__clinic=user.userprofile.clinic
         ).select_related('model')
 
     def _apply_date_filters(self, qs, request):

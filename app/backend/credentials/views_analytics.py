@@ -81,7 +81,7 @@ class UserActivityViewSet(viewsets.ViewSet):
     def list(self, request):
         """
         Per-user activity stats. Admin/staff only.
-        Scoped to same organization.
+        Scoped to same clinic.
         """
         if not request.user.is_staff:
             return Response(
@@ -89,9 +89,9 @@ class UserActivityViewSet(viewsets.ViewSet):
                 status=403,
             )
 
-        org = request.user.userprofile.organization
+        org = request.user.userprofile.clinic
         users = list(
-            User.objects.filter(userprofile__organization=org).values('id', 'email')
+            User.objects.filter(userprofile__clinic=org).values('id', 'email')
         )
         user_ids = [u['id'] for u in users]
         stats_by_user = _build_user_stats(user_ids)

@@ -138,7 +138,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def colleagues(self, request):
         """
-        Get colleagues in same organization who share their work.
+        Get colleagues in same clinic who share their work.
 
         GET /api/users/profile/colleagues/
 
@@ -150,12 +150,12 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         except UserProfile.DoesNotExist:
             return Response([], status=status.HTTP_200_OK)
 
-        if not profile.organization:
+        if not profile.clinic:
             return Response([], status=status.HTTP_200_OK)
 
-        # Get colleagues in same organization who are sharing
+        # Get colleagues in same clinic who are sharing
         colleagues = UserProfile.objects.filter(
-            organization=profile.organization,
+            clinic=profile.clinic,
             is_sharing_jobs_with_colleagues=True
         ).exclude(user=request.user).select_related('user')
 

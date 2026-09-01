@@ -149,7 +149,7 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({
                   Share my analysis jobs with colleagues
                 </div>
                 <p className="text-xs text-slate-600 dark:text-slate-400">
-                  Allow colleagues in your organization to view your analysis jobs on the
+                  Allow colleagues in your clinic to view your analysis jobs on the
                   Monitor page. Your name and department will be visible to them.
                 </p>
               </div>

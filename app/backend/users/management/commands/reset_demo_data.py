@@ -81,7 +81,7 @@ class Command(BaseRichCommand):
         # ========== Delete Existing Data ==========
         self.info("\nDeleting existing data...")
 
-        # Delete users (cascades to profiles, organizations, studies)
+        # Delete users (cascades to profiles, clinics, studies)
         deleted_users = user_count
         users_to_delete.delete()
         self.success(f"Deleted {deleted_users} users")

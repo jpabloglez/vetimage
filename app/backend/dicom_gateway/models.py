@@ -108,13 +108,13 @@ class PACSConfiguration(models.Model):
         help_text='User whose API key will be used for authenticating DICOM uploads from this PACS. '
                   'If not set, transfers will use the gateway service account.'
     )
-    receiving_organization = models.ForeignKey(
-        'users.Organization',
+    receiving_clinic = models.ForeignKey(
+        'users.Clinic',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='pacs_configs',
-        help_text='Organization override (optional). If not set, uses node_user.profile.organization'
+        help_text='Clinic override (optional). If not set, uses node_user.profile.clinic'
     )
 
     class Meta:
@@ -140,13 +140,13 @@ class PACSConfiguration(models.Model):
                 })
 
     def save(self, *args, **kwargs):
-        """Save PACS configuration with auto-population of organization."""
-        # If node_user is set but receiving_organization is not, inherit from user profile
-        if self.node_user and not self.receiving_organization:
+        """Save PACS configuration with auto-population of clinic."""
+        # If node_user is set but receiving_clinic is not, inherit from user profile
+        if self.node_user and not self.receiving_clinic:
             try:
-                self.receiving_organization = self.node_user.profile.organization
+                self.receiving_clinic = self.node_user.profile.clinic
             except Exception:
-                pass  # User may not have profile or organization
+                pass  # User may not have profile or clinic
         super().save(*args, **kwargs)
 
     def test_connection(self):

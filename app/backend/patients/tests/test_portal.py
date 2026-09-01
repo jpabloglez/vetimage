@@ -40,11 +40,11 @@ class TestOwnerPortalDashboard:
         assert any(v['vaccine_name'] == 'Rabies' for v in pet['vaccinations'])
         assert len(pet['upcoming_appointments']) >= 1
 
-    def test_does_not_leak_other_owners_pets(self, owner_client, animal_patient, organization):
+    def test_does_not_leak_other_owners_pets(self, owner_client, animal_patient, clinic):
         # A different owner's animal in the same org must not appear.
         from patients.models import Owner, AnimalPatient
         other = Owner.objects.create(
-            organization=organization, first_name='Bob', last_name='Other',
+            clinic=clinic, first_name='Bob', last_name='Other',
             email='bob.other@example.com', phone='555-0999',
         )
         AnimalPatient.objects.create(owner=other, name='NotYours', species='feline')
@@ -113,6 +113,6 @@ class TestOwnerAccountProvision:
         assert resp.status_code == 400
 
     def test_owner_in_other_org_404(self, auth_client, owner):
-        # `owner` fixture belongs to a different organisation.
+        # `owner` fixture belongs to a different clinic.
         resp = auth_client.post(self._url(owner.id), {'password': 'StrongPass123!'}, format='json')
         assert resp.status_code == 404

@@ -7,17 +7,17 @@ import pytest
 
 @pytest.mark.django_db
 class TestOwnerAPI:
-    def test_create_owner_autoassigns_organization(self, auth_client):
+    def test_create_owner_autoassigns_clinic(self, auth_client):
         """A new user with no org can still create owners (org is provisioned)."""
         resp = auth_client.post('/api/patients/owners/', {
             'first_name': 'Maria', 'last_name': 'Lopez', 'email': 'm@example.com',
         }, format='json')
         assert resp.status_code == 201, resp.content
         assert resp.data['first_name'] == 'Maria'
-        assert resp.data['organization'] is not None
+        assert resp.data['clinic'] is not None
 
     def test_list_owners_scoped_to_org(self, auth_client, owner):
-        """Owners from another organization are not visible."""
+        """Owners from another clinic are not visible."""
         # `owner` fixture belongs to a different org than auth_client's user.
         resp = auth_client.get('/api/patients/owners/')
         assert resp.status_code == 200

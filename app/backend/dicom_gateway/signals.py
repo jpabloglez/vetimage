@@ -191,9 +191,9 @@ def broadcast_transfer_update(sender, instance, created, **kwargs):
         if profile.is_sharing_jobs_with_colleagues:
             groups_to_notify = []
 
-            # Organization group
-            if profile.organization_id:
-                groups_to_notify.append(f'transfer_org_{profile.organization_id}')
+            # Clinic group
+            if profile.clinic_id:
+                groups_to_notify.append(f'transfer_org_{profile.clinic_id}')
 
             # Department group
             if profile.department:

@@ -147,19 +147,19 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         """
         Audit logs for the current user — or, for clinic admins/managers, the
-        whole organization (so they have oversight of who accessed what).
+        whole clinic (so they have oversight of who accessed what).
         """
         user = self.request.user
         is_admin = getattr(user, 'role', 0) in (3, 4, 5) or user.is_staff or user.is_superuser
         if is_admin:
             org = None
             try:
-                org = user.userprofile.organization
+                org = user.userprofile.clinic
             except Exception:
                 org = None
             if org is not None:
                 queryset = AuditLog.objects.filter(
-                    user__userprofile__organization=org
+                    user__userprofile__clinic=org
                 ).select_related('user', 'session')
             else:
                 queryset = AuditLog.objects.filter(user=user).select_related('user', 'session')

@@ -40,7 +40,7 @@ docker compose exec backend-vetimage pytest --cov=. --cov-report=term-missing
 
 Config in `app/backend/pytest.ini`: uses `--no-migrations`, `--reuse-db`. Note the
 explicit `testpaths` — a new test directory is **not** collected until it is added
-there (this silently hid `tests/` for a while). Shared fixtures in `app/backend/conftest.py` (`user`, `auth_client`, `organization`, `owner`, `animal_patient`, `study`, `series`, `image`, `ai_model`, `analysis_task`, `completed_task`, `report`). When a model field changes, re-run with `--create-db` to rebuild the cached test schema.
+there (this silently hid `tests/` for a while). Shared fixtures in `app/backend/conftest.py` (`user`, `auth_client`, `clinic`, `owner`, `animal_patient`, `study`, `series`, `image`, `ai_model`, `analysis_task`, `completed_task`, `report`). When a model field changes, re-run with `--create-db` to rebuild the cached test schema.
 
 ## API Documentation (OpenAPI / drf-spectacular)
 
@@ -128,7 +128,7 @@ Django project root is `app/backend/`, Django package (settings/urls/asgi) is `b
 
 | App | Purpose |
 |---|---|
-| `users` | Custom User model (email-based), roles, Organization, UserAPIKey |
+| `users` | Custom User model (email-based), roles, Clinic (the tenant), UserAPIKey |
 | `dicom_images` | MedicalStudy → MedicalSeries → MedicalImage, DICOMweb, annotations |
 | `ai_analysis` | AIModel registry, AnalysisTask lifecycle, Celery dispatch, WebSocket consumers |
 | `credentials` | Session tracking, audit logging, API key scopes, notifications |
@@ -171,7 +171,7 @@ React Router v7, Tailwind CSS (class-based dark mode with `dark:` prefix), custo
 
 **Model hierarchy:** `Owner` → `AnimalPatient` → clinical records
 
-Per-animal record models (all org-scoped via `animal_patient__owner__organization`, all filter by `?animal=<id>`):
+Per-animal record models (all clinic-scoped via `animal_patient__owner__clinic`, all filter by `?animal=<id>`):
 - `VHSMeasurement` — Vertebral Heart Score (long_axis + short_axis, vertebral units); VHS computed server-side; `interpretation` derived; human-in-the-loop.
 - `ClinicalVisit` — SOAP note + vitals (weight, temperature, HR, RR), visit_type, optional `linked_study`/`linked_report`. (`/api/patients/visits/`)
 - `VaccinationRecord` — vaccine_name, administered_on, next_due_on, batch. (`/api/patients/vaccinations/`)
@@ -184,7 +184,7 @@ Per-animal record models (all org-scoped via `animal_patient__owner__organizatio
 - `ReproductiveEvent` — heat/mating/whelping/etc., event_date, partner_id, litter_count. (`/api/patients/reproductive/`)
 
 Other:
-- `Owner` — clinic client. Fields: first_name, last_name, **email (required)**, **phone (required)**, address, city, country, pii_anonymized. Scoped to `organization`.
+- `Owner` — clinic client. Fields: first_name, last_name, **email (required)**, **phone (required)**, address, city, country, pii_anonymized. Scoped to `clinic`.
 - `AnimalPatient` — species (canine/feline/equine/bovine/avian/exotic/other), breed, sex, date_of_birth, weight_kg, microchip_id (ISO 15-digit or 9–20 alphanum, unique within org), `profile_photo`, insurance (provider/policy/expiry). Detail serializer embeds `weight_trend`, `vaccinations`, `upcoming_appointments`, `visits_count`.
 - `MedicalStudy.animal_patient` — nullable FK linking a DICOM study to its patient.
 - `BreedReference` — breed/species-specific reference ranges (currently VHS). `BreedReference.lookup(species, breed, metric)` returns the most specific match (breed substring beats species-wide); used by `VHSMeasurement.interpretation` + serializer `reference_range`. Seed: `python manage.py seed_breed_references`.
@@ -197,7 +197,7 @@ Other:
 
 **GDPR anonymization:** `Owner.anonymize_pii()` blanks PII fields while keeping the record (preserves study/patient links). Anonymized owners can no longer be edited via the UI's required-email validation (by design).
 
-**`get_or_create_organization(user)`** (`patients/views.py`) — lazily provisions an Organization + UserProfile for users who have neither. Called in every patients ViewSet before touching org-scoped data.
+**`get_or_create_clinic(user)`** (`patients/views.py`) — lazily provisions a Clinic + UserProfile for users who have neither. Called in every patients ViewSet before touching clinic-scoped data.
 
 ### Reports Approval & Sharing Workflow
 
@@ -215,7 +215,7 @@ Other:
 
 ### Referral Network (vet-to-specialist)
 
-- `ReferringClinic` (`patients`) — org-scoped address book of partner clinics; `ClinicalVisit.referred_by` FK attributes a case to one. (`/api/patients/referring-clinics/`)
+- `ReferringClinic` (`patients`) — clinic-scoped address book of partner clinics; `ClinicalVisit.referred_by` FK attributes a case to one. (`/api/patients/referring-clinics/`)
 - `ReferralPackage` (`patients`) — token-gated bundle of an animal + optional `study` + `report` + `history_summary` + `reason` + `urgency`. Serializer **writes** accept `study_uid` (DICOMweb UID), not the PK; `is_valid()` enforces `expires_at`. Manage: `/api/patients/referral-packages/?animal=<id>`.
 - `GET /api/patients/referrals/<uuid:token>/` — unauthenticated `PublicReferralPackageView` serving sanitised `PublicReferralPackageSerializer` (signalment + reason + history + report findings + study UID; no internal IDs); increments `access_count`.
 - Frontend: `ReferralModal` (Send icon in `StudyBrowser` card — requires `study.AnimalPatientID`); public `/referral/:token` → `ReferralPackagePage`. i18n in `viewer.referral.*` + `patients.referralPage.*`.
@@ -223,7 +223,7 @@ Other:
 ### Owner ↔ Clinic Messaging (`/api/patients/messages/`)
 
 - `Message` (`patients`) — append-only thread keyed on `AnimalPatient` (audit-preserving); `from_owner` records the sending side, `is_read` tracks unread. (patients migration 0008)
-- `MessageViewSet` — accessible to **both** staff (org-scoped) and the pet owner (email-scoped); `?animal=<id>` filters the thread; POST sets `sender`/`from_owner` from the caller's role and notifies the counterpart via `credentials.Notification`. `POST mark_read/` marks the *other* side's messages read. No edit/delete (append-only).
+- `MessageViewSet` — accessible to **both** staff (clinic-scoped) and the pet owner (email-scoped); `?animal=<id>` filters the thread; POST sets `sender`/`from_owner` from the caller's role and notifies the counterpart via `credentials.Notification`. `POST mark_read/` marks the *other* side's messages read. No edit/delete (append-only).
 - Frontend: shared `MessageThread` component (bubbles flip via `isOwner`) — staff "Messages" tab in `AnimalDetailModal` (now 11 tabs), owner-side collapsible thread per pet on `OwnerPortalPage`. i18n `patients.messages.*`.
 - **Real-time:** `MessageConsumer` (`patients/consumers.py`, `ws/messages/`, JWT-authed, per-user group `messages_user_{id}`) wired in `backend/asgi.py`. `MessageViewSet.perform_create` broadcasts `message_created` to the recipient's + sender's groups (best-effort `try/except` — a channel-layer failure never breaks the POST). `MessageThread` subscribes via `useWebSocket('/ws/messages/')` and appends live (deduped by id; the REST API stays source of truth).
 
@@ -247,16 +247,17 @@ Other:
 
 ### Audit Log
 
-`/audit-log` → `AuditLogPage`. Backend: `/api/credentials/` audit endpoint. Admins see full organization log; non-admins see only their own events. Filterable by event type (login_success, login_failed, suspicious_activity, etc.) and date range.
+`/audit-log` → `AuditLogPage`. Backend: `/api/credentials/` audit endpoint. Admins see the full clinic log; non-admins see only their own events. Filterable by event type (login_success, login_failed, suspicious_activity, etc.) and date range.
 
 ## Key Conventions
 
-### Organization Scoping
-- `UserProfile.organization` FK scopes data access — queries must filter by user's organization
-- Backend views use patterns like `filter(uploaded_by__userprofile__organization=org)` or `filter(owner__organization=org)`
-- `patients` views use `get_or_create_organization(user)` (auto-provisions org if missing)
+### Clinic Scoping (multi-tenancy)
+- **`Clinic` is the tenant** — one clinic is one customer. `UserProfile.clinic` is the membership link and is what scopes all data access.
+- `Clinic.user` records who created the clinic. It is **not** used for access control; membership is.
+- Backend views use patterns like `filter(uploaded_by__userprofile__clinic=clinic)` or `filter(owner__clinic=clinic)`
+- `patients` views use `get_or_create_clinic(user)` (auto-provisions a clinic if missing)
 - **DICOM records go through `dicom_images.scoping`** — `visible_studies(user)` / `visible_series(user)` / `visible_images(user)`. Never filter on `uploaded_by=user` directly (that was the old per-user rule and is now a scoping bug); the only legitimate uses of `uploaded_by=user` are `create()` calls that set the uploader. On related models use the kwarg form: `series__study__in=visible_studies(user)`.
-- The rule is deliberately `own OR same-organization`, not just `same-organization`: a user whose profile has no organization would otherwise drop out of the join and lose access to **their own** studies.
+- The rule is deliberately `own OR same-clinic`, not just `same-clinic`: a user whose profile has no clinic would otherwise drop out of the join and lose access to **their own** studies.
 - Org scoping makes duplicate `study_instance_uid` across colleagues possible, so lookups by UID must use `.filter(...).order_by('-uploaded_at').first()`, never `.get()` (which would raise `MultipleObjectsReturned` → 500).
 
 ### DICOM Hierarchy

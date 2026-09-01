@@ -649,7 +649,7 @@ class ApiClient {
     return this.request<Owner>(`/api/patients/owners/${id}/`);
   }
 
-  /** Create an owner (organization auto-assigned). POST /api/patients/owners/ */
+  /** Create an owner (clinic auto-assigned). POST /api/patients/owners/ */
   async createOwner(data: OwnerWrite): Promise<Owner> {
     return this.request<Owner>('/api/patients/owners/', {
       method: 'POST',
@@ -1445,7 +1445,7 @@ class ApiClient {
   }
 
   /**
-   * Get colleagues in same organization who share their work
+   * Get colleagues in the same clinic who share their work
    * GET /api/users/profile/colleagues/
    */
   async getColleagues(): Promise<ColleagueProfile[]> {
@@ -1544,7 +1544,7 @@ class ApiClient {
   }
 
   /**
-   * Get available filter options for the user's organization
+   * Get available filter options for the user's clinic
    * GET /api/ai-analysis/statistics/filters_options/
    *
    * Returns lists of available models, modalities, body parts, etc.

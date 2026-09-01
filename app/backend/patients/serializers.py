@@ -79,12 +79,12 @@ class AnimalPatientSerializer(serializers.ModelSerializer):
         org = None
         if request is not None:
             try:
-                from .views import get_or_create_organization
-                org = get_or_create_organization(request.user)
+                from .views import get_or_create_clinic
+                org = get_or_create_clinic(request.user)
             except Exception:
                 org = None
         if org is not None:
-            qs = AnimalPatient.objects.filter(owner__organization=org, microchip_id=value)
+            qs = AnimalPatient.objects.filter(owner__clinic=org, microchip_id=value)
             if self.instance is not None:
                 qs = qs.exclude(pk=self.instance.pk)
             if qs.exists():
@@ -204,11 +204,11 @@ class OwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Owner
         fields = [
-            'id', 'organization', 'first_name', 'last_name', 'email', 'phone',
+            'id', 'clinic', 'first_name', 'last_name', 'email', 'phone',
             'address', 'city', 'country', 'animals_count', 'animals',
             'created_at', 'updated_at',
         ]
-        read_only_fields = ['organization', 'created_at', 'updated_at']
+        read_only_fields = ['clinic', 'created_at', 'updated_at']
 
     def validate_country(self, value):
         """Harmonise to an ISO 3166-1 alpha-2 code (uppercased); blank allowed."""

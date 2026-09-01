@@ -146,11 +146,11 @@ class TestLinkStudyToAnimal:
     @pytest.fixture
     def linked_animal(self, user):
         from patients.models import Owner, AnimalPatient
-        from patients.views import get_or_create_organization
+        from patients.views import get_or_create_clinic
 
-        org = get_or_create_organization(user)
+        org = get_or_create_clinic(user)
         owner = Owner.objects.create(
-            organization=org, first_name='Jane', last_name='Smith',
+            clinic=org, first_name='Jane', last_name='Smith',
             email='jane@example.com', phone='555-0100',
         )
         return AnimalPatient.objects.create(
@@ -184,7 +184,7 @@ class TestLinkStudyToAnimal:
         assert study.animal_patient_id is None
         assert study.patient_name == 'Bella'  # not reverted — out of scope for the sync fix
 
-    def test_rejects_animal_from_another_organization(self, auth_client, study, animal_patient):
+    def test_rejects_animal_from_another_clinic(self, auth_client, study, animal_patient):
         # `animal_patient` (conftest fixture) belongs to a different org than
         # auth_client's user.
         resp = auth_client.patch(

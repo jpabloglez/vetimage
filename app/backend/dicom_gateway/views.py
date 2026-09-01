@@ -51,7 +51,7 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
     API ViewSet for DICOM transfer monitoring.
 
     Provides study-level aggregation of DICOMTransaction records
-    with privacy-aware organization filtering.
+    with privacy-aware clinic filtering.
 
     Endpoints:
     - GET /api/dicom-gateway/transfers/monitor/ - Paginated transfer list
@@ -207,13 +207,13 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
 
         return transfers
 
-    def _apply_organization_filter(self, transfers, request, scope):
+    def _apply_clinic_filter(self, transfers, request, scope):
         """
-        Filter transfers based on organization scope.
+        Filter transfers based on clinic scope.
 
         Scope options:
         - own: User's own transfers only (includes PACS transfers assigned to user)
-        - colleagues: Organization colleagues who are sharing
+        - colleagues: Clinic colleagues who are sharing
         - department: Department members who are sharing
         - team: Team members who are sharing
         """
@@ -238,13 +238,13 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
         elif scope in ['colleagues', 'department', 'team']:
             try:
                 profile = request.user.userprofile
-                org_id = profile.organization_id
+                org_id = profile.clinic_id
 
                 if not org_id:
-                    # No organization, return only own
+                    # No clinic, return only own
                     filtered = [t for t in transfers if t.get('uploaded_by') and t['uploaded_by'].id == request.user.id]
                 else:
-                    # Include own transfers and organization transfers
+                    # Include own transfers and clinic transfers
                     filtered = []
                     for t in transfers:
                         # Check direct upload by user
@@ -261,8 +261,8 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
                                 if not other_profile.is_sharing_jobs_with_colleagues:
                                     continue
 
-                                # Check organization match
-                                if other_profile.organization_id != org_id:
+                                # Check clinic match
+                                if other_profile.clinic_id != org_id:
                                     continue
 
                                 # Check specific scope
@@ -278,13 +278,13 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
                             except Exception:
                                 pass
 
-                        # Check PACS-based organization membership
+                        # Check PACS-based clinic membership
                         source_ae = t.get('source_ae')
                         if source_ae:
                             try:
                                 pacs = PACSConfiguration.objects.filter(ae_title=source_ae).first()
-                                if pacs and pacs.receiving_organization_id == org_id:
-                                    # PACS belongs to same organization
+                                if pacs and pacs.receiving_clinic_id == org_id:
+                                    # PACS belongs to same clinic
                                     if scope == 'colleagues':
                                         filtered.append(t)
                                     elif scope == 'department' and pacs.receiving_user:
@@ -311,7 +311,7 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=['get'])
     def monitor(self, request):
         """
-        Study-level transfer monitoring with organization filtering.
+        Study-level transfer monitoring with clinic filtering.
 
         GET /api/dicom-gateway/transfers/monitor/
 
@@ -355,9 +355,9 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
         if status_filter:
             transfers = [t for t in transfers if t['transfer_status'] == status_filter]
 
-        # Apply organization filter
+        # Apply clinic filter
         scope = request.query_params.get('scope', 'own')
-        transfers = self._apply_organization_filter(transfers, request, scope)
+        transfers = self._apply_clinic_filter(transfers, request, scope)
 
         # Paginate
         paginator = self.pagination_class()
@@ -405,9 +405,9 @@ class DICOMTransferViewSet(viewsets.ReadOnlyModelViewSet):
         # Enrich with study data
         transfers = self._enrich_with_study_data(transfers)
 
-        # Apply organization filter
+        # Apply clinic filter
         scope = request.query_params.get('scope', 'own')
-        transfers = self._apply_organization_filter(transfers, request, scope)
+        transfers = self._apply_clinic_filter(transfers, request, scope)
 
         # Calculate statistics
         total_transfers = len(transfers)
@@ -541,7 +541,7 @@ def pacs_lookup(request):
 
     Returns:
         200: {user_id: int, user_email: str, api_key_prefix: str, api_key_exists: bool,
-              organization_id: int, pacs_name: str}
+              clinic_id: int, pacs_name: str}
         404: PACS not configured or no node_user set
         400: Missing ae_title parameter
 
@@ -596,7 +596,7 @@ def pacs_lookup(request):
                 'user_email': user.email,
                 'api_key_prefix': api_key_obj.key_prefix,  # First 8 chars for verification
                 'api_key_exists': True,
-                'organization_id': pacs_config.receiving_organization_id,
+                'clinic_id': pacs_config.receiving_clinic_id,
                 'pacs_name': pacs_config.name,
             })
 

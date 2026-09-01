@@ -65,12 +65,12 @@ def auth_client(user):
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
-def organization(db):
-    from users.models import Organization, User as UserModel
+def clinic(db):
+    from users.models import Clinic, User as UserModel
     admin_user = UserModel.objects.create_user(email='org-admin@example.com', password='pass')
-    return Organization.objects.create(
+    return Clinic.objects.create(
         user=admin_user,
-        centre='Test Clinic',
+        name='Test Clinic',
         address='1 Vet Street',
         city='Testville',
         billing_address='1 Vet Street',
@@ -79,10 +79,10 @@ def organization(db):
 
 
 @pytest.fixture
-def owner(db, organization):
+def owner(db, clinic):
     from patients.models import Owner
     return Owner.objects.create(
-        organization=organization,
+        clinic=clinic,
         first_name='Jane',
         last_name='Smith',
         email='jane.smith@example.com',

@@ -15,7 +15,7 @@ def _rows(response):
 
 
 def _make_animal(auth_client):
-    """Create an owner + animal inside the auth_client user's organisation."""
+    """Create an owner + animal inside the auth_client user's clinic."""
     o = auth_client.post('/api/patients/owners/', {
         'first_name': 'Ref', 'last_name': 'Erral',
         'email': 'ref@example.com', 'phone': '555-0200',
@@ -40,10 +40,10 @@ class TestReferringClinic:
         names = [c['name'] for c in _rows(listed)]
         assert 'City Specialist Vets' in names
 
-    def test_clinic_scoped_to_org(self, auth_client, organization):
-        # A clinic in a *different* organisation must not appear in the list.
+    def test_clinic_scoped_to_org(self, auth_client, clinic):
+        # A clinic in a *different* clinic must not appear in the list.
         from patients.models import ReferringClinic
-        ReferringClinic.objects.create(organization=organization, name='Foreign Clinic')
+        ReferringClinic.objects.create(clinic=clinic, name='Foreign Clinic')
         listed = auth_client.get(self.BASE)
         names = [c['name'] for c in _rows(listed)]
         assert 'Foreign Clinic' not in names

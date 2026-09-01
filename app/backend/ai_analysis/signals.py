@@ -34,7 +34,7 @@ def broadcast_task_update(sender, instance, created, **kwargs):
     Broadcasting Logic:
     1. Always send to task owner (user_{user_id} group)
     2. If owner has sharing enabled, also send to:
-       - Organization group (org_{org_id}_shared)
+       - Clinic group (org_{org_id}_shared)
        - Department group (dept_{dept}_shared)
        - Team group (team_{team}_shared)
 
@@ -109,9 +109,9 @@ def broadcast_task_update(sender, instance, created, **kwargs):
         if not profile.is_sharing_jobs_with_colleagues:
             return
 
-        # Broadcast to organization group
-        if profile.organization_id:
-            org_group = f'task_org_{profile.organization_id}'
+        # Broadcast to clinic group
+        if profile.clinic_id:
+            org_group = f'task_org_{profile.clinic_id}'
             try:
                 async_to_sync(channel_layer.group_send)(
                     org_group,
@@ -120,7 +120,7 @@ def broadcast_task_update(sender, instance, created, **kwargs):
                         'task': task_data
                     }
                 )
-                logger.debug(f"Broadcast task {instance.id} to org {profile.organization_id}")
+                logger.debug(f"Broadcast task {instance.id} to org {profile.clinic_id}")
             except Exception as e:
                 logger.error(f"Failed to broadcast to org group {org_group}: {e}")
 

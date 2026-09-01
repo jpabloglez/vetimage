@@ -23,7 +23,7 @@ class PACSConfigurationAdmin(admin.ModelAdmin):
         'is_active',
         'last_connected',
     ]
-    list_filter = ['is_active', 'connection_status', 'auto_analyze_enabled', 'receiving_organization', 'manufacturer']
+    list_filter = ['is_active', 'connection_status', 'auto_analyze_enabled', 'receiving_clinic', 'manufacturer']
     search_fields = ['name', 'ae_title', 'host', 'node_user__email', 'manufacturer', 'node']
     readonly_fields = ['id', 'connection_status', 'last_connected', 'last_error', 'created_at', 'updated_at']
 
@@ -35,9 +35,9 @@ class PACSConfigurationAdmin(admin.ModelAdmin):
             'fields': ('host', 'port', 'max_pdu_length', 'timeout')
         }),
         ('User Mapping', {
-            'fields': ('node_user', 'receiving_organization'),
+            'fields': ('node_user', 'receiving_clinic'),
             'description': 'Configure which user should receive DICOM transfers from this PACS. '
-                          'The user must have an active API key. Organization is inherited from user profile.'
+                          'The user must have an active API key. Clinic is inherited from user profile.'
         }),
         ('Security', {
             'fields': ('tls_enabled', 'tls_cert_path', 'allowed_source_ips'),
@@ -92,19 +92,19 @@ class PACSConfigurationAdmin(admin.ModelAdmin):
     node_user_display.short_description = 'Node User'
 
     def receiving_org_display(self, obj):
-        """Display receiving organization"""
-        if obj.receiving_organization:
-            return obj.receiving_organization.centre
+        """Display receiving clinic"""
+        if obj.receiving_clinic:
+            return obj.receiving_clinic.name
         elif obj.node_user:
             try:
                 return format_html(
                     '{} <span style="color: gray;">(inherited)</span>',
-                    obj.node_user.profile.organization.centre
+                    obj.node_user.profile.clinic.name
                 )
             except Exception:
-                return format_html('<span style="color: gray;">(no organization)</span>')
+                return format_html('<span style="color: gray;">(no clinic)</span>')
         return '-'
-    receiving_org_display.short_description = 'Organization'
+    receiving_org_display.short_description = 'Clinic'
 
     def save_model(self, request, obj, form, change):
         """Set created_by on creation"""

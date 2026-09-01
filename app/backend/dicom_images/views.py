@@ -599,7 +599,7 @@ class DeleteStudyView(APIView):
         """
         Link (or unlink) a study to a veterinary AnimalPatient.
 
-        Only animal patients within the requesting user's organization may be
+        Only animal patients within the requesting user's clinic may be
         linked. Pass animal_patient_id=null to unlink.
         """
         from patients.models import AnimalPatient
@@ -634,16 +634,16 @@ class DeleteStudyView(APIView):
         if animal_id is None:
             study.animal_patient = None
         else:
-            from patients.views import get_or_create_organization
-            org = get_or_create_organization(user)
+            from patients.views import get_or_create_clinic
+            org = get_or_create_clinic(user)
             try:
                 animal = AnimalPatient.objects.get(
                     id=animal_id,
-                    owner__organization=org,
+                    owner__clinic=org,
                 )
             except AnimalPatient.DoesNotExist:
                 return Response(
-                    {'error': 'Animal patient not found in your organization'},
+                    {'error': 'Animal patient not found in your clinic'},
                     status=status.HTTP_404_NOT_FOUND
                 )
             study.animal_patient = animal
@@ -2121,10 +2121,10 @@ class StudyShareViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         profile = getattr(self.request.user, 'userprofile', None)
-        if profile is None or profile.organization is None:
+        if profile is None or profile.clinic is None:
             return StudyShareLink.objects.none()
         qs = StudyShareLink.objects.filter(
-            study__uploaded_by__userprofile__organization=profile.organization
+            study__uploaded_by__userprofile__clinic=profile.clinic
         ).select_related('study', 'created_by')
         study_uid = self.request.query_params.get('study')
         if study_uid:
@@ -2196,20 +2196,20 @@ class StudyCDExportView(APIView):
     """
     Export a study as a DICOM CD/USB ZIP (DICOMDIR layout when the instances
     are conformant; plain DICOM/ folder fallback otherwise).
-    Org-scoped: the study must belong to the requesting user's organization.
+    Org-scoped: the study must belong to the requesting user's clinic.
     """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, study_uid):
         from .models import MedicalStudy
         from .services.cd_export import build_cd_zip
-        from patients.views import get_or_create_organization
+        from patients.views import get_or_create_clinic
 
-        org = get_or_create_organization(request.user)
+        org = get_or_create_clinic(request.user)
         try:
             study = MedicalStudy.objects.get(
                 study_instance_uid=study_uid,
-                uploaded_by__userprofile__organization=org,
+                uploaded_by__userprofile__clinic=org,
             )
         except MedicalStudy.DoesNotExist:
             return Response({'error': 'Study not found.'}, status=status.HTTP_404_NOT_FOUND)

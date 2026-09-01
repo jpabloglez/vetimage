@@ -43,10 +43,10 @@ BCS_CHOICES = [(i, str(i)) for i in range(1, 10)]  # 1–9 Purina/WSAVA scale
 
 class Owner(models.Model):
     """
-    Animal owner / guardian. Owner PII is GDPR-scoped to the clinic organization.
+    Animal owner / guardian. Owner PII is GDPR-scoped to the clinic clinic.
     """
-    organization = models.ForeignKey(
-        'users.Organization',
+    clinic = models.ForeignKey(
+        'users.Clinic',
         on_delete=models.CASCADE,
         related_name='owners',
     )
@@ -68,7 +68,7 @@ class Owner(models.Model):
         verbose_name = 'Owner'
         verbose_name_plural = 'Owners'
         indexes = [
-            models.Index(fields=['organization', 'last_name']),
+            models.Index(fields=['clinic', 'last_name']),
         ]
 
     def __str__(self):
@@ -732,12 +732,12 @@ REFERRAL_URGENCY_CHOICES = [
 
 class ReferringClinic(models.Model):
     """
-    A partner/referring clinic in the receiving organisation's address book.
+    A partner/referring clinic in the receiving clinic's address book.
     Lets a ClinicalVisit or ReferralPackage be attributed to an external clinic
-    for proper communication and statistics. Organisation-scoped.
+    for proper communication and statistics. Clinic-scoped.
     """
-    organization = models.ForeignKey(
-        'users.Organization', on_delete=models.CASCADE,
+    clinic = models.ForeignKey(
+        'users.Clinic', on_delete=models.CASCADE,
         related_name='referring_clinics',
     )
     name          = models.CharField(max_length=200)
@@ -756,7 +756,7 @@ class ReferringClinic(models.Model):
         ordering = ['name']
         verbose_name = 'Referring Clinic'
         verbose_name_plural = 'Referring Clinics'
-        indexes = [models.Index(fields=['organization', 'name'])]
+        indexes = [models.Index(fields=['clinic', 'name'])]
 
     def __str__(self):
         return self.name

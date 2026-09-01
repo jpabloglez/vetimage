@@ -113,8 +113,8 @@ class PublicReportSerializer(serializers.ModelSerializer):
     @extend_schema_field(OpenApiTypes.STR)
     def get_clinic(self, obj):
         try:
-            org = obj.created_by.userprofile.organization
-            return org.centre if org else None
+            org = obj.created_by.userprofile.clinic
+            return org.name if org else None
         except Exception:
             return None
 

@@ -26,39 +26,39 @@ from .serializers import (
 logger = logging.getLogger(__name__)
 
 
-def get_or_create_organization(user):
+def get_or_create_clinic(user):
     """
-    Return the user's Organization, creating a default one if needed.
+    Return the user's Clinic, creating a default one if needed.
 
-    Freshly registered users get a UserProfile (via signal) but no Organization.
-    The veterinary registry is organization-scoped, so we lazily provision a
-    clinic organization for the user the first time they use it. Returns None
+    Freshly registered users get a UserProfile (via signal) but no Clinic.
+    The veterinary registry is clinic-scoped, so we lazily provision a
+    clinic clinic for the user the first time they use it. Returns None
     only if no UserProfile exists at all (should not happen in practice).
     """
-    from users.models import Organization, UserProfile
+    from users.models import Clinic, UserProfile
 
     profile = getattr(user, 'userprofile', None)
     if profile is None:
         profile, _ = UserProfile.objects.get_or_create(user=user)
-    if profile.organization is None:
-        org = Organization.objects.create(
+    if profile.clinic is None:
+        org = Clinic.objects.create(
             user=user,
-            centre=(user.email.split('@')[0] if user.email else 'My Clinic'),
+            name=(user.email.split('@')[0] if user.email else 'My Clinic'),
             address='',
             city='',
             billing_address='',
             billing_code='',
         )
-        profile.organization = org
-        profile.save(update_fields=['organization'])
-    return profile.organization
+        profile.clinic = org
+        profile.save(update_fields=['clinic'])
+    return profile.clinic
 
 
 def _check_animal_in_org(animal, user):
     """Raise PermissionDenied if animal does not belong to the user's org."""
-    org = get_or_create_organization(user)
-    if animal.owner.organization_id != getattr(org, 'id', None):
-        raise PermissionDenied('Animal patient is not in your organization.')
+    org = get_or_create_clinic(user)
+    if animal.owner.clinic_id != getattr(org, 'id', None):
+        raise PermissionDenied('Animal patient is not in your clinic.')
     return org
 
 
@@ -72,14 +72,14 @@ class OwnerViewSet(viewsets.ModelViewSet):
     ordering = ['last_name']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return Owner.objects.none()
-        return Owner.objects.filter(organization=org).prefetch_related('animals')
+        return Owner.objects.filter(clinic=org).prefetch_related('animals')
 
     def perform_create(self, serializer):
-        org = get_or_create_organization(self.request.user)
-        serializer.save(organization=org)
+        org = get_or_create_clinic(self.request.user)
+        serializer.save(clinic=org)
 
 
 @extend_schema(
@@ -102,10 +102,10 @@ class AnimalPatientViewSet(viewsets.ModelViewSet):
         return AnimalPatientSerializer
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return AnimalPatient.objects.none()
-        qs = AnimalPatient.objects.filter(owner__organization=org).select_related('owner')
+        qs = AnimalPatient.objects.filter(owner__clinic=org).select_related('owner')
         species = self.request.query_params.get('species')
         if species:
             qs = qs.filter(species=species)
@@ -143,7 +143,7 @@ class AnimalPatientViewSet(viewsets.ModelViewSet):
 )
 class VHSMeasurementViewSet(viewsets.ModelViewSet):
     """
-    Vertebral Heart Score measurements, scoped to the user's organization
+    Vertebral Heart Score measurements, scoped to the user's clinic
     (via the animal patient's owner). Filter by ?animal=<id>.
     """
     serializer_class = VHSMeasurementSerializer
@@ -153,11 +153,11 @@ class VHSMeasurementViewSet(viewsets.ModelViewSet):
     ordering = ['-measured_on']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return VHSMeasurement.objects.none()
         qs = VHSMeasurement.objects.filter(
-            animal_patient__owner__organization=org
+            animal_patient__owner__clinic=org
         ).select_related('animal_patient', 'created_by')
         animal_id = self.request.query_params.get('animal')
         if animal_id:
@@ -180,7 +180,7 @@ class VHSMeasurementViewSet(viewsets.ModelViewSet):
 )
 class ClinicalVisitViewSet(viewsets.ModelViewSet):
     """
-    Clinical encounters (SOAP notes + vitals) scoped to the user's organization.
+    Clinical encounters (SOAP notes + vitals) scoped to the user's clinic.
     Filter by ?animal=<id>.
     """
     serializer_class = ClinicalVisitSerializer
@@ -190,11 +190,11 @@ class ClinicalVisitViewSet(viewsets.ModelViewSet):
     ordering = ['-visit_date']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return ClinicalVisit.objects.none()
         qs = ClinicalVisit.objects.filter(
-            animal_patient__owner__organization=org
+            animal_patient__owner__clinic=org
         ).select_related('animal_patient', 'attending_vet', 'created_by')
         animal_id = self.request.query_params.get('animal')
         if animal_id:
@@ -227,11 +227,11 @@ class VaccinationRecordViewSet(viewsets.ModelViewSet):
     ordering = ['-administered_on']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return VaccinationRecord.objects.none()
         qs = VaccinationRecord.objects.filter(
-            animal_patient__owner__organization=org
+            animal_patient__owner__clinic=org
         ).select_related('animal_patient', 'administered_by')
         animal_id = self.request.query_params.get('animal')
         if animal_id:
@@ -261,11 +261,11 @@ class WeightRecordViewSet(viewsets.ModelViewSet):
     ordering = ['-measured_on']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return WeightRecord.objects.none()
         qs = WeightRecord.objects.filter(
-            animal_patient__owner__organization=org
+            animal_patient__owner__clinic=org
         ).select_related('animal_patient', 'recorded_by')
         animal_id = self.request.query_params.get('animal')
         if animal_id:
@@ -293,7 +293,7 @@ class WeightRecordViewSet(viewsets.ModelViewSet):
 )
 class AppointmentViewSet(viewsets.ModelViewSet):
     """
-    Clinic appointments scoped to the user's organization.
+    Clinic appointments scoped to the user's clinic.
     Filter by ?animal=<id>&status=pending&date_from=YYYY-MM-DD&date_to=YYYY-MM-DD.
     """
     serializer_class = AppointmentSerializer
@@ -303,11 +303,11 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     ordering = ['scheduled_at']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return Appointment.objects.none()
         qs = Appointment.objects.filter(
-            animal_patient__owner__organization=org
+            animal_patient__owner__clinic=org
         ).select_related('animal_patient__owner', 'attending_vet', 'created_by')
 
         animal_id = self.request.query_params.get('animal')
@@ -372,11 +372,11 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
     ordering = ['-prescribed_on']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return Prescription.objects.none()
         qs = Prescription.objects.filter(
-            animal_patient__owner__organization=org
+            animal_patient__owner__clinic=org
         ).select_related('animal_patient', 'prescribed_by', 'visit')
         animal_id = self.request.query_params.get('animal')
         if animal_id:
@@ -401,11 +401,11 @@ class AllergyRecordViewSet(viewsets.ModelViewSet):
     ordering = ['-severity', 'allergen']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return AllergyRecord.objects.none()
         qs = AllergyRecord.objects.filter(
-            animal_patient__owner__organization=org
+            animal_patient__owner__clinic=org
         ).select_related('animal_patient', 'recorded_by')
         animal_id = self.request.query_params.get('animal')
         if animal_id:
@@ -431,11 +431,11 @@ class ClinicalPhotoViewSet(viewsets.ModelViewSet):
     ordering = ['-taken_on']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return ClinicalPhoto.objects.none()
         qs = ClinicalPhoto.objects.filter(
-            animal_patient__owner__organization=org
+            animal_patient__owner__clinic=org
         ).select_related('animal_patient', 'visit', 'taken_by')
         animal_id = self.request.query_params.get('animal')
         if animal_id:
@@ -464,11 +464,11 @@ class LabResultViewSet(viewsets.ModelViewSet):
     ordering = ['-result_date']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return LabResult.objects.none()
         qs = LabResult.objects.filter(
-            animal_patient__owner__organization=org
+            animal_patient__owner__clinic=org
         ).select_related('animal_patient', 'visit', 'requested_by')
         animal_id = self.request.query_params.get('animal')
         if animal_id:
@@ -555,11 +555,11 @@ class ReproductiveEventViewSet(viewsets.ModelViewSet):
     ordering = ['-event_date']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return ReproductiveEvent.objects.none()
         qs = ReproductiveEvent.objects.filter(
-            animal_patient__owner__organization=org
+            animal_patient__owner__clinic=org
         ).select_related('animal_patient', 'recorded_by')
         animal_id = self.request.query_params.get('animal')
         if animal_id:
@@ -594,14 +594,14 @@ class ReferringClinicViewSet(viewsets.ModelViewSet):
     ordering = ['name']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return ReferringClinic.objects.none()
-        return ReferringClinic.objects.filter(organization=org)
+        return ReferringClinic.objects.filter(clinic=org)
 
     def perform_create(self, serializer):
-        org = get_or_create_organization(self.request.user)
-        serializer.save(organization=org, created_by=self.request.user)
+        org = get_or_create_clinic(self.request.user)
+        serializer.save(clinic=org, created_by=self.request.user)
 
 
 @extend_schema(
@@ -620,11 +620,11 @@ class ReferralPackageViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
 
     def get_queryset(self):
-        org = get_or_create_organization(self.request.user)
+        org = get_or_create_clinic(self.request.user)
         if org is None:
             return ReferralPackage.objects.none()
         qs = ReferralPackage.objects.filter(
-            animal_patient__owner__organization=org
+            animal_patient__owner__clinic=org
         ).select_related('animal_patient', 'referring_clinic', 'study', 'report')
         animal_id = self.request.query_params.get('animal')
         if animal_id:
@@ -635,8 +635,8 @@ class ReferralPackageViewSet(viewsets.ModelViewSet):
         animal = serializer.validated_data['animal_patient']
         org = _check_animal_in_org(animal, self.request.user)
         clinic = serializer.validated_data.get('referring_clinic')
-        if clinic and clinic.organization_id != getattr(org, 'id', None):
-            raise PermissionDenied('Referring clinic is not in your organization.')
+        if clinic and clinic.clinic_id != getattr(org, 'id', None):
+            raise PermissionDenied('Referring clinic is not in your clinic.')
         serializer.save(created_by=self.request.user)
 
 
@@ -698,10 +698,10 @@ class MessageViewSet(viewsets.ModelViewSet):
         if self._is_owner():
             qs = Message.objects.filter(animal_patient__owner__email__iexact=user.email)
         else:
-            org = get_or_create_organization(user)
+            org = get_or_create_clinic(user)
             if org is None:
                 return Message.objects.none()
-            qs = Message.objects.filter(animal_patient__owner__organization=org)
+            qs = Message.objects.filter(animal_patient__owner__clinic=org)
         qs = qs.select_related('animal_patient', 'animal_patient__owner', 'sender')
         animal_id = self.request.query_params.get('animal')
         if animal_id:
@@ -730,7 +730,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         animal = msg.animal_patient
         if msg.from_owner:
             # Owner messaged the clinic → the org's owning staff user.
-            recipient = getattr(animal.owner.organization, 'user', None)
+            recipient = getattr(animal.owner.clinic, 'user', None)
             return recipient, f'/patients?animal={animal.id}', \
                 f"New message from {animal.owner} about {animal.name}."
         # Clinic messaged the owner → the owner's portal account.

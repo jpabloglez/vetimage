@@ -428,13 +428,13 @@ class AnalysisTaskViewSet(viewsets.ModelViewSet):
             try:
                 profile = request.user.userprofile
 
-                if not profile.organization:
-                    # No organization, can't see colleague tasks
+                if not profile.clinic:
+                    # No clinic, can't see colleague tasks
                     pass
                 else:
                     # Build colleague filter
                     colleague_filter = Q(
-                        created_by__userprofile__organization=profile.organization,
+                        created_by__userprofile__clinic=profile.clinic,
                         created_by__userprofile__is_sharing_jobs_with_colleagues=True,
                         created_at__gte=date_from,
                         created_at__lte=date_to
@@ -546,9 +546,9 @@ class AnalysisTaskViewSet(viewsets.ModelViewSet):
             try:
                 profile = request.user.userprofile
 
-                if profile.organization:
+                if profile.clinic:
                     colleague_filter = Q(
-                        created_by__userprofile__organization=profile.organization,
+                        created_by__userprofile__clinic=profile.clinic,
                         created_by__userprofile__is_sharing_jobs_with_colleagues=True,
                         created_at__gte=date_from,
                         created_at__lte=date_to

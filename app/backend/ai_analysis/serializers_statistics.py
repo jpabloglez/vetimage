@@ -60,9 +60,9 @@ class StatisticsTaskSerializer(serializers.ModelSerializer):
         allow_null=True
     )
 
-    # Organization (for filtering and display)
-    organization_name = serializers.CharField(
-        source='input_image.series.study.uploaded_by.userprofile.organization.centre',
+    # Clinic (for filtering and display)
+    clinic_name = serializers.CharField(
+        source='input_image.series.study.uploaded_by.userprofile.clinic.name',
         read_only=True,
         allow_null=True
     )
@@ -91,7 +91,7 @@ class StatisticsTaskSerializer(serializers.ModelSerializer):
             'study_description',
             'modality',
             'body_part',
-            'organization_name',
+            'clinic_name',
             'ai_metrics',
         ]
         # NOTE: patient_name is deliberately EXCLUDED for privacy compliance

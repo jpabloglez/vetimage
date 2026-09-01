@@ -89,7 +89,7 @@ class StudyTransferSerializer(serializers.Serializer):
         help_text="DICOM modality (CT, MR, CR, etc.)"
     )
 
-    # Organization info (for colleague visibility)
+    # Clinic info (for colleague visibility)
     uploaded_by_name = serializers.SerializerMethodField(
         help_text="Name of user who received the transfer (privacy-aware)"
     )
