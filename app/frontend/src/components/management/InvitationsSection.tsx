@@ -37,7 +37,13 @@ const STATUS_STYLES: Record<string, string> = {
   expired: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
 };
 
-export const InvitationsSection: React.FC = () => {
+interface Props {
+  /** Render without the surrounding card and heading — for embedding somewhere
+   *  that already provides them, such as the Dashboard's invite modal. */
+  bare?: boolean;
+}
+
+export const InvitationsSection: React.FC<Props> = ({ bare = false }) => {
   const { t, i18n } = useTranslation('common');
 
   const [invitations, setInvitations] = useState<ClinicInvitation[]>([]);
@@ -125,13 +131,8 @@ export const InvitationsSection: React.FC = () => {
     'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm ' +
     'focus:outline-none focus:ring-2 focus:ring-medical-500';
 
-  return (
+  const body = (
     <>
-      <Card variant="medical">
-        <CardHeader>
-          <CardTitle>{t('management.invitations.title')}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
           <p className="text-sm text-slate-600 dark:text-slate-400">
             {t('management.invitations.description')}
           </p>
@@ -250,9 +251,7 @@ export const InvitationsSection: React.FC = () => {
                 </tbody>
               </table>
             </div>
-          )}
-        </CardContent>
-      </Card>
+      )}
 
       <ConfirmDialog
         open={revoking !== null}
@@ -264,6 +263,17 @@ export const InvitationsSection: React.FC = () => {
         danger
       />
     </>
+  );
+
+  if (bare) return body;
+
+  return (
+    <Card variant="medical">
+      <CardHeader>
+        <CardTitle>{t('management.invitations.title')}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">{body}</CardContent>
+    </Card>
   );
 };
 

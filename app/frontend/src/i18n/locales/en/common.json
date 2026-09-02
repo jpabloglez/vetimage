@@ -118,7 +118,9 @@
       "approved": "Approved",
       "final": "Final",
       "draft": "Draft"
-    }
+    },
+    "inviteColleague": "Invite a colleague",
+    "inviteColleagueDesc": "Give another vet access to this clinic's patients and studies."
   },
   "footer": {
     "tagline": "Veterinary imaging platform powered by DICOMweb standards and AI analysis models.",
@@ -366,6 +368,42 @@
       "invalidBody": "It may have expired, been revoked, or already been used. Ask your clinic administrator to send a new one.",
       "goToLogin": "Go to sign in",
       "expiryNote": "This invitation can be used once and expires on {{date}}."
+    },
+    "members": {
+      "title": "Clinic staff",
+      "person": "Person",
+      "role": "Role",
+      "lastSignIn": "Last sign-in",
+      "actions": "Actions",
+      "you": "(you)",
+      "description": "Everyone who can see this clinic's patients, studies and reports.",
+      "empty": "No staff yet.",
+      "revokedBadge": "No access",
+      "roleFor": "Role for {{name}}",
+      "revoke": "Revoke access",
+      "revokeFor": "Revoke access for {{name}}",
+      "revokeTitle": "Revoke access?",
+      "revokeConfirm": "{{name}} will no longer be able to sign in. Everything they recorded stays with the clinic, and you can restore their access later.",
+      "revoked": "Access revoked",
+      "revokeError": "Could not revoke access",
+      "restore": "Restore access",
+      "restoreFor": "Restore access for {{name}}",
+      "restored": "Access restored",
+      "restoreError": "Could not restore access",
+      "roleChanged": "Role updated",
+      "roleError": "Could not change the role",
+      "loadError": "Could not load the clinic's staff"
+    },
+    "clinic": {
+      "title": "Clinic details",
+      "description": "Your clinic's name appears on invitations you send and on reports you share with owners.",
+      "name": "Clinic name",
+      "city": "City",
+      "address": "Address",
+      "billingCode": "Billing code",
+      "saved": "Clinic details updated",
+      "saveError": "Could not save the clinic details",
+      "loadError": "Could not load the clinic details"
     }
   }
 }
