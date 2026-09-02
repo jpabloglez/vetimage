@@ -808,6 +808,29 @@ export interface TransferStats {
 // User / Profile
 // ---------------------------------------------------------------------------
 
+export interface ClinicMember {
+  user_id: number;
+  email: string;
+  first_name: string;
+  last_name: string | null;
+  role: number;
+  is_clinic_admin: boolean;
+  is_active: boolean;
+  last_login: string | null;
+  department: string;
+  job_title: string;
+}
+
+export interface ClinicProfile {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  billing_address: string;
+  billing_code: string;
+  created_at: string;
+}
+
 export interface AdminClinic {
   id: number;
   name: string;

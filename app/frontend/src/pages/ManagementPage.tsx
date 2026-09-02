@@ -1,9 +1,10 @@
 /**
  * Management Page — Clinic Admins only.
  *
- * This is where a clinic decides who has access to its records. Personal
- * settings are not here: they already live under the account menu → My
- * Profile, and duplicating them would leave two forms writing the same fields.
+ * This is where a clinic decides who has access to its records: the staff
+ * roster, invitations, and the clinic's own details. Personal settings are not
+ * here — they live under the account menu → My Profile, and duplicating them
+ * would leave two forms writing the same fields.
  *
  * The route is gated on role 3 as well (App.tsx), and the backend refuses a
  * non-admin regardless — this page never assumes the client-side guard held.
@@ -14,7 +15,9 @@ import { UserCog } from 'lucide-react';
 
 import PageHeader from '../components/ui/PageHeader';
 import { useAuth } from '../contexts';
+import MembersSection from '../components/management/MembersSection';
 import InvitationsSection from '../components/management/InvitationsSection';
+import ClinicProfileSection from '../components/management/ClinicProfileSection';
 
 const ManagementPage: React.FC = () => {
   const { t } = useTranslation('common');
@@ -31,7 +34,13 @@ const ManagementPage: React.FC = () => {
             : t('management.subtitle')
         }
       />
-      <InvitationsSection />
+      <div className="space-y-6">
+        {/* Roster first: who is already here is the question an admin arrives
+            with. Inviting follows, then the clinic's own details. */}
+        <MembersSection />
+        <InvitationsSection />
+        <ClinicProfileSection />
+      </div>
     </div>
   );
 };

@@ -1,12 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, Brain, CheckCircle2, FileText, LayoutDashboard, Loader2, Zap } from 'lucide-react';
+import { ArrowRight, Brain, CheckCircle2, FileText, LayoutDashboard, Loader2, UserPlus, Zap } from 'lucide-react';
 
 import { apiClient } from '../utils/api';
 import type { Report } from '../types/api';
 import { useWebSocket } from '../hooks/useWebSocket';
+import { useAuth } from '../contexts';
 import PageHeader from '../components/ui/PageHeader';
+import Modal from '../components/ui/Modal';
+import InvitationsSection from '../components/management/InvitationsSection';
 
 const RECENT_LIMIT = 6;
 
@@ -70,6 +73,10 @@ const Dashboard: React.FC = () => {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
 
+  const { user } = useAuth();
+  // Mirrors users.models.CLINIC_ADMIN_ROLE — only admins can invite.
+  const isClinicAdmin = user?.role === 3;
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -131,7 +138,39 @@ const Dashboard: React.FC = () => {
             title={t('dashboard.availableModels')}
             description={t('dashboard.availableModelsDesc')}
           />
+          {/* Shortcut for the common case — adding a colleague — without a
+              detour through Management. Opens the same panel that page uses,
+              rather than a second copy of the invite form. */}
+          {isClinicAdmin && (
+            <button
+              type="button"
+              onClick={() => setInviteOpen(true)}
+              className="medical-card p-6 group flex items-start gap-4 text-left hover:border-medical-400 dark:hover:border-medical-500 transition-colors"
+            >
+              <span className="shrink-0 h-12 w-12 rounded-xl bg-medical-50 dark:bg-medical-900/40 flex items-center justify-center text-medical-600 dark:text-medical-300">
+                <UserPlus className="h-6 w-6" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-1 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  {t('dashboard.inviteColleague')}
+                  <ArrowRight className="h-4 w-4 text-medical-500 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                </span>
+                <span className="block text-sm text-slate-600 dark:text-slate-400 mt-1">
+                  {t('dashboard.inviteColleagueDesc')}
+                </span>
+              </span>
+            </button>
+          )}
         </div>
+
+        <Modal
+          isOpen={inviteOpen}
+          onClose={() => setInviteOpen(false)}
+          title={t('dashboard.inviteColleague')}
+          size="2xl"
+        >
+          <InvitationsSection bare />
+        </Modal>
 
         {/* Row 2 — recent reports, full width */}
         <div className="medical-card p-6">

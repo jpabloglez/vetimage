@@ -255,7 +255,15 @@ A **tab on `/monitor`** (`AuditLogPanel`, beside AI Analyses / DICOM Transfers /
 
 `ClinicInvitation` (`users`) + `/users/clinic/invitations/` (Clinic Admin only) and public `/users/clinic/invitations/accept/<token>/`. An accepted invitation grants access to every patient, study and report in the clinic, so the token carries the whole grant: single-use (`select_for_update` before redemption), expiring (7 days), revocable (sets `revoked_at`, never deletes — the audit trail survives), and throttled (`invitation` scope). Clinic and inviter come from the request, never the payload; the account's role comes from the invitation, never the acceptance body; `is_staff` is never touched. `INVITABLE_ROLES = (1, 3, 4)` — never 5 or 6. Unknown / expired / revoked / spent tokens all return the same 404, so the endpoint cannot be used to probe which addresses have accounts.
 
+**Members, roles and offboarding** (`users/views_clinic.py`, `/users/clinic/members/`, Clinic Admin only): the staff roster, `POST <id>/role/`, `POST <id>/revoke/`, `POST <id>/restore/`. **Revoking deactivates the account — it never deletes it and never clears `UserProfile.clinic`.** Both alternatives lose data: `MedicalStudy.uploaded_by` is `on_delete=CASCADE`, so deleting a departed vet takes every study they uploaded with them; and scoping matches on `uploaded_by__userprofile__clinic`, so clearing their clinic hides those same studies from the clinic that owns them. Deactivating revokes access fully (they cannot sign in; sessions are terminated) while the clinic keeps the record, and it is reversible. `ASSIGNABLE_ROLES = (1, 3, 4)`.
+
+The invariant is that a clinic always keeps **at least one active administrator** — one with none cannot invite, change a role, or edit its own details, and recovery needs platform staff. Two rules hold it: you cannot revoke your own access (acting on anyone else is safe, since you remain), and you may step down from admin only while another active admin exists. A guard that also blocked demoting *other* admins would be dead code — the caller is always another active admin.
+
+**Clinic details** (`/users/clinic/profile/`): readable by any member, editable by its admins. This is how an auto-provisioned name (the email local part) gets corrected.
+
 **Founders are administrators.** `get_or_create_clinic` grants role 3 to whoever it provisions a clinic *for* — otherwise a clinic has no administrator and its founder cannot invite anyone (migration `users.0017` repairs pre-existing rows). Only on provisioning: joining an existing clinic, or accepting an invitation, never promotes.
+
+**Note:** this project's `User` model has **no `date_joined`** field — only `last_login`. Referencing it in a serializer raises `AttributeError` at request time (it shipped once in the admin clinic-detail roster and returned 500).
 
 ### Admin panel (`/admin`, platform staff only)
 
