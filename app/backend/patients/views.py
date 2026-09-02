@@ -34,8 +34,14 @@ def get_or_create_clinic(user):
     The veterinary registry is clinic-scoped, so we lazily provision a
     clinic clinic for the user the first time they use it. Returns None
     only if no UserProfile exists at all (should not happen in practice).
+
+    Provisioning also makes the user that clinic's administrator. They are its
+    only member, and clinic administration — inviting colleagues above all —
+    has to belong to someone; without this the founder of a clinic cannot add
+    anyone to it. Only ever applied to a clinic created here, never to a user
+    joining an existing one.
     """
-    from users.models import Clinic, UserProfile
+    from users.models import CLINIC_ADMIN_ROLE, Clinic, UserProfile
 
     profile = getattr(user, 'userprofile', None)
     if profile is None:
@@ -51,6 +57,10 @@ def get_or_create_clinic(user):
         )
         profile.clinic = org
         profile.save(update_fields=['clinic'])
+
+        if user.role != CLINIC_ADMIN_ROLE:
+            user.role = CLINIC_ADMIN_ROLE
+            user.save(update_fields=['role'])
     return profile.clinic
 
 

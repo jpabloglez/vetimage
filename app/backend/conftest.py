@@ -2,6 +2,8 @@
 Root conftest.py — Shared fixtures for all backend tests.
 """
 
+import uuid
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -23,6 +25,22 @@ def _clear_throttle_cache():
 
 
 # ---------------------------------------------------------------------------
+# Test credentials
+# ---------------------------------------------------------------------------
+#
+# Generated per run rather than written as literals. Nothing here is a real
+# credential, but a hardcoded password in a repository is indistinguishable
+# from one to a secret scanner — and to a reader skimming the file.
+
+def make_test_password(label='user'):
+    """A throwaway password that satisfies Django's validators."""
+    return f'{label}-{uuid.uuid4().hex[:16]}-Aa1!'
+
+
+TEST_PASSWORD = make_test_password('fixture')
+
+
+# ---------------------------------------------------------------------------
 # User fixtures
 # ---------------------------------------------------------------------------
 
@@ -30,7 +48,7 @@ def _clear_throttle_cache():
 def user(db):
     return User.objects.create_user(
         email='testuser@example.com',
-        password='TestPass123!',
+        password=TEST_PASSWORD,
         role=1,
     )
 
@@ -39,7 +57,7 @@ def user(db):
 def other_user(db):
     return User.objects.create_user(
         email='otheruser@example.com',
-        password='OtherPass123!',
+        password=TEST_PASSWORD,
         role=1,
     )
 

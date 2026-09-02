@@ -27,11 +27,13 @@ const CalendarPage     = lazy(() => import('./pages/CalendarPage'));
 const OwnerPortalPage  = lazy(() => import('./pages/OwnerPortalPage'));
 const OwnerReportPage  = lazy(() => import('./pages/OwnerReportPage'));
 const ReferralPackagePage = lazy(() => import('./pages/ReferralPackagePage'));
-const AuditLogPage     = lazy(() => import('./pages/AuditLogPage'));
 const MonitorPage      = lazy(() => import('./pages/MonitorPage'));
 const StatisticsPage   = lazy(() => import('./pages/StatisticsPage'));
 const DocumentationPage = lazy(() => import('./pages/DocumentationPage'));
 const SecurityPage     = lazy(() => import('./pages/SecurityPage'));
+const AdminPage        = lazy(() => import('./pages/AdminPage'));
+const ManagementPage   = lazy(() => import('./pages/ManagementPage'));
+const AcceptInvitationPage = lazy(() => import('./pages/AcceptInvitationPage'));
 const ProfilePage      = lazy(() =>
   import('./pages/ProfilePage').then((m) => ({ default: m.ProfilePage }))
 );
@@ -118,6 +120,8 @@ function App() {
                 <Route path="/shared/:token" element={<OwnerReportPage />} />
                 {/* Public specialist-facing referral package (no auth — token in URL) */}
                 <Route path="/referral/:token" element={<ReferralPackagePage />} />
+                {/* Public clinic invitation acceptance (no auth — token in URL) */}
+                <Route path="/invite/:token" element={<AcceptInvitationPage />} />
 
                 {/* Authentication Routes (redirect if already authenticated) */}
                 <Route
@@ -243,26 +247,32 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route path="/audit-report" element={<Navigate to="/audit-log" replace />} />
-                <Route
-                  path="/audit-log"
-                  element={
-                    <ProtectedRoute>
-                      <AuditLogPage />
-                    </ProtectedRoute>
-                  }
-                />
+                {/* The audit trail and its report are now tabs on Monitor.
+                    Both old paths redirect so existing links keep working. */}
+                <Route path="/audit-log" element={<Navigate to="/monitor" replace />} />
+                <Route path="/audit-report" element={<Navigate to="/monitor" replace />} />
 
                 {/* Role-based Protected Routes */}
                 {/* allowedRoles: Clinic Admin (3) and Superuser (5) — see users.models.ROLES */}
+                {/* Platform staff only. `requireStaff` mirrors
+                    core.permissions.IsPlatformStaff — the clinical `role` field
+                    deliberately grants nothing here. */}
                 <Route
                   path="/admin"
                   element={
-                    <ProtectedRoute allowedRoles={[3, 5]}>
-                      <div className="p-8">
-                        <h1 className="text-2xl font-bold">Admin Panel</h1>
-                        <p>This page is only accessible to administrators.</p>
-                      </div>
+                    <ProtectedRoute requireStaff>
+                      <AdminPage />
+                    </ProtectedRoute>
+                  }
+                />
+                {/* Clinic membership management. Inviting a colleague grants
+                    them the whole clinic's records, so it is role 3 only —
+                    personal settings live on /profile, not here. */}
+                <Route
+                  path="/management"
+                  element={
+                    <ProtectedRoute allowedRoles={[3]}>
+                      <ManagementPage />
                     </ProtectedRoute>
                   }
                 />

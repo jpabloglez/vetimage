@@ -1,7 +1,10 @@
 /**
- * AuditLogPage — clinic-admin view of the authentication/authorization audit
- * trail (who accessed what, when, from where). Admins see the whole
- * clinic; the backend scopes non-admins to their own events.
+ * AuditLogPanel — the authentication/authorization audit trail (who accessed
+ * what, when, from where), shown as a tab on the Monitor page beside the AI
+ * and DICOM activity it belongs with.
+ *
+ * Clinic admins see the whole clinic; the backend scopes everyone else to
+ * their own events, so this panel needs no role check of its own.
  *
  * Supports the data-security goal: visibility + accountability for owner data
  * access. Filter by event type, suspicious-only, and date range.
@@ -9,9 +12,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
-import { Shield, AlertTriangle, RefreshCw } from 'lucide-react';
-import { apiClient, type AuditLogEntry } from '../utils/api';
-import { Card, CardContent } from '../components/ui';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { apiClient, type AuditLogEntry } from '../../utils/api';
+import { Card, CardContent } from '../ui';
 
 const EVENT_TYPES = [
   'login_success', 'login_failed', 'logout', 'token_refresh', 'token_expired',
@@ -21,7 +24,7 @@ const EVENT_TYPES = [
   'suspicious_activity', 'rate_limit_exceeded', 'invalid_token', 'scope_violation',
 ];
 
-const AuditLogPage: React.FC = () => {
+export const AuditLogPanel: React.FC = () => {
   const { t } = useTranslation('common');
   const [logs, setLogs] = useState<AuditLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,18 +55,10 @@ const AuditLogPage: React.FC = () => {
     'px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-medical bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-medical-500';
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-medical-500 to-teal-500 flex items-center justify-center">
-          <Shield className="w-5 h-5 text-white" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('auditLog.title', 'Audit Log')}</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            {t('auditLog.subtitle', 'Authentication & access events for your clinic')}
-          </p>
-        </div>
-      </div>
+    <div>
+      <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">
+        {t('auditLog.subtitle', 'Authentication & access events for your clinic')}
+      </p>
 
       {/* Filters */}
       <div className="flex flex-wrap items-end gap-3 mb-5">
@@ -139,4 +134,4 @@ const AuditLogPage: React.FC = () => {
   );
 };
 
-export default AuditLogPage;
+export default AuditLogPanel;

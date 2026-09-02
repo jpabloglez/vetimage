@@ -17,6 +17,12 @@ interface ProtectedRouteProps {
   requireAuth?: boolean;
   redirectTo?: string;
   allowedRoles?: number[];
+  /**
+   * Restrict to VetImage platform staff (`is_staff`), independent of the
+   * clinical `role`. Mirrors core.permissions.IsPlatformStaff — this guard is
+   * only for navigation; the backend refuses non-staff regardless.
+   */
+  requireStaff?: boolean;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
@@ -24,6 +30,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireAuth = true,
   redirectTo = '/auth/login',
   allowedRoles,
+  requireStaff = false,
 }) => {
   const { isAuthenticated, user, isLoading } = useAuth();
   const location = useLocation();
@@ -75,6 +82,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Check role-based access
+  if (requireAuth && isAuthenticated && requireStaff && !user?.is_staff) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   if (requireAuth && isAuthenticated && allowedRoles && user) {
     if (!allowedRoles.includes(user.role)) {
       return (

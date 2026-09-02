@@ -160,7 +160,9 @@ React Router v7, Tailwind CSS (class-based dark mode with `dark:` prefix), custo
 |---|---|---|
 | `/patients` | `PatientsPage` | required |
 | `/calendar` | `CalendarPage` | required |
-| `/audit-log` | `AuditLogPage` | required (admin scoped) |
+| `/admin` | `AdminPage` | required (**platform staff** — `is_staff`) |
+| `/management` | `ManagementPage` | required (Clinic Admin, role 3) |
+| `/invite/:token` | `AcceptInvitationPage` | **public** (no login) |
 | `/shared/:token` | `OwnerReportPage` | **public** (no login) |
 | `/referral/:token` | `ReferralPackagePage` | **public** (no login) |
 | `/portal` | `OwnerPortalPage` | required (Pet Owner role only) |
@@ -247,9 +249,33 @@ Other:
 
 ### Audit Log
 
-`/audit-log` → `AuditLogPage`. Backend: `/api/credentials/` audit endpoint. Admins see the full clinic log; non-admins see only their own events. Filterable by event type (login_success, login_failed, suspicious_activity, etc.) and date range.
+A **tab on `/monitor`** (`AuditLogPanel`, beside AI Analyses / DICOM Transfers / Audit Report), not a page of its own — `/audit-log` and `/audit-report` redirect there. Backend: `/api/credentials/` audit endpoint. Clinic admins see the full clinic log; everyone else sees only their own events. Filterable by event type (login_success, login_failed, suspicious_activity, …) and date range.
+
+### Clinic membership: invitations (`/management`)
+
+`ClinicInvitation` (`users`) + `/users/clinic/invitations/` (Clinic Admin only) and public `/users/clinic/invitations/accept/<token>/`. An accepted invitation grants access to every patient, study and report in the clinic, so the token carries the whole grant: single-use (`select_for_update` before redemption), expiring (7 days), revocable (sets `revoked_at`, never deletes — the audit trail survives), and throttled (`invitation` scope). Clinic and inviter come from the request, never the payload; the account's role comes from the invitation, never the acceptance body; `is_staff` is never touched. `INVITABLE_ROLES = (1, 3, 4)` — never 5 or 6. Unknown / expired / revoked / spent tokens all return the same 404, so the endpoint cannot be used to probe which addresses have accounts.
+
+**Founders are administrators.** `get_or_create_clinic` grants role 3 to whoever it provisions a clinic *for* — otherwise a clinic has no administrator and its founder cannot invite anyone (migration `users.0017` repairs pre-existing rows). Only on provisioning: joining an existing clinic, or accepting an invitation, never promotes.
+
+### Admin panel (`/admin`, platform staff only)
+
+`users/views_admin.py` + `users/urls_admin.py` under `/api/admin/`, every view gated on `IsPlatformStaff`. **The only module permitted to read across clinics** — anywhere else an unscoped query is a bug.
+
+- `GET /api/admin/summary/` — headline platform counts.
+- `GET|POST /api/admin/clinics/` — the clinic registry with per-clinic usage counts, and clinic registration. Counts are `annotate()`d with **`distinct=True`** (the joins fan out against each other; `tests/test_admin_api.py` fails with `4 == 2` if it is dropped).
+- `GET /api/admin/statistics/` — live cross-clinic analysis stats (over time, by model, by clinic, by status), filterable by `days` / `clinic` / `model` / `status`. Computed on read, not rolled up; the window is bounded (1–365) via `bounded_int`.
+
+Three rules keep the cross-clinic exception honest: gated on `is_staff` and never on `role`; **read-only over clinical data** — registering a clinic creates the empty tenant and *invites* its first administrator rather than provisioning an account, so staff never hold a customer's password; and **aggregates, not content** — counts, timestamps and clinic names, never patient names, findings or images. A clinic's own figures stay on `/monitor`, scoped to them.
 
 ## Key Conventions
+
+### Authorization axes
+Two **independent** axes — do not conflate them:
+- **`User.role`** — what someone does inside a clinic (1 Vet, 3 Clinic Admin, 4 Radiologist, 6 Pet Owner). Role 5 "Superuser" is vestigial: it grants nothing and is *not* a platform gate.
+- **`User.is_staff`** — VetImage platform staff. Gates the cross-clinic `/admin` area via `core.permissions.IsPlatformStaff`. Read-only over the API and **never settable through it**; grant with `manage.py create_platform_admin <email>` (sets `is_staff` only, never `is_superuser`). A person can be both a clinic vet and platform staff, which is why this isn't a role.
+- `core.permissions.IsClinicAdmin` gates clinic-membership management (`role == 3`), scoped to the admin's own clinic.
+- Admin access is **read-only**: platform staff never write into a clinic's records, so no clinical record is ever created or approved under someone else's identity.
+- Admin endpoints are the **only** place permitted to bypass `dicom_images.scoping`. Anywhere else, an unscoped query is a bug.
 
 ### Clinic Scoping (multi-tenancy)
 - **`Clinic` is the tenant** — one clinic is one customer. `UserProfile.clinic` is the membership link and is what scopes all data access.
@@ -292,7 +318,8 @@ Other:
 - Services layer in `services.py` or `services/` for business logic
 - Frontend: PascalCase components, `useCamelCase` hooks, `camelCase` utils
 - Validation schemas in `utils/validation.ts`: `ownerSchema` (required email + phone), `ownerAnimalSchema` (new-owner registration: name + species), `animalPatientSchema` (standalone animal), `vhsSchema`
-- i18n namespace `patients` covers all of `PatientsPage`, `OwnerReportPage`, and `AuditLogPage` owner labels
+- i18n namespace `patients` covers all of `PatientsPage`, `OwnerReportPage`, and `AuditLogPanel` owner labels
+- Component tests that use `renderWithProviders` must **not** declare their own `vi.mock('../utils/api')` — `test-utils.tsx` already registers one, and a second creates a rival module instance the component never sees (the mock configures cleanly while the component reads a different object). Configure the shared `apiClient` instead.
 - `getByLabelText` in tests must use anchored regexes (`/^Email/i` not `/Email/i`) — the search bar's aria-label contains "email" and causes false matches
 
 ### Branch & Commit Style

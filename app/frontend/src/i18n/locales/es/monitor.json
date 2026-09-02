@@ -4,6 +4,7 @@
   "tabs": {
     "aiAnalyses": "Análisis de AI",
     "dicomTransfers": "Transferencias DICOM",
+    "auditLog": "Registro de auditoría",
     "audit": "Informe de Auditoría"
   },
   "tasks": {

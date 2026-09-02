@@ -26,7 +26,23 @@ export interface RegisterData {
 export interface User {
   id: number;
   email: string;
+  /** Clinical role within a clinic (1 Vet, 3 Clinic Admin, ...). Unrelated to `is_staff`. */
   role: number;
+  /** VetImage platform staff. Read-only; gates the cross-clinic Admin area. */
+  is_staff?: boolean;
+  clinic_name?: string | null;
+  /** Editable UserProfile fields, returned so forms can prefill (read-only here;
+   *  saved via completeProfile). Without these a form prefills blank and can
+   *  write the blanks back. */
+  profile?: {
+    first_name?: string;
+    last_name?: string | null;
+    phone?: string;
+    department?: string;
+    job_title?: string;
+    team_name?: string;
+    is_sharing_jobs_with_colleagues?: boolean;
+  };
   language?: string;
   image_url?: string;
   created_at: string;
@@ -791,6 +807,62 @@ export interface TransferStats {
 // ---------------------------------------------------------------------------
 // User / Profile
 // ---------------------------------------------------------------------------
+
+export interface AdminClinic {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  created_at: string;
+  founder_email: string | null;
+  members: number;
+  owners_count: number;
+  patients_count: number;
+  studies_count: number;
+  analyses_count: number;
+  last_activity: string | null;
+}
+
+export interface AdminPlatformSummary {
+  clinics: number;
+  users: number;
+  owners: number;
+  patients: number;
+  studies: number;
+  analyses: number;
+  analyses_last_30d: number;
+  reports: number;
+  pending_invitations: number;
+}
+
+export interface AdminStatistics {
+  window_days: number;
+  since: string;
+  totals: { total: number; succeeded: number; failed: number; success_rate: number | null };
+  over_time: { day: string; total: number; succeeded: number; failed: number }[];
+  by_model: { model_key: string; name: string; total: number; succeeded: number; failed: number }[];
+  by_clinic: { clinic_id: number | null; name: string | null; total: number }[];
+  by_status: { status: string; total: number }[];
+}
+
+export interface ClinicInvitation {
+  id: number;
+  email: string;
+  role: number;
+  status: 'pending' | 'accepted' | 'revoked' | 'expired';
+  created_at: string;
+  expires_at: string;
+  accepted_at: string | null;
+  invited_by_email?: string;
+  /** Relative path; the client builds the full URL so it stays correct behind any proxy. */
+  accept_path: string;
+}
+
+export interface PublicInvitation {
+  clinic_name: string;
+  email: string;
+  expires_at: string;
+}
 
 export interface ProfileCompletionData {
   department: string;
