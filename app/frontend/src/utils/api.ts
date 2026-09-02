@@ -74,6 +74,11 @@ import type {
   PaginatedDicomTransfers,
   TransferStats,
   ProfileCompletionData,
+  ClinicInvitation,
+  PublicInvitation,
+  AdminClinic,
+  AdminPlatformSummary,
+  AdminStatistics,
   ColleagueProfile,
   StatisticsFilters,
   PaginatedStatisticsData,
@@ -402,6 +407,93 @@ class ApiClient {
       '/users/auth/ws-ticket/', { method: 'POST' },
     );
     return res.ticket;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Platform administration (VetImage staff only — see core.permissions)
+  // ---------------------------------------------------------------------------
+
+  /** Headline counts across every clinic. */
+  async getAdminSummary(): Promise<AdminPlatformSummary> {
+    return this.request<AdminPlatformSummary>('/api/admin/summary/');
+  }
+
+  /** The clinic registry, with per-clinic usage counts. */
+  async getAdminClinics(): Promise<AdminClinic[]> {
+    const res = await this.request<PaginatedResponse<AdminClinic> | AdminClinic[]>(
+      '/api/admin/clinics/',
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  /** Register a clinic and invite its first administrator. */
+  async createAdminClinic(data: {
+    name: string;
+    city?: string;
+    address?: string;
+    admin_email: string;
+  }): Promise<{ id: number; name: string; admin_email: string; invitation_path: string }> {
+    return this.request('/api/admin/clinics/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /** Live cross-clinic analysis statistics. */
+  async getAdminStatistics(params?: {
+    days?: number;
+    clinic?: number;
+    model?: string;
+    status?: string;
+  }): Promise<AdminStatistics> {
+    const qs = new URLSearchParams();
+    if (params?.days) qs.set('days', String(params.days));
+    if (params?.clinic) qs.set('clinic', String(params.clinic));
+    if (params?.model) qs.set('model', params.model);
+    if (params?.status) qs.set('status', params.status);
+    const suffix = qs.toString() ? `?${qs.toString()}` : '';
+    return this.request<AdminStatistics>(`/api/admin/statistics/${suffix}`);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Clinic invitations
+  // ---------------------------------------------------------------------------
+
+  /** List the caller's clinic invitations. Clinic Admins only. */
+  async getClinicInvitations(): Promise<ClinicInvitation[]> {
+    const res = await this.request<PaginatedResponse<ClinicInvitation> | ClinicInvitation[]>(
+      '/users/clinic/invitations/',
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  /** Invite a colleague into the caller's clinic. Clinic Admins only. */
+  async createClinicInvitation(email: string, role: number): Promise<ClinicInvitation> {
+    return this.request<ClinicInvitation>('/users/clinic/invitations/', {
+      method: 'POST',
+      body: JSON.stringify({ email, role }),
+    });
+  }
+
+  /** Revoke a pending invitation (kept as a record, not deleted). */
+  async revokeClinicInvitation(id: number): Promise<void> {
+    return this.request<void>(`/users/clinic/invitations/${id}/`, { method: 'DELETE' });
+  }
+
+  /** Public: what an invitee needs to render the acceptance page. */
+  async getInvitation(token: string): Promise<PublicInvitation> {
+    return this.request<PublicInvitation>(`/users/clinic/invitations/accept/${token}/`);
+  }
+
+  /** Public: redeem an invitation and create the account. */
+  async acceptInvitation(
+    token: string,
+    data: { password: string; first_name?: string; last_name?: string },
+  ): Promise<{ detail: string; email: string }> {
+    return this.request(`/users/clinic/invitations/accept/${token}/`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   async logout(): Promise<void> {

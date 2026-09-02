@@ -61,11 +61,15 @@ export const ProfilePage: React.FC = () => {
     const loadProfile = async () => {
       try {
         const profile = await apiClient.getProfile() as any;
+        // These live on the nested UserProfile, not the User row. Reading them
+        // flat prefills blank, and the form then writes those blanks back —
+        // silently wiping department, job title and team on every save.
+        const details = profile.profile ?? {};
         setFormData({
-          department: profile.department || '',
-          job_title: profile.job_title || '',
-          team_name: profile.team_name || '',
-          is_sharing_jobs_with_colleagues: profile.is_sharing_jobs_with_colleagues || false,
+          department: details.department || '',
+          job_title: details.job_title || '',
+          team_name: details.team_name || '',
+          is_sharing_jobs_with_colleagues: details.is_sharing_jobs_with_colleagues || false,
           language: profile.language || currentLanguage,
         });
         if (profile.image_url) setImageUrl(profile.image_url);

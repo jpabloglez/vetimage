@@ -10,6 +10,7 @@ import { Activity, Download, Eye, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { JobMonitorPanel } from '../components/monitor/JobMonitorPanel';
 import { DicomTransferPanel } from '../components/monitor/DicomTransferPanel';
+import { AuditLogPanel } from '../components/monitor/AuditLogPanel';
 import { ProfileCompletionModal } from '../components/monitor/ProfileCompletionModal';
 import AuditReportFilters, { type AuditFilters } from '../components/audit/AuditReportFilters';
 import AuditReportPreview from '../components/audit/AuditReportPreview';
@@ -17,7 +18,7 @@ import PageHeader from '../components/ui/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../utils/api';
 
-type TabType = 'analyses' | 'transfers' | 'audit';
+type TabType = 'analyses' | 'transfers' | 'auditLog' | 'audit';
 
 // ─── AuditTab ─────────────────────────────────────────────────────────────────
 
@@ -125,6 +126,8 @@ export const MonitorPage: React.FC = () => {
             [
               { key: 'analyses', label: t('tabs.aiAnalyses') },
               { key: 'transfers', label: t('tabs.dicomTransfers') },
+              // The raw event trail sits beside the report generated from it.
+              { key: 'auditLog', label: t('tabs.auditLog') },
               { key: 'audit', label: t('tabs.audit') },
             ] as { key: TabType; label: string }[]
           ).map((tab) => (
@@ -146,6 +149,7 @@ export const MonitorPage: React.FC = () => {
       {/* Panel Content */}
       {activeTab === 'analyses'  && <JobMonitorPanel />}
       {activeTab === 'transfers' && <DicomTransferPanel />}
+      {activeTab === 'auditLog'  && <AuditLogPanel />}
       {activeTab === 'audit'     && <AuditTab />}
 
       {/* Profile Completion Modal */}

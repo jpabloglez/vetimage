@@ -293,6 +293,9 @@ REST_FRAMEWORK = {
         'upload': os.getenv('THROTTLE_UPLOAD', '60/min'),
         # WebSocket tickets: one per socket open, plus reconnects.
         'ws_ticket': os.getenv('THROTTLE_WS_TICKET', '60/min'),
+        # Clinic invitations. The accept endpoints are unauthenticated, so the
+        # token is the only credential — keep the guess/enumeration rate low.
+        'invitation': os.getenv('THROTTLE_INVITATION', '20/min'),
     },
 }
 
@@ -451,6 +454,10 @@ if not DEBUG:
 # Set this to an nginx `internal;` location pointed at MEDIA_ROOT to hand the
 # byte-pushing back to the proxy (X-Accel-Redirect). Empty = Django streams it.
 MEDIA_ACCEL_REDIRECT_PREFIX = os.getenv('MEDIA_ACCEL_REDIRECT_PREFIX', '')
+
+# Public base URL of the SPA, used to build links that are emailed out
+# (clinic invitations). Must be set in production or emailed links are relative.
+FRONTEND_BASE_URL = os.getenv('FRONTEND_BASE_URL', 'http://localhost:3001')
 
 # Largest bitmap Pillow will decode from an upload (decompression-bomb guard).
 # Applied in core.apps.CoreConfig.ready(). A 4k x 4k radiograph is ~17M pixels.

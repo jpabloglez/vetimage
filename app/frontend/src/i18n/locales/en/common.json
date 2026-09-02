@@ -15,7 +15,8 @@
     "getStarted": "Get Started",
     "signOut": "Sign Out",
     "patients": "Patients",
-    "auditLog": "Audit Log"
+    "admin": "Admin",
+    "management": "Management"
   },
   "userMenu": {
     "aiModels": "AI Models",
@@ -259,5 +260,112 @@
   },
   "aiDisclaimer": {
     "short": "Decision support — not a diagnosis. A qualified veterinarian must review and approve all AI results. AI may miss findings."
+  },
+  "admin": {
+    "title": "Admin",
+    "subtitle": "Platform-wide administration across all clinics.",
+    "tabs": {
+      "clinics": "Clinics",
+      "statistics": "Statistics"
+    },
+    "summary": {
+      "clinics": "Clinics",
+      "users": "Users",
+      "patients": "Patients",
+      "studies": "Studies",
+      "analyses30d": "Analyses (30d)",
+      "pendingInvitations": "Pending invites"
+    },
+    "clinics": {
+      "title": "Clinic registry",
+      "register": "Register clinic",
+      "registerHint": "This creates the clinic and invites its first administrator. They set their own password — you never hold it.",
+      "name": "Clinic name",
+      "city": "City",
+      "adminEmail": "Administrator email",
+      "members": "Members",
+      "patients": "Patients",
+      "studies": "Studies",
+      "analyses": "Analyses",
+      "founder": "Founder",
+      "lastActivity": "Last activity",
+      "empty": "No clinics registered yet.",
+      "registered": "Clinic registered and invitation sent",
+      "registerError": "Could not register the clinic",
+      "loadError": "Could not load the clinic registry",
+      "inviteSent": "Invitation created for {{email}}. Share this link if the email does not arrive:",
+      "linkCopied": "Invitation link copied"
+    },
+    "stats": {
+      "filters": "Filters",
+      "window": "Period",
+      "lastDays": "Last {{count}} days",
+      "clinic": "Clinic",
+      "allClinics": "All clinics",
+      "model": "AI model",
+      "allModels": "All models",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "total": "Total",
+      "succeeded": "Succeeded",
+      "failed": "Failed",
+      "successRate": "Success rate",
+      "analyses": "Analyses",
+      "overTime": "Analyses over time",
+      "byModel": "By AI model",
+      "byClinic": "By clinic",
+      "noData": "No analyses in this period.",
+      "loadError": "Could not load platform statistics"
+    }
+  },
+  "management": {
+    "title": "Management",
+    "subtitle": "Manage who has access to your clinic.",
+    "subtitleWithClinic": "Manage who has access to {{clinic}}.",
+    "invitations": {
+      "title": "Colleagues & invitations",
+      "description": "Invite a colleague to join your clinic. Anyone who accepts can see every patient, study and report in the clinic, so invite only people you work with.",
+      "email": "Email address",
+      "role": "Role",
+      "status": "Status",
+      "expires": "Expires",
+      "actions": "Actions",
+      "invite": "Send invitation",
+      "empty": "No invitations yet.",
+      "sent": "Invitation sent",
+      "sendError": "Could not send the invitation",
+      "loadError": "Could not load invitations",
+      "copyLink": "Copy invitation link",
+      "copyLinkFor": "Copy the invitation link for {{email}}",
+      "copied": "Invitation link copied",
+      "revoke": "Revoke",
+      "revokeFor": "Revoke the invitation for {{email}}",
+      "revokeTitle": "Revoke this invitation?",
+      "revokeConfirm": "The link sent to {{email}} will stop working immediately. You can invite them again later.",
+      "revoked": "Invitation revoked",
+      "revokeError": "Could not revoke the invitation",
+      "statuses": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "revoked": "Revoked",
+        "expired": "Expired"
+      }
+    },
+    "accept": {
+      "title": "Join {{clinic}}",
+      "subtitle": "Choose a password to finish setting up your account.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "passwordMismatch": "The two passwords do not match.",
+      "submit": "Create my account",
+      "success": "Account created — you can now sign in.",
+      "error": "Could not create your account. Please try again.",
+      "invalidTitle": "This invitation is no longer valid",
+      "invalidBody": "It may have expired, been revoked, or already been used. Ask your clinic administrator to send a new one.",
+      "goToLogin": "Go to sign in",
+      "expiryNote": "This invitation can be used once and expires on {{date}}."
+    }
   }
 }

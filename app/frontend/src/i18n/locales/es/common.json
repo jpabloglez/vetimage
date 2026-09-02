@@ -15,7 +15,8 @@
     "getStarted": "Comenzar",
     "signOut": "Cerrar Sesión",
     "patients": "Pacientes",
-    "auditLog": "Registro de auditoría"
+    "admin": "Administración",
+    "management": "Gestión"
   },
   "userMenu": {
     "aiModels": "Modelos de AI",
@@ -259,5 +260,112 @@
   },
   "aiDisclaimer": {
     "short": "Apoyo a la decisión, no un diagnóstico. Un veterinario cualificado debe revisar y aprobar todos los resultados de IA. La IA puede omitir hallazgos."
+  },
+  "admin": {
+    "title": "Administración",
+    "subtitle": "Administración de la plataforma en todas las clínicas.",
+    "tabs": {
+      "clinics": "Clínicas",
+      "statistics": "Estadísticas"
+    },
+    "summary": {
+      "clinics": "Clínicas",
+      "users": "Usuarios",
+      "patients": "Pacientes",
+      "studies": "Estudios",
+      "analyses30d": "Análisis (30 d)",
+      "pendingInvitations": "Invitaciones pendientes"
+    },
+    "clinics": {
+      "title": "Registro de clínicas",
+      "register": "Registrar clínica",
+      "registerHint": "Se crea la clínica y se invita a su primer administrador. Esa persona elige su propia contraseña; tú nunca la conoces.",
+      "name": "Nombre de la clínica",
+      "city": "Ciudad",
+      "adminEmail": "Correo del administrador",
+      "members": "Miembros",
+      "patients": "Pacientes",
+      "studies": "Estudios",
+      "analyses": "Análisis",
+      "founder": "Fundador",
+      "lastActivity": "Última actividad",
+      "empty": "Todavía no hay clínicas registradas.",
+      "registered": "Clínica registrada e invitación enviada",
+      "registerError": "No se pudo registrar la clínica",
+      "loadError": "No se pudo cargar el registro de clínicas",
+      "inviteSent": "Invitación creada para {{email}}. Comparte este enlace si no llega el correo:",
+      "linkCopied": "Enlace de invitación copiado"
+    },
+    "stats": {
+      "filters": "Filtros",
+      "window": "Periodo",
+      "lastDays": "Últimos {{count}} días",
+      "clinic": "Clínica",
+      "allClinics": "Todas las clínicas",
+      "model": "Modelo de IA",
+      "allModels": "Todos los modelos",
+      "status": "Estado",
+      "allStatuses": "Todos los estados",
+      "total": "Total",
+      "succeeded": "Completados",
+      "failed": "Fallidos",
+      "successRate": "Tasa de éxito",
+      "analyses": "Análisis",
+      "overTime": "Análisis a lo largo del tiempo",
+      "byModel": "Por modelo de IA",
+      "byClinic": "Por clínica",
+      "noData": "No hay análisis en este periodo.",
+      "loadError": "No se pudieron cargar las estadísticas de la plataforma"
+    }
+  },
+  "management": {
+    "title": "Gestión",
+    "subtitle": "Gestiona quién tiene acceso a tu clínica.",
+    "subtitleWithClinic": "Gestiona quién tiene acceso a {{clinic}}.",
+    "invitations": {
+      "title": "Colegas e invitaciones",
+      "description": "Invita a un colega a unirse a tu clínica. Quien acepte podrá ver todos los pacientes, estudios e informes de la clínica, así que invita solo a personas con las que trabajas.",
+      "email": "Correo electrónico",
+      "role": "Rol",
+      "status": "Estado",
+      "expires": "Caduca",
+      "actions": "Acciones",
+      "invite": "Enviar invitación",
+      "empty": "Todavía no hay invitaciones.",
+      "sent": "Invitación enviada",
+      "sendError": "No se pudo enviar la invitación",
+      "loadError": "No se pudieron cargar las invitaciones",
+      "copyLink": "Copiar enlace de invitación",
+      "copyLinkFor": "Copiar el enlace de invitación de {{email}}",
+      "copied": "Enlace de invitación copiado",
+      "revoke": "Revocar",
+      "revokeFor": "Revocar la invitación de {{email}}",
+      "revokeTitle": "¿Revocar esta invitación?",
+      "revokeConfirm": "El enlace enviado a {{email}} dejará de funcionar de inmediato. Podrás volver a invitar a esta persona más adelante.",
+      "revoked": "Invitación revocada",
+      "revokeError": "No se pudo revocar la invitación",
+      "statuses": {
+        "pending": "Pendiente",
+        "accepted": "Aceptada",
+        "revoked": "Revocada",
+        "expired": "Caducada"
+      }
+    },
+    "accept": {
+      "title": "Únete a {{clinic}}",
+      "subtitle": "Elige una contraseña para terminar de configurar tu cuenta.",
+      "firstName": "Nombre",
+      "lastName": "Apellidos",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "passwordMismatch": "Las dos contraseñas no coinciden.",
+      "submit": "Crear mi cuenta",
+      "success": "Cuenta creada: ya puedes iniciar sesión.",
+      "error": "No se pudo crear tu cuenta. Inténtalo de nuevo.",
+      "invalidTitle": "Esta invitación ya no es válida",
+      "invalidBody": "Puede haber caducado, haber sido revocada o ya haberse utilizado. Pide a la administración de tu clínica que te envíe una nueva.",
+      "goToLogin": "Ir a iniciar sesión",
+      "expiryNote": "Esta invitación se puede usar una sola vez y caduca el {{date}}."
+    }
   }
 }

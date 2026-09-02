@@ -15,7 +15,8 @@
     "getStarted": "Começar",
     "signOut": "Sair",
     "patients": "Pacientes",
-    "auditLog": "Registro de auditoria"
+    "admin": "Administração",
+    "management": "Gestão"
   },
   "userMenu": {
     "aiModels": "Modelos de IA",
@@ -259,5 +260,112 @@
   },
   "aiDisclaimer": {
     "short": "Apoio à decisão, não um diagnóstico. Um veterinário qualificado deve revisar e aprovar todos os resultados de IA. A IA pode não detectar achados."
+  },
+  "admin": {
+    "title": "Administração",
+    "subtitle": "Administração da plataforma em todas as clínicas.",
+    "tabs": {
+      "clinics": "Clínicas",
+      "statistics": "Estatísticas"
+    },
+    "summary": {
+      "clinics": "Clínicas",
+      "users": "Utilizadores",
+      "patients": "Pacientes",
+      "studies": "Estudos",
+      "analyses30d": "Análises (30 d)",
+      "pendingInvitations": "Convites pendentes"
+    },
+    "clinics": {
+      "title": "Registo de clínicas",
+      "register": "Registar clínica",
+      "registerHint": "Cria a clínica e convida o seu primeiro administrador. Essa pessoa escolhe a própria palavra-passe; você nunca a conhece.",
+      "name": "Nome da clínica",
+      "city": "Cidade",
+      "adminEmail": "E-mail do administrador",
+      "members": "Membros",
+      "patients": "Pacientes",
+      "studies": "Estudos",
+      "analyses": "Análises",
+      "founder": "Fundador",
+      "lastActivity": "Última atividade",
+      "empty": "Ainda não há clínicas registadas.",
+      "registered": "Clínica registada e convite enviado",
+      "registerError": "Não foi possível registar a clínica",
+      "loadError": "Não foi possível carregar o registo de clínicas",
+      "inviteSent": "Convite criado para {{email}}. Partilhe esta ligação se o e-mail não chegar:",
+      "linkCopied": "Ligação do convite copiada"
+    },
+    "stats": {
+      "filters": "Filtros",
+      "window": "Período",
+      "lastDays": "Últimos {{count}} dias",
+      "clinic": "Clínica",
+      "allClinics": "Todas as clínicas",
+      "model": "Modelo de IA",
+      "allModels": "Todos os modelos",
+      "status": "Estado",
+      "allStatuses": "Todos os estados",
+      "total": "Total",
+      "succeeded": "Concluídas",
+      "failed": "Falhadas",
+      "successRate": "Taxa de sucesso",
+      "analyses": "Análises",
+      "overTime": "Análises ao longo do tempo",
+      "byModel": "Por modelo de IA",
+      "byClinic": "Por clínica",
+      "noData": "Não há análises neste período.",
+      "loadError": "Não foi possível carregar as estatísticas da plataforma"
+    }
+  },
+  "management": {
+    "title": "Gestão",
+    "subtitle": "Faça a gestão de quem tem acesso à sua clínica.",
+    "subtitleWithClinic": "Faça a gestão de quem tem acesso a {{clinic}}.",
+    "invitations": {
+      "title": "Colegas e convites",
+      "description": "Convide um colega a juntar-se à sua clínica. Quem aceitar poderá ver todos os pacientes, estudos e relatórios da clínica, por isso convide apenas pessoas com quem trabalha.",
+      "email": "Endereço de e-mail",
+      "role": "Função",
+      "status": "Estado",
+      "expires": "Expira",
+      "actions": "Ações",
+      "invite": "Enviar convite",
+      "empty": "Ainda não há convites.",
+      "sent": "Convite enviado",
+      "sendError": "Não foi possível enviar o convite",
+      "loadError": "Não foi possível carregar os convites",
+      "copyLink": "Copiar ligação do convite",
+      "copyLinkFor": "Copiar a ligação do convite de {{email}}",
+      "copied": "Ligação do convite copiada",
+      "revoke": "Revogar",
+      "revokeFor": "Revogar o convite de {{email}}",
+      "revokeTitle": "Revogar este convite?",
+      "revokeConfirm": "A ligação enviada para {{email}} deixará de funcionar imediatamente. Poderá convidar esta pessoa novamente mais tarde.",
+      "revoked": "Convite revogado",
+      "revokeError": "Não foi possível revogar o convite",
+      "statuses": {
+        "pending": "Pendente",
+        "accepted": "Aceite",
+        "revoked": "Revogado",
+        "expired": "Expirado"
+      }
+    },
+    "accept": {
+      "title": "Junte-se a {{clinic}}",
+      "subtitle": "Escolha uma palavra-passe para concluir a configuração da sua conta.",
+      "firstName": "Nome",
+      "lastName": "Apelido",
+      "password": "Palavra-passe",
+      "confirmPassword": "Confirmar palavra-passe",
+      "passwordMismatch": "As duas palavras-passe não coincidem.",
+      "submit": "Criar a minha conta",
+      "success": "Conta criada — já pode iniciar sessão.",
+      "error": "Não foi possível criar a sua conta. Tente novamente.",
+      "invalidTitle": "Este convite já não é válido",
+      "invalidBody": "Pode ter expirado, sido revogado ou já ter sido utilizado. Peça à administração da sua clínica que envie um novo.",
+      "goToLogin": "Ir para o início de sessão",
+      "expiryNote": "Este convite pode ser usado uma vez e expira a {{date}}."
+    }
   }
 }

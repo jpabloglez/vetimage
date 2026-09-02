@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 
 from core.protected_media import signed_media_url
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -130,20 +132,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
 
-        # Add extra user data to response
-        user_data = {
-            'id': self.user.id,
-            'email': self.user.email,
-            'role': self.user.role,
-        }
-
-        # Include language preference from profile
-        try:
-            user_data['language'] = self.user.userprofile.language
-        except Exception:
-            user_data['language'] = 'en'
-
-        data['user'] = user_data
+        # Same shape as /users/auth/profile/. Hand-building a subset here meant
+        # the client had no `is_staff` or `clinic_name` until the next full page
+        # load, so staff- and clinic-gated navigation stayed hidden after login.
+        data['user'] = UserAuthSerializer(self.user).data
 
         return data
 
@@ -152,11 +144,49 @@ class UserAuthSerializer(serializers.ModelSerializer):
     """Serializer for authenticated user profile"""
     language = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField()
+    clinic_name = serializers.SerializerMethodField()
+    profile = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'role', 'language', 'image_url')
-        read_only_fields = ('id',)
+        # `is_staff` is read-only and exposed so the frontend can decide whether
+        # to render the platform Admin area. It is never settable through the
+        # API — see core.permissions.IsPlatformStaff.
+        fields = ('id', 'email', 'role', 'language', 'image_url',
+                  'is_staff', 'clinic_name', 'profile')
+        # Everything here is read-only. This view is a RetrieveUpdateAPIView, so
+        # any writable field is settable by the account itself — and `role` was:
+        # a Veterinarian could PATCH themselves to Clinic Admin (role 3) and
+        # thereby gain the right to invite members into the clinic, or to any
+        # other role. `email` is the USERNAME_FIELD, so changing it freely is an
+        # account-takeover step. Profile edits go through
+        # POST /users/profile/complete_profile/, which whitelists its fields.
+        read_only_fields = ('id', 'email', 'role', 'language', 'image_url',
+                            'is_staff', 'clinic_name', 'profile')
+
+    @extend_schema_field(OpenApiTypes.OBJECT)
+    def get_profile(self, obj):
+        """The editable UserProfile fields, so a settings form can prefill.
+        These were absent from this payload, so forms prefilled blank and then
+        saved the blanks back over real values."""
+        p = getattr(obj, 'userprofile', None)
+        if p is None:
+            return {}
+        return {
+            'first_name': p.first_name,
+            'last_name': p.last_name,
+            'phone': p.phone,
+            'department': p.department,
+            'job_title': p.job_title,
+            'team_name': p.team_name,
+            'is_sharing_jobs_with_colleagues': p.is_sharing_jobs_with_colleagues,
+        }
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_clinic_name(self, obj):
+        profile = getattr(obj, 'userprofile', None)
+        clinic = getattr(profile, 'clinic', None)
+        return clinic.name if clinic else None
 
     def get_language(self, obj) -> str:
         try:

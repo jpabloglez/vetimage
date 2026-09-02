@@ -130,6 +130,27 @@ class TestCustomTokenObtainPairSerializer:
         assert validated_data['user']['email'] == 'test@example.com'
         assert validated_data['user']['role'] == 1
 
+    def test_login_carries_the_fields_navigation_is_gated_on(self):
+        """The client gates the Admin link on is_staff and the Management link
+        on the clinic, so a login response missing them leaves those hidden
+        until the next full page load."""
+        User.objects.create_user(
+            email='test@example.com',
+            password='testpass123',
+            role=1
+        )
+
+        serializer = CustomTokenObtainPairSerializer(data={
+            'email': 'test@example.com',
+            'password': 'testpass123'
+        })
+        assert serializer.is_valid()
+
+        user_data = serializer.validated_data['user']
+        assert 'is_staff' in user_data
+        assert 'clinic_name' in user_data
+        assert 'profile' in user_data
+
 
 @pytest.mark.django_db
 class TestUserAuthSerializer:

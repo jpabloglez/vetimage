@@ -1,5 +1,6 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
+from users.views_invitations import AcceptInvitationView, ClinicInvitationViewSet
 from users.views import (
     UserListView,
     UserDetailView,
@@ -23,6 +24,7 @@ from users.views import (
 # Using router for UserProfileViewSet (provides complete_profile, colleagues actions)
 router = DefaultRouter()
 router.register(r'profile', UserProfileViewSet, basename='profile')
+router.register(r'clinic/invitations', ClinicInvitationViewSet, basename='clinic-invitation')
 
 # User Management URLs
 user_patterns = [
@@ -53,6 +55,8 @@ auth_patterns = [
     path('auth/logout/', LogoutView.as_view(), name='logout'),
     path('auth/api-key/', api_key_auth, name='api-key-auth'),
     path('auth/ws-ticket/', WebSocketTicketView.as_view(), name='ws-ticket'),
+    path('clinic/invitations/accept/<uuid:token>/',
+         AcceptInvitationView.as_view(), name='accept-invitation'),
 
     # User Profile
     path('auth/profile/', UserProfileAuthView.as_view(), name='profile'),

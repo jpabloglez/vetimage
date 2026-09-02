@@ -121,11 +121,20 @@ class UserProfileViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Update profile fields
-        profile.department = request.data.get('department', '')
-        profile.job_title = request.data.get('job_title', '')
-        profile.team_name = request.data.get('team_name', '')
-        profile.is_sharing_jobs_with_colleagues = request.data.get('is_sharing_jobs_with_colleagues', False)
+        # Only touch fields the caller actually sent. Assigning a default for
+        # every field made this destructive: a client that omitted a key — or
+        # prefilled from a GET that never returned these fields — silently blanked
+        # department, job title and team. Changing only your language wiped them.
+        if 'department' in request.data:
+            profile.department = request.data['department'] or ''
+        if 'job_title' in request.data:
+            profile.job_title = request.data['job_title'] or ''
+        if 'team_name' in request.data:
+            profile.team_name = request.data['team_name'] or ''
+        if 'is_sharing_jobs_with_colleagues' in request.data:
+            profile.is_sharing_jobs_with_colleagues = bool(
+                request.data['is_sharing_jobs_with_colleagues']
+            )
         if 'language' in request.data:
             lang = request.data['language']
             if lang in ('en', 'es', 'pt'):

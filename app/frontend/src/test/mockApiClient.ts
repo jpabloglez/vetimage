@@ -32,6 +32,7 @@ const API_METHODS = [
   // Auth / session
   'login', 'register', 'logout', 'getProfile', 'refreshToken', 'getAccessToken',
   'setAccessToken', 'forgotPassword', 'resetPassword', 'changePassword',
+  'completeProfile', 'getColleagues',
   'uploadAvatar', 'getFrontendConfig', 'getWebSocketTicket',
   // DICOM studies
   'getStudies', 'getSeries', 'getInstances', 'getStorageInfo', 'deleteStudy',
@@ -73,6 +74,11 @@ const API_METHODS = [
   'getMonitorTasks', 'getTaskStats', 'getDicomTransfers', 'getTransferStats',
   // Notifications
   'getNotifications', 'markNotificationRead', 'markAllNotificationsRead',
+  // Platform administration
+  'getAdminSummary', 'getAdminClinics', 'createAdminClinic', 'getAdminStatistics',
+  // Clinic invitations
+  'getClinicInvitations', 'createClinicInvitation', 'revokeClinicInvitation',
+  'getInvitation', 'acceptInvitation',
 ];
 
 /**
@@ -112,6 +118,8 @@ export function createApiClientMock(overrides: ApiClientMock = {}): ApiClientMoc
   mock.getAnalysisTasks = vi.fn().mockResolvedValue([]);
   mock.getReports = vi.fn().mockResolvedValue([]);
   mock.getNotifications = vi.fn().mockResolvedValue([]);
+  mock.getClinicInvitations = vi.fn().mockResolvedValue([]);
+  mock.getAdminClinics = vi.fn().mockResolvedValue([]);
   mock.getStudies = vi.fn().mockResolvedValue([]);
   mock.getSeries = vi.fn().mockResolvedValue([]);
   mock.getInstances = vi.fn().mockResolvedValue([]);

@@ -1,6 +1,8 @@
 import hashlib
 import hmac
 import secrets
+import uuid
+from datetime import timedelta
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import (
@@ -21,6 +23,9 @@ ROLES = (
 
 # Role id for pet-owner portal accounts (see patients/views_portal.py).
 PET_OWNER_ROLE = 6
+
+# Role id that may manage clinic membership — see core.permissions.IsClinicAdmin.
+CLINIC_ADMIN_ROLE = 3
 
 
 class UserManager(BaseUserManager):
@@ -306,3 +311,67 @@ class UserAPIKey(models.Model):
         self.last_used_at = timezone.now()
         self.save(update_fields=['last_used_at'])
 
+
+class ClinicInvitation(models.Model):
+    """
+    An invitation for someone to join a clinic as a member of staff.
+
+    Accepting one grants immediate access to every patient, study and report in
+    that clinic, so this is a privilege grant rather than a notification. It is
+    therefore issued only by a Clinic Admin, single-use, and expiring — the same
+    properties the WebSocket tickets and share links rely on.
+
+    `role` is constrained to clinical roles at the serializer. Platform access
+    (`is_staff`) is never grantable here: an invitation must not become a route
+    into every other clinic's data.
+    """
+
+    DEFAULT_TTL_DAYS = 7
+
+    clinic = models.ForeignKey(
+        Clinic, on_delete=models.CASCADE, related_name='invitations',
+    )
+    email = models.EmailField()
+    role = models.PositiveBigIntegerField(choices=ROLES, default=1)
+    token = models.UUIDField(unique=True, default=uuid.uuid4, db_index=True)
+    invited_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='sent_invitations',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    # Set on redemption — this is what makes the token single-use.
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['clinic', '-created_at']),
+            models.Index(fields=['email']),
+        ]
+
+    def __str__(self):
+        return f'Invitation for {self.email} to {self.clinic.name}'
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(days=self.DEFAULT_TTL_DAYS)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_pending(self):
+        return (
+            self.accepted_at is None
+            and self.revoked_at is None
+            and self.expires_at > timezone.now()
+        )
+
+    @property
+    def status(self):
+        if self.accepted_at:
+            return 'accepted'
+        if self.revoked_at:
+            return 'revoked'
+        if self.expires_at <= timezone.now():
+            return 'expired'
+        return 'pending'

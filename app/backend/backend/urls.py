@@ -51,6 +51,9 @@ urlpatterns = [
     path('api/reports/', include('reports.urls')),  # Structured Reports & PDF Export
     path('api/patients/', include('patients.urls')),  # Veterinary patient registry
     path('api/portal/', include('patients.urls_portal')),  # Pet-owner portal (#21)
+    # Cross-clinic platform administration. The only place permitted to
+    # bypass dicom_images.scoping; gated on IsPlatformStaff throughout.
+    path('api/admin/', include('users.urls_admin')),
 ]
 
 # Uploaded patient files (DICOM, clinical photos, lab PDFs) are served through

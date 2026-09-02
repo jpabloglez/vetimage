@@ -17,7 +17,9 @@ import {
   ChevronDown,
   Globe,
   PawPrint,
-  LayoutDashboard
+  LayoutDashboard,
+  ShieldCheck,
+  UserCog
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -30,6 +32,9 @@ import { NotificationDropdown } from '../notifications/NotificationDropdown';
 import { useAuth, useTheme } from '../../contexts';
 import { apiClient, type Notification } from '../../utils/api';
 import { useWebSocket } from '../../hooks/useWebSocket';
+
+// Mirrors users.models.ROLES — Clinic Admin.
+const CLINIC_ADMIN_ROLE = 3;
 
 const getRoleName = (role: number | undefined, t: (key: string) => string): string => {
   const map: Record<number, string> = {
@@ -159,9 +164,16 @@ const Navbar: React.FC = () => {
     { name: t('nav.statistics'), href: '/statistics', icon: BarChart3 },
     { name: t('nav.tools'), href: '/tools', icon: Settings },
     { name: t('nav.monitor'), href: '/monitor', icon: Activity },
-    // Clinic admins / managers / superusers get the audit-log oversight view.
-    ...((user?.role ?? 1) >= 3
-      ? [{ name: t('nav.auditLog'), href: '/audit-log', icon: Shield }]
+    // Platform staff only: the cross-clinic Admin area. Gated on is_staff, not
+    // on `role` — role describes what someone does inside a clinic, is_staff
+    // says they work for VetImage. See core/permissions.py.
+    ...(user?.is_staff
+      ? [{ name: t('nav.admin'), href: '/admin', icon: ShieldCheck }]
+      : []),
+    // Clinic Admins only: this is where colleagues are invited, not where
+    // personal settings live (those are under the account menu → My Profile).
+    ...(user?.role === CLINIC_ADMIN_ROLE
+      ? [{ name: t('nav.management'), href: '/management', icon: UserCog }]
       : []),
   ];
 

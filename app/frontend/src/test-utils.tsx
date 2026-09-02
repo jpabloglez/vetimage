@@ -6,6 +6,7 @@ import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import { vi } from 'vitest';
 
 // Mock apiClient with the COMPLETE surface so AuthProvider (and any rendered
@@ -32,7 +33,8 @@ vi.mock('react-hot-toast', () => ({
 }));
 
 /**
- * Render a component wrapped in BrowserRouter + AuthProvider.
+ * Render a component wrapped in the providers the real app shell supplies:
+ * BrowserRouter + AuthProvider + LanguageProvider.
  */
 export function renderWithProviders(
   ui: ReactElement,
@@ -41,7 +43,9 @@ export function renderWithProviders(
   function Wrapper({ children }: { children: React.ReactNode }) {
     return (
       <BrowserRouter>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <LanguageProvider>{children}</LanguageProvider>
+        </AuthProvider>
       </BrowserRouter>
     );
   }
