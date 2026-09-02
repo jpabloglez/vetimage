@@ -80,10 +80,10 @@ class TestMessagingOwnerAndNotifications:
         rows = listed.data.get('results') if isinstance(listed.data, dict) and 'results' in listed.data else listed.data
         assert any(m['body'].startswith('Is Rex') for m in rows)
 
-    def test_owner_cannot_see_other_animals(self, owner_client, animal_patient, organization):
+    def test_owner_cannot_see_other_animals(self, owner_client, animal_patient, clinic):
         from patients.models import Owner, AnimalPatient, Message
         other = Owner.objects.create(
-            organization=organization, first_name='X', last_name='Y',
+            clinic=clinic, first_name='X', last_name='Y',
             email='someone.else@example.com', phone='555-0400',
         )
         other_animal = AnimalPatient.objects.create(owner=other, name='Stranger', species='feline')
@@ -92,13 +92,13 @@ class TestMessagingOwnerAndNotifications:
         rows = resp.data.get('results') if isinstance(resp.data, dict) and 'results' in resp.data else resp.data
         assert all(m.get('body') != 'secret' for m in rows)
 
-    def test_owner_message_notifies_clinic(self, owner_client, animal_patient, organization):
+    def test_owner_message_notifies_clinic(self, owner_client, animal_patient, clinic):
         from credentials.models import Notification
         owner_client.post(self.BASE, {
             'animal_patient_id': animal_patient.id, 'body': 'Quick question',
         }, format='json')
-        # organization.user is the clinic staff account that should be notified.
-        assert Notification.objects.filter(user=organization.user).exists()
+        # clinic.user is the clinic staff account that should be notified.
+        assert Notification.objects.filter(user=clinic.user).exists()
 
     def test_mark_read_marks_other_side(self, auth_client, owner_client, animal_patient):
         # Owner sends one; staff marks it read.
@@ -120,7 +120,7 @@ class TestMessageBroadcast:
 
     BASE = '/api/patients/messages/'
 
-    def test_create_broadcasts_to_recipient_group(self, owner_client, animal_patient, organization, monkeypatch):
+    def test_create_broadcasts_to_recipient_group(self, owner_client, animal_patient, clinic, monkeypatch):
         from unittest.mock import AsyncMock, MagicMock
         import channels.layers as layers
         from patients.consumers import user_message_group
@@ -140,7 +140,7 @@ class TestMessageBroadcast:
                      if c.args[1].get('type') == 'message_created']
         assert msg_calls, 'expected a message_created broadcast'
         groups = [c.args[0] for c in msg_calls]
-        assert user_message_group(organization.user.id) in groups
+        assert user_message_group(clinic.user.id) in groups
         payload = msg_calls[0].args[1]
         assert payload['animal_patient_id'] == animal_patient.id
         assert payload['message']['body'] == 'Live ping'

@@ -1,6 +1,6 @@
 """
 Tests for clinical visit, vaccination, weight, and appointment APIs.
-All resources are scoped to the authenticated user's organization.
+All resources are scoped to the authenticated user's clinic.
 """
 import pytest
 from django.utils import timezone

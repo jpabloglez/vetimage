@@ -60,7 +60,7 @@ const SecurityPage: React.FC = () => {
       description: t('security.features.isolationDesc'),
       details: [
         'User-scoped data access',
-        'Organization-level isolation',
+        'Clinic-level isolation',
         'No cross-tenant data sharing',
         'Secure data deletion on request',
       ],

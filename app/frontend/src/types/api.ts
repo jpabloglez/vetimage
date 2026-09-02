@@ -274,7 +274,7 @@ export interface AnimalPatientWrite {
 
 export interface Owner {
   id: number;
-  organization?: number;
+  clinic?: number;
   first_name: string;
   last_name: string;
   email?: string;
@@ -845,7 +845,7 @@ export interface StatisticsTask {
   study_description?: string;
   modality?: string;
   body_part?: string;
-  organization_name?: string;
+  clinic_name?: string;
   ai_metrics?: Record<string, any>;
 }
 

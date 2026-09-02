@@ -816,7 +816,7 @@ class StudyShareLink(models.Model):
     """
     Token-gated share link allowing an external vet or specialist to access
     a DICOM study via DICOMweb without requiring a platform account.
-    Only the owner of the study's organization can create links.
+    Only the owner of the study's clinic can create links.
     """
     study = models.ForeignKey(
         MedicalStudy,

@@ -1,9 +1,9 @@
 """
-Studies are organization-scoped, like the rest of the clinical record.
+Studies are clinic-scoped, like the rest of the clinical record.
 
 Two directions matter equally here, and a mistake in either is serious:
-colleagues in the same organization must gain access, and users in a
-*different* organization must not. The previous rule was `uploaded_by=user`.
+colleagues in the same clinic must gain access, and users in a
+*different* clinic must not. The previous rule was `uploaded_by=user`.
 """
 
 import pytest
@@ -20,8 +20,8 @@ def _user(email, org=None):
     u = U.objects.create_user(email=email, password='TestPass123!', role=1)
     profile, _ = UserProfile.objects.get_or_create(user=u)
     if org is not None:
-        profile.organization = org
-        profile.save(update_fields=['organization'])
+        profile.clinic = org
+        profile.save(update_fields=['clinic'])
     return u
 
 
@@ -33,24 +33,24 @@ def _study(user, uid):
 
 @pytest.fixture
 def clinic():
-    from users.models import Organization
+    from users.models import Clinic
     from django.contrib.auth import get_user_model
     U = get_user_model()
     owner = U.objects.create_user(email='clinic-owner@x.test', password='x', role=1)
-    return Organization.objects.create(
-        user=owner, centre='Clinic A', address='', city='',
+    return Clinic.objects.create(
+        user=owner, name='Clinic A', address='', city='',
         billing_address='', billing_code='',
     )
 
 
 @pytest.fixture
 def other_clinic():
-    from users.models import Organization
+    from users.models import Clinic
     from django.contrib.auth import get_user_model
     U = get_user_model()
     owner = U.objects.create_user(email='other-owner@x.test', password='x', role=1)
-    return Organization.objects.create(
-        user=owner, centre='Clinic B', address='', city='',
+    return Clinic.objects.create(
+        user=owner, name='Clinic B', address='', city='',
         billing_address='', billing_code='',
     )
 
@@ -64,22 +64,22 @@ class TestStudyOrgScoping:
         _study(vet_a, '1.2.3.A')
 
         assert visible_studies(vet_b).filter(study_instance_uid='1.2.3.A').exists(), (
-            'a colleague in the same organization must see the study'
+            'a colleague in the same clinic must see the study'
         )
 
-    def test_other_organization_cannot_see_it(self, clinic, other_clinic):
+    def test_other_clinic_cannot_see_it(self, clinic, other_clinic):
         vet_a = _user('vet-a2@x.test', clinic)
         outsider = _user('outsider@x.test', other_clinic)
         _study(vet_a, '1.2.3.B')
 
         assert not visible_studies(outsider).filter(study_instance_uid='1.2.3.B').exists(), (
-            'a user in a different organization must NOT see the study'
+            'a user in a different clinic must NOT see the study'
         )
 
-    def test_uploader_keeps_access_without_an_organization(self):
+    def test_uploader_keeps_access_without_an_clinic(self):
         """
         The rule is `own OR same-org`, not just `same-org`. A user whose profile
-        has no organization would otherwise drop out of the join and lose access
+        has no clinic would otherwise drop out of the join and lose access
         to their own studies — a regression the org filter alone would cause.
         """
         loner = _user('loner@x.test', org=None)

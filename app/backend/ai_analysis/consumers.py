@@ -23,14 +23,14 @@ class TaskMonitorConsumer(AsyncWebsocketConsumer):
 
     Group Architecture:
     - user_{user_id}: User's personal task updates
-    - org_{org_id}_shared: Organization-wide shared tasks
+    - org_{org_id}_shared: Clinic-wide shared tasks
     - dept_{dept}_shared: Department-level shared tasks
     - team_{team}_shared: Team-level shared tasks
 
     Security:
     - Requires Django session authentication (via AuthMiddlewareStack)
     - Only joins shared groups if user has opted-in to job sharing
-    - Respects organization boundaries
+    - Respects clinic boundaries
     """
 
     async def connect(self):
@@ -57,9 +57,9 @@ class TaskMonitorConsumer(AsyncWebsocketConsumer):
         # Join shared groups if user has opted-in
         profile = await self.get_user_profile()
         if profile and profile.is_sharing_jobs_with_colleagues:
-            # Join organization group
-            if profile.organization_id:
-                org_group = f'task_org_{profile.organization_id}'
+            # Join clinic group
+            if profile.clinic_id:
+                org_group = f'task_org_{profile.clinic_id}'
                 await self.channel_layer.group_add(org_group, self.channel_name)
 
             # Join department group

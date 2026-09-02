@@ -195,6 +195,6 @@ class TestPassportPDF:
         assert resp.content.startswith(b'%PDF')
 
     def test_passport_cross_org_404(self, auth_client, animal_patient):
-        # animal_patient fixture belongs to another organization
+        # animal_patient fixture belongs to another clinic
         resp = auth_client.get(f'/api/patients/animals/{animal_patient.id}/passport/')
         assert resp.status_code == 404

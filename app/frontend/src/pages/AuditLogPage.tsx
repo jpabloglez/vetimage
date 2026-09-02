@@ -1,7 +1,7 @@
 /**
  * AuditLogPage — clinic-admin view of the authentication/authorization audit
  * trail (who accessed what, when, from where). Admins see the whole
- * organization; the backend scopes non-admins to their own events.
+ * clinic; the backend scopes non-admins to their own events.
  *
  * Supports the data-security goal: visibility + accountability for owner data
  * access. Filter by event type, suspicious-only, and date range.

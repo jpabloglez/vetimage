@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.contrib import messages
-from users.models import User, UserProfile, Organization, UserAPIKey
+from users.models import User, UserProfile, Clinic, UserAPIKey
 
 
 @admin.register(UserAPIKey)
@@ -153,6 +153,6 @@ class UserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(UserProfile)
-admin.site.register(Organization)
+admin.site.register(Clinic)
 
 

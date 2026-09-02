@@ -54,8 +54,8 @@ class TestStudyListQueryCount:
         url = reverse('dicom_images:dicomweb-studies')
 
         _make_study(user, 1)
-        # Warm-up: org scoping calls get_or_create_organization, which lazily
-        # provisions a UserProfile + Organization on first use. That one-off
+        # Warm-up: org scoping calls get_or_create_clinic, which lazily
+        # provisions a UserProfile + Clinic on first use. That one-off
         # cost is not what this test is guarding, so pay it before measuring.
         auth_client.get(url)
 

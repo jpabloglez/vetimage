@@ -4,7 +4,7 @@ Pet-owner portal (#21).
 Owner accounts are ordinary `users.User` rows with role == PET_OWNER_ROLE,
 linked to their clinical `Owner` record(s) by a case-insensitive email match.
 Because the same person may be a client at more than one clinic (one `Owner`
-row per organisation, all sharing the email), the portal aggregates across all
+row per clinic, all sharing the email), the portal aggregates across all
 matching `Owner` records. Owners only ever see their own pets and the reports a
 clinic has explicitly approved + shared.
 """
@@ -32,13 +32,13 @@ def _owner_animals(user):
     """Animals across every Owner record whose email matches the account."""
     return AnimalPatient.objects.filter(
         owner__email__iexact=user.email
-    ).select_related('owner', 'owner__organization').order_by('name')
+    ).select_related('owner', 'owner__clinic').order_by('name')
 
 
 def _pet_payload(animal):
     today = timezone.now().date()
     now = timezone.now()
-    org = animal.owner.organization
+    org = animal.owner.clinic
     vaccinations = [
         {
             'vaccine_name': v.vaccine_name,
@@ -66,7 +66,7 @@ def _pet_payload(animal):
         'sex': animal.get_sex_display() if animal.sex else '',
         'date_of_birth': animal.date_of_birth.isoformat() if animal.date_of_birth else None,
         'profile_photo': animal.profile_photo.url if animal.profile_photo else None,
-        'clinic': org.centre if org else None,
+        'clinic': org.name if org else None,
         'vaccinations': vaccinations,
         'upcoming_appointments': appointments,
     }
@@ -127,11 +127,11 @@ class OwnerAccountProvisionView(APIView):
     def post(self, request, owner_id):
         from users.models import User
         from .models import Owner
-        from .views import get_or_create_organization
+        from .views import get_or_create_clinic
 
-        org = get_or_create_organization(request.user)
+        org = get_or_create_clinic(request.user)
         try:
-            owner = Owner.objects.get(id=owner_id, organization=org)
+            owner = Owner.objects.get(id=owner_id, clinic=org)
         except Owner.DoesNotExist:
             return Response({'error': 'Owner not found.'}, status=status.HTTP_404_NOT_FOUND)
         if not owner.email:

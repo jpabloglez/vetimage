@@ -2,7 +2,7 @@
 Statistics API endpoints for analysis data review.
 
 Provides filtered access to analysis task data with:
-- Organization boundary enforcement
+- Clinic boundary enforcement
 - Advanced filtering (date, model, demographics, metrics)
 - Aggregated statistics
 - Privacy-compliant data (patient names excluded)
@@ -27,7 +27,7 @@ class StatisticsViewSet(viewsets.ViewSet):
     """
     ViewSet for statistics endpoints.
 
-    Provides filtered access to analysis data with organization-level security.
+    Provides filtered access to analysis data with clinic-level security.
     All responses exclude patient names for privacy compliance.
     """
 
@@ -35,9 +35,9 @@ class StatisticsViewSet(viewsets.ViewSet):
 
     def _build_queryset(self, request):
         """
-        Build filtered queryset with organization boundary enforcement.
+        Build filtered queryset with clinic boundary enforcement.
 
-        Security: Users can ONLY access data from their own organization.
+        Security: Users can ONLY access data from their own clinic.
 
         Supported filters:
         - date_from, date_to: Date range
@@ -48,17 +48,17 @@ class StatisticsViewSet(viewsets.ViewSet):
         - patient_age_min, patient_age_max: Age range
         - modalities: List of imaging modalities
         - body_parts: List of body parts
-        - organization_ids: List of organization IDs (admin only)
+        - clinic_ids: List of clinic IDs (admin only)
         """
         user = request.user
 
-        # CRITICAL SECURITY: Base queryset filtered by user's organization
+        # CRITICAL SECURITY: Base queryset filtered by user's clinic
         queryset = AnalysisTask.objects.filter(
-            input_image__series__study__uploaded_by__userprofile__organization=user.userprofile.organization
+            input_image__series__study__uploaded_by__userprofile__clinic=user.userprofile.clinic
         ).select_related(
             'model',
             'input_image__series__study',
-            'input_image__series__study__uploaded_by__userprofile__organization',
+            'input_image__series__study__uploaded_by__userprofile__clinic',
             'created_by__userprofile'
         )
 
@@ -301,7 +301,7 @@ class StatisticsViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['get'])
     def filters_options(self, request):
         """
-        Get available filter options for the current user's organization.
+        Get available filter options for the current user's clinic.
 
         Returns lists of available:
         - models (with keys and names)
@@ -314,9 +314,9 @@ class StatisticsViewSet(viewsets.ViewSet):
         """
         user = request.user
 
-        # Base queryset for user's organization
+        # Base queryset for user's clinic
         base_queryset = AnalysisTask.objects.filter(
-            input_image__series__study__uploaded_by__userprofile__organization=user.userprofile.organization
+            input_image__series__study__uploaded_by__userprofile__clinic=user.userprofile.clinic
         )
 
         # Available models
@@ -377,11 +377,11 @@ class StatisticsViewSet(viewsets.ViewSet):
         - date_from, date_to: date range filters
         """
         user = request.user
-        org = user.userprofile.organization
+        org = user.userprofile.clinic
 
-        # Base study queryset scoped to organization
+        # Base study queryset scoped to clinic
         studies_qs = MedicalStudy.objects.filter(
-            uploaded_by__userprofile__organization=org
+            uploaded_by__userprofile__clinic=org
         )
 
         # Date filters
@@ -403,7 +403,7 @@ class StatisticsViewSet(viewsets.ViewSet):
 
         # 1. Modality distribution (from series)
         series_qs = MedicalSeries.objects.filter(
-            study__uploaded_by__userprofile__organization=org
+            study__uploaded_by__userprofile__clinic=org
         )
         if date_from:
             try:
@@ -482,11 +482,11 @@ class StatisticsViewSet(viewsets.ViewSet):
         - top_findings: Most common AI findings from completed tasks
         """
         user = request.user
-        org = user.userprofile.organization
+        org = user.userprofile.clinic
 
-        # Studies scoped to organization
+        # Studies scoped to clinic
         studies_qs = MedicalStudy.objects.filter(
-            uploaded_by__userprofile__organization=org
+            uploaded_by__userprofile__clinic=org
         )
 
         # 1. Gender distribution
@@ -528,7 +528,7 @@ class StatisticsViewSet(viewsets.ViewSet):
 
         # 3. Top findings from AI results
         completed_tasks = AnalysisTask.objects.filter(
-            input_image__series__study__uploaded_by__userprofile__organization=org,
+            input_image__series__study__uploaded_by__userprofile__clinic=org,
             status='COMPLETED',
             result_metadata__isnull=False,
         ).exclude(result_metadata={})

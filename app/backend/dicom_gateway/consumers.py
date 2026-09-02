@@ -23,14 +23,14 @@ class TransferMonitorConsumer(AsyncWebsocketConsumer):
 
     Group Architecture:
     - transfer_user_{user_id}: User's personal transfer updates
-    - transfer_org_{org_id}: Organization-wide transfer updates
+    - transfer_org_{org_id}: Clinic-wide transfer updates
     - transfer_dept_{dept}: Department-level transfer updates
     - transfer_team_{team}: Team-level transfer updates
 
     Security:
     - Requires Django session authentication (via AuthMiddlewareStack)
     - Only joins shared groups if user has opted-in to job sharing
-    - Respects organization boundaries
+    - Respects clinic boundaries
 
     Message Types:
     - connection: Connection established confirmation
@@ -63,9 +63,9 @@ class TransferMonitorConsumer(AsyncWebsocketConsumer):
         # Join shared groups if user has opted-in
         profile = await self.get_user_profile()
         if profile and profile.is_sharing_jobs_with_colleagues:
-            # Join organization group
-            if profile.organization_id:
-                org_group = f'transfer_org_{profile.organization_id}'
+            # Join clinic group
+            if profile.clinic_id:
+                org_group = f'transfer_org_{profile.clinic_id}'
                 await self.channel_layer.group_add(org_group, self.channel_name)
                 logger.info(f"User {self.user.id} joined transfer org group: {org_group}")
 
@@ -107,8 +107,8 @@ class TransferMonitorConsumer(AsyncWebsocketConsumer):
         if hasattr(self, 'user') and self.user.is_authenticated:
             profile = await self.get_user_profile()
             if profile and profile.is_sharing_jobs_with_colleagues:
-                if profile.organization_id:
-                    org_group = f'transfer_org_{profile.organization_id}'
+                if profile.clinic_id:
+                    org_group = f'transfer_org_{profile.clinic_id}'
                     await self.channel_layer.group_discard(org_group, self.channel_name)
 
                 if profile.department:

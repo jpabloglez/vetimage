@@ -19,7 +19,7 @@ class UserCreationService:
     @staticmethod
     def create_superuser(email, password, **kwargs):
         """
-        Create a superuser with UserProfile and Organization.
+        Create a superuser with UserProfile and Clinic.
 
         Args:
             email: Superuser email
@@ -29,7 +29,7 @@ class UserCreationService:
         Returns:
             User: Created superuser instance
         """
-        from users.models import User, UserProfile, Organization
+        from users.models import User, UserProfile, Clinic
 
         # Create superuser
         user = User.objects.create_superuser(
@@ -39,10 +39,10 @@ class UserCreationService:
             **kwargs
         )
 
-        # Create organization for superuser
-        org = Organization.objects.create(
+        # Create clinic for superuser
+        org = Clinic.objects.create(
             user=user,
-            centre='Admin Organization',
+            name='Admin Clinic',
             address='123 Admin St',
             city='Admin City',
             billing_address='123 Admin St',
@@ -52,7 +52,7 @@ class UserCreationService:
         # Create user profile
         UserProfile.objects.create(
             user=user,
-            organization=org,
+            clinic=org,
             first_name='Admin',
             last_name='User',
             email=email,
@@ -77,7 +77,7 @@ class UserCreationService:
         Returns:
             list: List of created User instances
         """
-        from users.models import User, UserProfile, Organization
+        from users.models import User, UserProfile, Clinic
         from dicom_images.models import UserStorageQuota
         from django.conf import settings
 
@@ -95,10 +95,10 @@ class UserCreationService:
                 role=1  # Regular user role
             )
 
-            # Create organization
-            org = Organization.objects.create(
+            # Create clinic
+            org = Clinic.objects.create(
                 user=user,
-                centre=fake.company(),
+                name=fake.company(),
                 address=fake.street_address(),
                 city=fake.city(),
                 billing_address=fake.street_address(),
@@ -108,7 +108,7 @@ class UserCreationService:
             # Create user profile
             UserProfile.objects.create(
                 user=user,
-                organization=org,
+                clinic=org,
                 first_name=fake.first_name(),
                 last_name=fake.last_name(),
                 email=email,

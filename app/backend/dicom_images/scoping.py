@@ -3,14 +3,14 @@ One definition of which DICOM records a user may see.
 
 Studies used to be scoped strictly to their uploader (`uploaded_by=user`) while
 every other clinical record — patients, owners, reports, referrals — was scoped
-to the organization. The result was incoherent for a shared medical record: a
+to the clinic. The result was incoherent for a shared medical record: a
 colleague could open the *report* about Rex's radiograph but not the radiograph
 itself.
 
-Studies are now organization-scoped, matching the rest of the clinical record.
+Studies are now clinic-scoped, matching the rest of the clinical record.
 
-The rule is deliberately expressed as `own OR same-organization`, not just
-`same-organization`. A user whose UserProfile has no organization — possible
+The rule is deliberately expressed as `own OR same-clinic`, not just
+`same-clinic`. A user whose UserProfile has no clinic — possible
 for accounts that never touched an org-scoped endpoint — would otherwise fall
 out of the join and lose access to their *own* studies. Keeping the ownership
 term makes this a strict superset of the previous behaviour: colleagues gain
@@ -26,10 +26,10 @@ from .models import MedicalImage, MedicalSeries, MedicalStudy
 
 
 def _org_for(user):
-    """The user's organization, provisioning one if needed (never raises)."""
-    from patients.views import get_or_create_organization
+    """The user's clinic, provisioning one if needed (never raises)."""
+    from patients.views import get_or_create_clinic
     try:
-        return get_or_create_organization(user)
+        return get_or_create_clinic(user)
     except Exception:  # pragma: no cover - defensive; scoping must not 500
         return None
 
@@ -45,19 +45,19 @@ def study_scope_q(user, prefix=''):
     own = Q(**{f'{prefix}uploaded_by': user})
     if org is None:
         return own
-    return own | Q(**{f'{prefix}uploaded_by__userprofile__organization': org})
+    return own | Q(**{f'{prefix}uploaded_by__userprofile__clinic': org})
 
 
 def visible_studies(user):
-    """MedicalStudy queryset scoped to *user*'s organization."""
+    """MedicalStudy queryset scoped to *user*'s clinic."""
     return MedicalStudy.objects.filter(study_scope_q(user))
 
 
 def visible_series(user):
-    """MedicalSeries queryset scoped to *user*'s organization."""
+    """MedicalSeries queryset scoped to *user*'s clinic."""
     return MedicalSeries.objects.filter(study_scope_q(user, prefix='study__'))
 
 
 def visible_images(user):
-    """MedicalImage queryset scoped to *user*'s organization."""
+    """MedicalImage queryset scoped to *user*'s clinic."""
     return MedicalImage.objects.filter(study_scope_q(user, prefix='series__study__'))
