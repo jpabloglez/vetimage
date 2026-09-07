@@ -12,6 +12,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 import logging
 import time
 
+from . import session_activity
 from .utils import set_current_request, clear_current_request, extract_ip_address, calculate_risk_score
 from .models import AuditLog, UserSession
 
@@ -272,23 +273,23 @@ class AuditLoggingMiddleware(MiddlewareMixin):
                 validated_token = jwt_auth.get_validated_token(jwt_auth.get_raw_token(jwt_auth.get_header(request)))
 
                 if validated_token:
-                    # Get JTI (token ID)
-                    jti = validated_token.get('jti')
+                    # Match on the `sid` claim, not `jti`. OutstandingToken
+                    # stores *refresh* token ids while this reads an *access*
+                    # token's, so the old `outstanding_token__jti=<access jti>`
+                    # lookup could never match — measured on a dev database,
+                    # not one row in ~3k had `last_activity_at` off its
+                    # `created_at`. `sid` is on both tokens and survives
+                    # rotation, so this one actually resolves.
+                    sid = validated_token.get(session_activity.SID_CLAIM)
 
-                    if jti:
-                        # Find and update session
+                    if sid:
+                        # A rotation chain shares one sid, so take the live row.
                         session = UserSession.objects.filter(
-                            outstanding_token__jti=jti,
+                            sid=sid,
                             is_active=True
-                        ).first()
+                        ).order_by('-created_at').first()
 
                         if session:
-                            # TODO: SESSION_ACTIVITY_TIMEOUT_MINUTES is read but never enforced —
-                            # this only updates last_activity_at below, it never expires the
-                            # session once time_since_activity exceeds the timeout. Flagged
-                            # during lint cleanup; needs a product decision on the desired
-                            # behavior (force logout? invalidate token?) before implementing.
-                            timeout_minutes = getattr(settings, 'SESSION_ACTIVITY_TIMEOUT_MINUTES', 30)  # noqa: F841
                             time_since_activity = (timezone.now() - session.last_activity_at).total_seconds() / 60
 
                             # Only update if enough time has passed (avoid excessive DB writes)
@@ -329,3 +330,86 @@ class AuditLoggingMiddleware(MiddlewareMixin):
 
         except Exception as e:
             logger.error(f"Error updating session activity: {e}", exc_info=True)
+
+
+class IdleSessionMiddleware(MiddlewareMixin):
+    """
+    Signs out sessions that have gone unused for
+    `SESSION_ACTIVITY_TIMEOUT_MINUTES`.
+
+    The setting predates this middleware by a long way; until now it was read
+    and discarded, so a signed-in browser stayed signed in for the full 7-day
+    refresh lifetime. See `credentials.session_activity` for how the clock
+    works.
+
+    **This runs in `process_request`, deliberately.** The existing activity
+    tracking sits in `process_response`, where the view has already run and the
+    body is already built — a check there could only close the barn door after
+    the request it was meant to refuse. Rejecting before the view is the
+    difference between enforcement and bookkeeping.
+
+    Requests the *user* did not cause — the notification poll, progress
+    tickers — are still checked but do not push the clock forward; the client
+    marks them with `X-Background-Request`. Without that, a 30-second poll
+    would keep an abandoned workstation signed in indefinitely.
+    """
+
+    #: Auth endpoints run their own checks (`CustomTokenRefreshView`) or must
+    #: keep working so a client can always tidy up (`logout`).
+    EXEMPT_PATHS = (
+        '/users/auth/login/',
+        '/users/auth/logout/',
+        '/users/auth/refresh/',
+        '/users/auth/register/',
+        '/users/auth/api-key/',
+    )
+
+    BACKGROUND_HEADER = 'HTTP_X_BACKGROUND_REQUEST'
+
+    def process_request(self, request):
+        if not session_activity.is_enabled():
+            return None
+        if request.path in self.EXEMPT_PATHS:
+            return None
+
+        jwt_auth = JWTAuthentication()
+        try:
+            header = jwt_auth.get_header(request)
+            if header is None:
+                return None
+            raw_token = jwt_auth.get_raw_token(header)
+            if raw_token is None:
+                return None
+            validated_token = jwt_auth.get_validated_token(raw_token)
+        except (InvalidToken, TokenError, AttributeError):
+            # Not a valid JWT request — let DRF produce the auth error.
+            return None
+
+        sid = session_activity.sid_from_token(validated_token)
+        if not sid:
+            # No claim: an API-key token, or one minted before this shipped.
+            return None
+
+        is_background = request.META.get(self.BACKGROUND_HEADER) == '1'
+        if not session_activity.observe(sid, activity=not is_background):
+            return None
+
+        try:
+            user = jwt_auth.get_user(validated_token)
+        except Exception:  # pragma: no cover - defensive
+            user = None
+
+        session_activity.expire(
+            sid,
+            user=user,
+            ip_address=extract_ip_address(request),
+            request=request,
+        )
+
+        return JsonResponse(
+            {
+                'detail': 'Signed out after a period of inactivity.',
+                'code': session_activity.IDLE_TIMEOUT_CODE,
+            },
+            status=401,
+        )

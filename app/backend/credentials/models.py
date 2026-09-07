@@ -47,6 +47,18 @@ class UserSession(models.Model):
         help_text='Associated JWT token (null for API key sessions)'
     )
 
+    # Login correlation. Refresh-token rotation mints a new OutstandingToken —
+    # and therefore a new row here — every few minutes, so `outstanding_token`
+    # identifies a *token*, not a session. `sid` is carried in the JWT and
+    # copied forward through every rotation, so it identifies the login, which
+    # is what idle expiry has to act on.
+    sid = models.CharField(
+        max_length=64,
+        blank=True,
+        db_index=True,
+        help_text='Session id claim shared by every token in a rotation chain'
+    )
+
     # Session metadata
     session_type = models.CharField(
         max_length=20,
@@ -129,6 +141,7 @@ class UserSession(models.Model):
             ('expired', 'Token Expired'),
             ('revoked', 'Manually Revoked'),
             ('concurrent_limit', 'Concurrent Session Limit'),
+            ('idle_timeout', 'Idle Timeout'),
             ('security', 'Security Issue Detected'),
         ],
         help_text='Reason for session termination'

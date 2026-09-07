@@ -24,10 +24,16 @@ const LoginPage: React.FC = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  // Friendly notice when redirected here by an expired session.
+  // Friendly notice when redirected here by an ended session. An idle sign-out
+  // is normal housekeeping, not an error, so it is worded and toasted as such.
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get('session') === 'expired') {
+    const reason = new URLSearchParams(window.location.search).get('session');
+    if (reason === 'expired') {
       toast.error(t('login.sessionExpired', 'Your session expired. Please sign in again.'));
+    } else if (reason === 'idle') {
+      toast(t('login.sessionIdle', 'You were signed out after a period of inactivity.'), {
+        icon: '🔒',
+      });
     }
   }, [t]);
 

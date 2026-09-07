@@ -111,9 +111,9 @@ export const TaskMonitor: React.FC<TaskMonitorProps> = ({
   const [retrying, setRetrying] = useState(false);
   const [cancelling, setCancelling] = useState(false);
 
-  const fetchTaskStatus = useCallback(async () => {
+  const fetchTaskStatus = useCallback(async (opts?: { background?: boolean }) => {
     try {
-      const taskData = await apiClient.getAnalysisTask(taskId);
+      const taskData = await apiClient.getAnalysisTask(taskId, opts);
       setTask(taskData);
       setError(null);
 
@@ -141,7 +141,7 @@ export const TaskMonitor: React.FC<TaskMonitorProps> = ({
     }
 
     const interval = setInterval(() => {
-      fetchTaskStatus();
+      fetchTaskStatus({ background: true });
     }, pollInterval);
 
     return () => clearInterval(interval);
@@ -212,7 +212,7 @@ export const TaskMonitor: React.FC<TaskMonitorProps> = ({
             Error Loading Task
           </h3>
           <p className="text-slate-600 dark:text-slate-400 mb-4">{error}</p>
-          <Button onClick={fetchTaskStatus}>Retry</Button>
+          <Button onClick={() => fetchTaskStatus()}>Retry</Button>
         </CardContent>
       </Card>
     );
@@ -418,7 +418,7 @@ export const TaskMonitor: React.FC<TaskMonitorProps> = ({
           )}
 
           {/* Refresh Button (manual refresh for any state) */}
-          <Button variant="ghost" onClick={fetchTaskStatus}>
+          <Button variant="ghost" onClick={() => fetchTaskStatus()}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>

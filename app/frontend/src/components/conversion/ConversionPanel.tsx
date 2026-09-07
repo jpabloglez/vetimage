@@ -28,7 +28,7 @@ const ConversionPanel: React.FC = () => {
 
     const interval = setInterval(async () => {
       try {
-        const updated = await apiClient.getConversionJobs();
+        const updated = await apiClient.getConversionJobs({ background: true });
         setJobs(updated);
       } catch { /* ignore */ }
     }, 3000);

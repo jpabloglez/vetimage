@@ -161,14 +161,16 @@ const WorklistTab: React.FC = () => {
     apiClient.getAIModels().then(setModels).catch(() => {});
   }, []);
 
-  const fetchTasks = useCallback(async ({ silent = false }: { silent?: boolean } = {}) => {
+  const fetchTasks = useCallback(async (
+    { silent = false, background = false }: { silent?: boolean; background?: boolean } = {},
+  ) => {
     if (!silent) setLoading(true);
     try {
       const data = await apiClient.getAnalysisTasks({
         ...(statusFilter && { status: statusFilter }),
         ...(modelFilter  && { model: modelFilter }),
         limit: 200,
-      });
+      }, { background });
       setTasks(data);
     } catch {
       if (!silent) toast.error(t('common:errors.loadFailed'));
@@ -202,7 +204,7 @@ const WorklistTab: React.FC = () => {
   useEffect(() => {
     if (!hasActiveTasks) return;
     const tick = setInterval(() => setNow(Date.now()), 1000);
-    const poll = setInterval(() => fetchTasks({ silent: true }), 4000);
+    const poll = setInterval(() => fetchTasks({ silent: true, background: true }), 4000);
     return () => { clearInterval(tick); clearInterval(poll); };
   }, [hasActiveTasks, fetchTasks]);
 
