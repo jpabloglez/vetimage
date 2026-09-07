@@ -94,9 +94,9 @@ const AnonymizationPanel: React.FC = () => {
     }
   }, []);
 
-  const fetchJobs = useCallback(async () => {
+  const fetchJobs = useCallback(async (opts?: { background?: boolean }) => {
     try {
-      const data = await apiClient.getAnonymizationJobs();
+      const data = await apiClient.getAnonymizationJobs(opts);
       setJobs(data);
     } catch {
       // silent
@@ -114,7 +114,7 @@ const AnonymizationPanel: React.FC = () => {
       (j) => j.status === 'PENDING' || j.status === 'PROCESSING'
     );
     if (!hasActive) return;
-    const interval = setInterval(fetchJobs, 3000);
+    const interval = setInterval(() => fetchJobs({ background: true }), 3000);
     return () => clearInterval(interval);
   }, [jobs, fetchJobs]);
 

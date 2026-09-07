@@ -132,6 +132,8 @@ def calculate_risk_score(reason):
         'suspicious_location': 65,
         'multiple_failed_logins': 80,
         'token_replay': 85,
+        # Routine, not suspicious: the session simply went unused.
+        'idle_timeout': 0,
     }
 
     return risk_scores.get(reason, 50)

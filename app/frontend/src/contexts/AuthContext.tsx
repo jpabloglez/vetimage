@@ -73,10 +73,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     };
 
+    // Signed out for inactivity. Distinct from an expired token: nothing went
+    // wrong and there is nothing to retry, so the login page says so plainly
+    // instead of implying a failure.
+    const handleSessionIdle = () => {
+      setUser(null);
+      if (!window.location.pathname.startsWith('/auth/')) {
+        window.location.href = '/auth/login?session=idle';
+      }
+    };
+
     window.addEventListener('auth:token-expired', handleTokenExpired);
+    window.addEventListener('auth:session-idle', handleSessionIdle);
 
     return () => {
       window.removeEventListener('auth:token-expired', handleTokenExpired);
+      window.removeEventListener('auth:session-idle', handleSessionIdle);
     };
   }, []);
 

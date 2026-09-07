@@ -92,6 +92,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'credentials.middleware.RequestContextMiddleware',  # Store request context for signal handlers
     'credentials.middleware.AuditLoggingMiddleware',  # Audit logging and brute force protection
+    # Must run before the view: it refuses the request, it does not just
+    # record it. See credentials.session_activity.
+    'credentials.middleware.IdleSessionMiddleware',  # Idle-session expiry
 ]
 
 # Static file serving via WhiteNoise — enabled only when the package is
@@ -663,6 +666,8 @@ WEBSOCKET_HEARTBEAT_INTERVAL = int(os.getenv('WEBSOCKET_HEARTBEAT_INTERVAL', 30)
 
 # Session tracking
 MAX_CONCURRENT_SESSIONS_PER_USER = int(os.getenv('MAX_CONCURRENT_SESSIONS_PER_USER', 5))
+# Idle expiry: a session unused for this long is signed out, enforced by
+# credentials.middleware.IdleSessionMiddleware. Set to 0 to disable.
 SESSION_ACTIVITY_TIMEOUT_MINUTES = int(os.getenv('SESSION_ACTIVITY_TIMEOUT_MINUTES', 30))
 
 # Brute force protection

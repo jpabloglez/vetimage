@@ -64,9 +64,9 @@ const Navbar: React.FC = () => {
   const isLandingPage = location.pathname === '/';
 
   // Poll notifications every 30s
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = useCallback(async (opts?: { background?: boolean }) => {
     try {
-      const data = await apiClient.getNotifications();
+      const data = await apiClient.getNotifications(opts);
       setNotifications(data);
     } catch {
       // Silently fail — user may not be authenticated yet
@@ -76,7 +76,9 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
+    // Background: a poll on a timer is not the user being present, and must
+    // not keep an unattended workstation signed in.
+    const interval = setInterval(() => fetchNotifications({ background: true }), 30000);
     return () => clearInterval(interval);
   }, [isAuthenticated, fetchNotifications]);
 

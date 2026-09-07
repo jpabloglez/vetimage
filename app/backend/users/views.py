@@ -28,6 +28,8 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from core.ws_tickets import TICKET_TTL_SECONDS, issue_ticket
+from credentials import session_activity
+from credentials.utils import extract_ip_address
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -285,6 +287,7 @@ class RegisterView(generics.CreateAPIView):
 
         # Generate tokens for newly registered user
         refresh = RefreshToken.for_user(user)
+        session_activity.attach(refresh)
 
         response = Response({
             'user': UserAuthSerializer(user).data,
@@ -384,6 +387,31 @@ class CustomTokenRefreshView(APIView):
 
         try:
             refresh = RefreshToken(refresh_token)
+
+            # Idle expiry is enforced here rather than only in middleware:
+            # refusing to mint is what actually ends the session. An access
+            # token already in flight dies at its own 5-minute expiry with
+            # nothing to replace it.
+            sid = session_activity.sid_from_token(refresh)
+            if sid and session_activity.is_idle(sid):
+                session_activity.expire(
+                    sid,
+                    ip_address=extract_ip_address(request),
+                    request=request,
+                )
+                response = Response(
+                    {
+                        'detail': 'Signed out after a period of inactivity.',
+                        'code': session_activity.IDLE_TIMEOUT_CODE,
+                    },
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+                response.delete_cookie(
+                    key=settings.REFRESH_TOKEN_COOKIE_NAME,
+                    samesite=settings.REFRESH_TOKEN_COOKIE_SAMESITE,
+                )
+                return response
+
             access_token = str(refresh.access_token)
 
             response = Response({
@@ -403,6 +431,10 @@ class CustomTokenRefreshView(APIView):
                 new_refresh = RefreshToken.for_user(
                     User.objects.get(pk=refresh['user_id'])
                 )
+                # for_user() builds a fresh payload, so the session id has to
+                # be carried over explicitly — otherwise every refresh starts a
+                # new session and the idle clock never runs out.
+                session_activity.carry_forward(refresh, new_refresh)
 
                 cookie_kwargs = {
                     'key': settings.REFRESH_TOKEN_COOKIE_NAME,
@@ -443,7 +475,10 @@ class LogoutView(APIView):
 
             if refresh_token:
                 token = RefreshToken(refresh_token)
+                sid = session_activity.sid_from_token(token)
                 token.blacklist()
+                if sid:
+                    session_activity.forget(sid)
 
             response = Response({
                 'message': 'Logged out successfully'
@@ -534,7 +569,9 @@ def api_key_auth(request):
 
         user = api_key_obj.user
 
-        # Generate JWT tokens
+        # Generate JWT tokens. Deliberately no idle-session clock: this is a
+        # service integration, and a machine that goes quiet for an hour and
+        # then calls is behaving normally, not idling at a workstation.
         refresh = RefreshToken.for_user(user)
 
         return Response({

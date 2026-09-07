@@ -3,6 +3,7 @@ from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 
 from core.protected_media import signed_media_url
+from credentials import session_activity
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 from users.models import (
@@ -126,6 +127,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Add custom claims
         token['email'] = user.email
         token['role'] = user.role
+
+        # Identifies this login for idle expiry. simplejwt copies custom claims
+        # onto the access token, and CustomTokenRefreshView carries it across
+        # rotation, so every token from this login shares one sid.
+        session_activity.attach(token)
 
         return token
 

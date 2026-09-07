@@ -119,6 +119,21 @@ export * from '../types/api';
 /**
  * API Client Class with JWT Authentication
  */
+/**
+ * Mirrors `credentials.session_activity.IDLE_TIMEOUT_CODE`. A 401 carrying it
+ * means the session was signed out for inactivity, not that a token aged out.
+ */
+export const IDLE_TIMEOUT_CODE = 'session_idle_timeout';
+
+export interface RequestOptions {
+  /**
+   * Mark a request as timer-driven rather than user-initiated (polls, progress
+   * tickers). It is still authenticated and still subject to the idle timeout;
+   * it just does not count as the user being present.
+   */
+  background?: boolean;
+}
+
 class ApiClient {
   private baseUrl: string;
   private accessToken: string | null = null;
@@ -183,7 +198,8 @@ class ApiClient {
    */
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    { background = false }: RequestOptions = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
@@ -193,6 +209,13 @@ class ApiClient {
       ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
       ...(options.headers as Record<string, string> | undefined),
     };
+
+    // Timer-driven traffic is not the user being present. The backend still
+    // checks the idle timeout on these, it just does not let them postpone it
+    // — otherwise a 30s poll would keep an abandoned workstation signed in.
+    if (background) {
+      headers['X-Background-Request'] = '1';
+    }
 
     if (this.accessToken) {
       headers['Authorization'] = `Bearer ${this.accessToken}`;
@@ -207,6 +230,16 @@ class ApiClient {
 
       // Handle 401 Unauthorized - attempt token refresh
       if (response.status === 401 && this.accessToken) {
+        // An idle sign-out is final: the refresh token has been blacklisted,
+        // so refreshing would only turn one 401 into two. Bail out and tell
+        // AuthContext why, so the user sees "signed out for inactivity"
+        // rather than a generic session error.
+        if (await this.isIdleTimeout(response)) {
+          this.setAccessToken(null);
+          window.dispatchEvent(new CustomEvent('auth:session-idle'));
+          throw new Error('Signed out after a period of inactivity.');
+        }
+
         console.log('Access token expired, attempting refresh...');
 
         try {
@@ -237,6 +270,19 @@ class ApiClient {
     } catch (error) {
       console.error('API request failed:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Does this 401 mean the session went idle, rather than the access token
+   * simply ageing out? Reads a clone so the caller's body stays unread.
+   */
+  private async isIdleTimeout(response: Response): Promise<boolean> {
+    try {
+      const body = await response.clone().json();
+      return body?.code === IDLE_TIMEOUT_CODE;
+    } catch {
+      return false;
     }
   }
 
@@ -1283,7 +1329,7 @@ class ApiClient {
     model?: string;
     limit?: number;
     offset?: number;
-  }): Promise<AnalysisTask[]> {
+  }, opts?: RequestOptions): Promise<AnalysisTask[]> {
     const queryParams = new URLSearchParams();
     if (params) {
       if (params.status) queryParams.append('status', params.status);
@@ -1296,7 +1342,7 @@ class ApiClient {
       ? `/api/ai-analysis/tasks/?${queryParams}`
       : '/api/ai-analysis/tasks/';
 
-    const res = await this.request<PaginatedResponse<AnalysisTask> | AnalysisTask[]>(endpoint);
+    const res = await this.request<PaginatedResponse<AnalysisTask> | AnalysisTask[]>(endpoint, {}, opts);
     return Array.isArray(res) ? res : res.results;
   }
 
@@ -1315,8 +1361,8 @@ class ApiClient {
    * Get details of a specific analysis task
    * GET /api/ai-analysis/tasks/{taskId}/
    */
-  async getAnalysisTask(taskId: string): Promise<AnalysisTask> {
-    return this.request<AnalysisTask>(`/api/ai-analysis/tasks/${taskId}/`);
+  async getAnalysisTask(taskId: string, opts?: RequestOptions): Promise<AnalysisTask> {
+    return this.request<AnalysisTask>(`/api/ai-analysis/tasks/${taskId}/`, {}, opts);
   }
 
   /**
@@ -1752,8 +1798,8 @@ class ApiClient {
    * Get user's notifications
    * GET /api/credentials/notifications/
    */
-  async getNotifications(): Promise<Notification[]> {
-    const res = await this.request<PaginatedResponse<Notification> | Notification[]>('/api/credentials/notifications/');
+  async getNotifications(opts?: RequestOptions): Promise<Notification[]> {
+    const res = await this.request<PaginatedResponse<Notification> | Notification[]>('/api/credentials/notifications/', {}, opts);
     return Array.isArray(res) ? res : res.results;
   }
 
@@ -1904,8 +1950,8 @@ class ApiClient {
    * Get list of user's anonymization jobs
    * GET /api/dicom/anonymize/
    */
-  async getAnonymizationJobs(): Promise<AnonymizationJob[]> {
-    const res = await this.request<PaginatedResponse<AnonymizationJob> | AnonymizationJob[]>('/api/dicom/anonymize/');
+  async getAnonymizationJobs(opts?: RequestOptions): Promise<AnonymizationJob[]> {
+    const res = await this.request<PaginatedResponse<AnonymizationJob> | AnonymizationJob[]>('/api/dicom/anonymize/', {}, opts);
     return Array.isArray(res) ? res : res.results;
   }
 
@@ -1960,8 +2006,8 @@ class ApiClient {
   // FORMAT CONVERSION ENDPOINTS
   // ============================================================================
 
-  async getConversionJobs(): Promise<ConversionJob[]> {
-    const res = await this.request<PaginatedResponse<ConversionJob> | ConversionJob[]>('/api/dicom/convert/');
+  async getConversionJobs(opts?: RequestOptions): Promise<ConversionJob[]> {
+    const res = await this.request<PaginatedResponse<ConversionJob> | ConversionJob[]>('/api/dicom/convert/', {}, opts);
     return Array.isArray(res) ? res : res.results;
   }
 
