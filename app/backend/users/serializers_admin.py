@@ -100,7 +100,9 @@ class AdminClinicDetailSerializer(AdminClinicSerializer):
                 'email': profile.user.email,
                 'role': profile.user.role,
                 'is_clinic_admin': profile.user.role == CLINIC_ADMIN_ROLE,
-                'date_joined': profile.user.date_joined,
+                'is_active': profile.user.is_active,
+                # No date_joined: this project's User model does not have one.
+                'last_login': profile.user.last_login,
             }
             for profile in obj.staff.select_related('user').order_by('user__email')
         ]

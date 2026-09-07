@@ -198,6 +198,18 @@ class TestRegistryCounts:
         assert row['owners_count'] == 2
         assert row['members'] == 1
 
+    def test_the_detail_view_renders(self, api_client, platform_staff, clinic_a):
+        """Regression: the staff roster read User.date_joined, which this
+        project's custom User model does not have, so every detail request
+        returned 500. The list view did not touch it, so list-only tests
+        missed it."""
+        _user('member@x.test', clinic=clinic_a)
+        api_client.force_authenticate(user=platform_staff)
+
+        resp = api_client.get(f'{CLINICS}{clinic_a.id}/')
+        assert resp.status_code == 200
+        assert [row['email'] for row in resp.data['staff']] == ['member@x.test']
+
     def test_exposes_aggregates_not_clinical_content(
         self, api_client, platform_staff, clinic_a,
     ):

@@ -76,6 +76,8 @@ import type {
   ProfileCompletionData,
   ClinicInvitation,
   PublicInvitation,
+  ClinicMember,
+  ClinicProfile,
   AdminClinic,
   AdminPlatformSummary,
   AdminStatistics,
@@ -453,6 +455,52 @@ class ApiClient {
     if (params?.status) qs.set('status', params.status);
     const suffix = qs.toString() ? `?${qs.toString()}` : '';
     return this.request<AdminStatistics>(`/api/admin/statistics/${suffix}`);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Clinic self-administration (Clinic Admins)
+  // ---------------------------------------------------------------------------
+
+  /** The clinic's staff roster. */
+  async getClinicMembers(): Promise<ClinicMember[]> {
+    const res = await this.request<PaginatedResponse<ClinicMember> | ClinicMember[]>(
+      '/users/clinic/members/',
+    );
+    return Array.isArray(res) ? res : res.results;
+  }
+
+  /** Change a member's role. */
+  async setClinicMemberRole(userId: number, role: number): Promise<ClinicMember> {
+    return this.request<ClinicMember>(`/users/clinic/members/${userId}/role/`, {
+      method: 'POST',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  /** Revoke a member's access. Deactivates the account; never deletes it. */
+  async revokeClinicMember(userId: number): Promise<ClinicMember> {
+    return this.request<ClinicMember>(`/users/clinic/members/${userId}/revoke/`, {
+      method: 'POST',
+    });
+  }
+
+  /** Restore a previously revoked member. */
+  async restoreClinicMember(userId: number): Promise<ClinicMember> {
+    return this.request<ClinicMember>(`/users/clinic/members/${userId}/restore/`, {
+      method: 'POST',
+    });
+  }
+
+  /** The caller's own clinic. Readable by members, editable by admins. */
+  async getClinicProfile(): Promise<ClinicProfile> {
+    return this.request<ClinicProfile>('/users/clinic/profile/');
+  }
+
+  async updateClinicProfile(data: Partial<ClinicProfile>): Promise<ClinicProfile> {
+    return this.request<ClinicProfile>('/users/clinic/profile/', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
   }
 
   // ---------------------------------------------------------------------------

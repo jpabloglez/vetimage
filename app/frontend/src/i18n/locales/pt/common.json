@@ -118,7 +118,9 @@
       "approved": "Aprovado",
       "final": "Final",
       "draft": "Rascunho"
-    }
+    },
+    "inviteColleague": "Convidar um colega",
+    "inviteColleagueDesc": "Dê a outro veterinário acesso aos pacientes e estudos desta clínica."
   },
   "footer": {
     "tagline": "Plataforma de imagens veterinárias baseada em padrões DICOMweb e modelos de análise por IA.",
@@ -366,6 +368,42 @@
       "invalidBody": "Pode ter expirado, sido revogado ou já ter sido utilizado. Peça à administração da sua clínica que envie um novo.",
       "goToLogin": "Ir para o início de sessão",
       "expiryNote": "Este convite pode ser usado uma vez e expira a {{date}}."
+    },
+    "members": {
+      "title": "Equipa da clínica",
+      "person": "Pessoa",
+      "role": "Função",
+      "lastSignIn": "Último acesso",
+      "actions": "Ações",
+      "you": "(você)",
+      "description": "Todas as pessoas que podem ver os pacientes, estudos e relatórios desta clínica.",
+      "empty": "Ainda não há equipa.",
+      "revokedBadge": "Sem acesso",
+      "roleFor": "Função de {{name}}",
+      "revoke": "Revogar acesso",
+      "revokeFor": "Revogar o acesso de {{name}}",
+      "revokeTitle": "Revogar o acesso?",
+      "revokeConfirm": "{{name}} deixará de conseguir iniciar sessão. Tudo o que registou permanece na clínica e poderá restaurar o acesso mais tarde.",
+      "revoked": "Acesso revogado",
+      "revokeError": "Não foi possível revogar o acesso",
+      "restore": "Restaurar acesso",
+      "restoreFor": "Restaurar o acesso de {{name}}",
+      "restored": "Acesso restaurado",
+      "restoreError": "Não foi possível restaurar o acesso",
+      "roleChanged": "Função atualizada",
+      "roleError": "Não foi possível alterar a função",
+      "loadError": "Não foi possível carregar a equipa da clínica"
+    },
+    "clinic": {
+      "title": "Dados da clínica",
+      "description": "O nome da sua clínica aparece nos convites que envia e nos relatórios que partilha com os donos.",
+      "name": "Nome da clínica",
+      "city": "Cidade",
+      "address": "Morada",
+      "billingCode": "Código de faturação",
+      "saved": "Dados da clínica atualizados",
+      "saveError": "Não foi possível guardar os dados da clínica",
+      "loadError": "Não foi possível carregar os dados da clínica"
     }
   }
 }

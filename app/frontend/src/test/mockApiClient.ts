@@ -76,6 +76,9 @@ const API_METHODS = [
   'getNotifications', 'markNotificationRead', 'markAllNotificationsRead',
   // Platform administration
   'getAdminSummary', 'getAdminClinics', 'createAdminClinic', 'getAdminStatistics',
+  // Clinic self-administration
+  'getClinicMembers', 'setClinicMemberRole', 'revokeClinicMember',
+  'restoreClinicMember', 'getClinicProfile', 'updateClinicProfile',
   // Clinic invitations
   'getClinicInvitations', 'createClinicInvitation', 'revokeClinicInvitation',
   'getInvitation', 'acceptInvitation',
@@ -119,6 +122,7 @@ export function createApiClientMock(overrides: ApiClientMock = {}): ApiClientMoc
   mock.getReports = vi.fn().mockResolvedValue([]);
   mock.getNotifications = vi.fn().mockResolvedValue([]);
   mock.getClinicInvitations = vi.fn().mockResolvedValue([]);
+  mock.getClinicMembers = vi.fn().mockResolvedValue([]);
   mock.getAdminClinics = vi.fn().mockResolvedValue([]);
   mock.getStudies = vi.fn().mockResolvedValue([]);
   mock.getSeries = vi.fn().mockResolvedValue([]);
