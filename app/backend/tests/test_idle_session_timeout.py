@@ -32,13 +32,6 @@ REFRESH = '/users/auth/refresh/'
 PROFILE = '/users/auth/profile/'
 
 
-@pytest.fixture(autouse=True)
-def _clean_cache():
-    cache.clear()
-    yield
-    cache.clear()
-
-
 @pytest.fixture
 def person(db):
     return User.objects.create_user(email='idle@x.test', password=TEST_PASSWORD)

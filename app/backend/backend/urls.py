@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, re_path
 
+from core.csp_report import CSPReportView
 from core.protected_media import ProtectedMediaView
 from files.views import ImageUploadView
 from backend.views import get_frontend_config
@@ -35,6 +36,9 @@ urlpatterns = [
 
     # Frontend Configuration
     path('api/config/', get_frontend_config, name='frontend-config'),
+
+    # CSP violation reports (posted by the browser, not by app code).
+    path('api/csp-report/', CSPReportView.as_view(), name='csp-report'),
 
     # Health checks
     path('api/health/', health_liveness, name='health-liveness'),

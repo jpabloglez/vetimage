@@ -41,15 +41,25 @@ class SecurityHeadersMiddleware:
     container, so its CSP is set there (see app/frontend/vite.config.ts) and
     must be reproduced by whatever serves the built bundle in production.
 
-    CSP ships report-only by default so a missed directive degrades to a console
-    warning rather than a blank Swagger page. Set CSP_ENFORCE=True once the
-    report-only run is clean.
+    CSP is **enforced** by default (CSP_ENFORCE=False falls back to report-only,
+    which is the right setting while shaking out a new directive). It was
+    report-only until a browser run over the admin, Swagger UI, ReDoc and the
+    DRF browsable API measured what actually violated it; see
+    `tests/test_csp.py` and settings for what that found.
+
+    The docs pages get a slightly wider policy than everything else — Swagger
+    and ReDoc load two CDN images and spawn a blob-backed worker. That widening
+    is scoped to those two URLs rather than folded into the base policy,
+    because the same policy covers the Django admin, and quietly relaxing the
+    admin to satisfy a docs page is how a CSP ends up present but pointless.
     """
 
     def __init__(self, get_response):
         self.get_response = get_response
         self.enforce = getattr(settings, 'CSP_ENFORCE', False)
         self.policy = getattr(settings, 'CONTENT_SECURITY_POLICY', '')
+        self.docs_policy = getattr(settings, 'CONTENT_SECURITY_POLICY_DOCS', '') or self.policy
+        self.docs_paths = tuple(getattr(settings, 'CSP_DOCS_PATHS', ()))
 
     def __call__(self, request):
         response = self.get_response(request)
@@ -59,7 +69,8 @@ class SecurityHeadersMiddleware:
                 'Content-Security-Policy' if self.enforce
                 else 'Content-Security-Policy-Report-Only'
             )
-            response.setdefault(header, self.policy)
+            is_docs = self.docs_paths and request.path.startswith(self.docs_paths)
+            response.setdefault(header, self.docs_policy if is_docs else self.policy)
 
         # Don't leak the full URL (which can carry tokens or record ids) to
         # third-party origins on outbound navigation.

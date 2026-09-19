@@ -25,7 +25,8 @@ class TestThrottleConfiguration:
     def test_every_declared_scope_has_a_rate(self):
         rates = settings.REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']
         for scope in ('anon', 'user', 'login', 'register', 'password_reset',
-                      'token_refresh', 'public_share', 'webhook', 'upload'):
+                      'token_refresh', 'public_share', 'webhook', 'upload',
+                      'csp_report'):
             assert rates.get(scope), f'throttle scope {scope!r} has no rate'
 
     def test_num_proxies_is_set_so_throttles_cannot_be_spoofed(self):
@@ -44,10 +45,8 @@ class TestSecurityHeaders:
 
     def test_csp_and_hardening_headers_are_present(self, api_client):
         resp = api_client.get(reverse('health-liveness'))
-        # Report-only by default so a missed directive degrades to a console
-        # warning instead of a blank page.
-        assert 'Content-Security-Policy-Report-Only' in resp
-        csp = resp['Content-Security-Policy-Report-Only']
+        assert 'Content-Security-Policy' in resp
+        csp = resp['Content-Security-Policy']
         assert "default-src 'self'" in csp
         assert "frame-ancestors 'none'" in csp
         assert "object-src 'none'" in csp
@@ -55,12 +54,16 @@ class TestSecurityHeaders:
         assert 'Referrer-Policy' in resp
         assert 'Permissions-Policy' in resp
 
-    def test_csp_is_report_only_by_default(self, api_client):
-        """Enforcing before a clean report-only run risks breaking Swagger/ReDoc,
-        so the enforced header must stay off until CSP_ENFORCE is set."""
+    def test_csp_is_enforced_by_default(self, api_client):
+        """
+        Was report-only pending a "clean run" nothing was set up to observe —
+        neither policy had a report-uri. That run has since been done with a
+        browser over the admin, Swagger, ReDoc, the DRF browsable API and every
+        SPA route including the Cornerstone viewer; see tests/test_csp.py.
+        """
         resp = api_client.get(reverse('health-liveness'))
-        assert 'Content-Security-Policy' not in resp
-        assert settings.CSP_ENFORCE is False
+        assert 'Content-Security-Policy-Report-Only' not in resp
+        assert settings.CSP_ENFORCE is True
 
 
 class TestConstantTimeComparison:

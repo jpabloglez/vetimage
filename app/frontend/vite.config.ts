@@ -4,9 +4,26 @@ import react from '@vitejs/plugin-react'
 /**
  * Content Security Policy for the SPA.
  *
- * Ships as Report-Only: violations show in the browser console without
- * blocking, so a missed directive can't take the viewer down. Switch the
- * header name to 'Content-Security-Policy' once a report-only run is clean.
+ * **Enforced.** It shipped report-only pending a "clean run" that nothing was
+ * set up to observe — neither policy had a `report-uri`, so violations went to
+ * whichever console happened to be open. That run has now been done properly:
+ * a browser drove every route in the router, signed out and signed in,
+ * including the Cornerstone viewer (the highest-risk page — blob URLs, web
+ * workers, DICOM codecs), collecting `securitypolicyviolation` events. The SPA
+ * produced zero violations, so enforcing changes no behaviour that was
+ * observed; `report-uri` is now set so anything missed shows up in the backend
+ * logs instead of silently breaking a page.
+ *
+ * Scope caveat, because it is easy to misread: these headers come from the
+ * Vite **dev server**, so they apply only to `npm run dev`. A built bundle
+ * served by anything else carries no CSP at all unless that server sets one.
+ * (Today the prod compose file inherits `command: npm run dev`, so this is
+ * also the production policy — which is its own problem, not this file's.)
+ *
+ * Note too that script-src keeps 'unsafe-inline'/'unsafe-eval' for HMR, so
+ * enforcing this is not XSS-proof. What it does buy is real: frame-ancestors
+ * (clickjacking), object-src, base-uri, form-action, and a connect-src that
+ * pins where the app may talk to.
  *
  * Notes on the directives that aren't obvious:
  *  - blob:/data: in img-src and worker-src are required by Cornerstone, which
@@ -23,7 +40,10 @@ import react from '@vitejs/plugin-react'
 // The SPA is served from :3001 but calls the API on a different origin.
 const API_ORIGIN = process.env.VITE_API_URL || 'http://localhost:3081'
 
-const CSP_REPORT_ONLY = [
+// Violations post to the backend, which logs them (core/csp_report.py).
+const CSP_REPORT_URI = `${API_ORIGIN}/api/csp-report/`
+
+const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
@@ -35,6 +55,7 @@ const CSP_REPORT_ONLY = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
+  `report-uri ${CSP_REPORT_URI}`,
 ].join('; ')
 
 // https://vitejs.dev/config/
@@ -44,7 +65,7 @@ export default defineConfig({
     port: 3000,
     host: '0.0.0.0',
     headers: {
-      'Content-Security-Policy-Report-Only': CSP_REPORT_ONLY,
+      'Content-Security-Policy': CSP,
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'X-Content-Type-Options': 'nosniff',
     },

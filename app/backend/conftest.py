@@ -13,12 +13,31 @@ User = get_user_model()
 
 
 @pytest.fixture(autouse=True)
-def _clear_throttle_cache():
+def _isolated_cache(settings):
     """
-    Reset the cache before each test so DRF scoped-rate throttles (login,
-    register, password_reset…) don't leak counters across tests in the same
-    minute window and cause spurious 429s.
+    Give the suite its own in-process cache, cleared between tests.
+
+    This began as `cache.clear()`, to stop DRF scoped-rate throttles (login,
+    register, password_reset…) leaking counters between tests in the same
+    minute window. The intent was right but the blast radius was wrong: the
+    configured cache is a real Redis DB shared with whatever else is running
+    against this stack, so the suite was flushing *all* of it — throttle
+    counters, WebSocket tickets, and the idle-session keys of anyone signed in
+    at the time. A full pytest run wiped a live browser session mid-E2E, and
+    the idle middleware then correctly signed it out; the resulting failure
+    looked nothing like its cause.
+
+    Swapping the backend keeps the isolation and drops the blast radius, and is
+    stricter besides — no test can be satisfied by a key another one left.
     """
+    settings.CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'vetimage-tests',
+        },
+    }
+    # LocMem instances are keyed by LOCATION and outlive a single test, so the
+    # clear below is still what separates one test from the next.
     from django.core.cache import cache
     cache.clear()
     yield
