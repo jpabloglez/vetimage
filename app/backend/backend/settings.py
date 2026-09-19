@@ -299,6 +299,10 @@ REST_FRAMEWORK = {
         # Clinic invitations. The accept endpoints are unauthenticated, so the
         # token is the only credential — keep the guess/enumeration rate low.
         'invitation': os.getenv('THROTTLE_INVITATION', '20/min'),
+        # CSP violation reports. Unauthenticated and browser-driven, so the cap
+        # is about a misbehaving page (or a forged flood) filling the logs, not
+        # about legitimate traffic — a correct page reports nothing at all.
+        'csp_report': os.getenv('THROTTLE_CSP_REPORT', '60/min'),
     },
 }
 
@@ -466,19 +470,55 @@ FRONTEND_BASE_URL = os.getenv('FRONTEND_BASE_URL', 'http://localhost:3001')
 # Applied in core.apps.CoreConfig.ready(). A 4k x 4k radiograph is ~17M pixels.
 PILLOW_MAX_IMAGE_PIXELS = int(os.getenv('PILLOW_MAX_IMAGE_PIXELS', 200_000_000))
 
-CSP_ENFORCE = os.getenv('CSP_ENFORCE', 'False') == 'True'
-CONTENT_SECURITY_POLICY = os.getenv('CONTENT_SECURITY_POLICY', '; '.join([
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net",
-    "style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net",
-    "font-src 'self' fonts.gstatic.com data:",
-    "img-src 'self' data: blob:",
-    "connect-src 'self'",
-    "frame-ancestors 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "object-src 'none'",
-]))
+CSP_ENFORCE = os.getenv('CSP_ENFORCE', 'True') == 'True'
+
+# Where the browser posts violation reports. Without this a policy reports to
+# each viewer's own console and nowhere else — which is why "flip it once a
+# report-only run is clean" sat undone: there was no run anyone could read.
+CSP_REPORT_PATH = '/api/csp-report/'
+
+_CSP_BASE = {
+    'default-src': "'self'",
+    # 'unsafe-inline'/'unsafe-eval' are required by Swagger UI and ReDoc, which
+    # both inject inline bootstrap code. This is why the policy is scoped to
+    # Django's own pages and not reused for the SPA.
+    'script-src': "'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net",
+    'style-src': "'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net",
+    'font-src': "'self' fonts.gstatic.com data:",
+    'img-src': "'self' data: blob:",
+    'connect-src': "'self'",
+    'worker-src': "'none'",
+    'frame-ancestors': "'none'",
+    'base-uri': "'self'",
+    'form-action': "'self'",
+    'object-src': "'none'",
+}
+
+# Measured, not guessed: driving Swagger UI and ReDoc in a browser under the
+# report-only policy produced exactly three violations, all of them here —
+# Swagger's favicon and ReDoc's logo (both CDN images), and a blob-backed web
+# worker that redoc.standalone.js spawns.
+#
+# These stay scoped to the two docs URLs rather than being folded into the base
+# policy, because the same policy also covers the Django admin. Widening the
+# admin's image origins and letting it run blob workers, to satisfy a docs
+# page, is exactly the drift that leaves a CSP nominally present and worthless.
+_CSP_DOCS_OVERRIDES = {
+    'img-src': "'self' data: blob: cdn.jsdelivr.net cdn.redoc.ly",
+    'worker-src': "'self' blob:",
+}
+
+
+def _render_csp(overrides=None):
+    directives = {**_CSP_BASE, **(overrides or {})}
+    rendered = '; '.join(f'{name} {value}' for name, value in directives.items())
+    return f'{rendered}; report-uri {CSP_REPORT_PATH}'
+
+
+CONTENT_SECURITY_POLICY = os.getenv('CONTENT_SECURITY_POLICY', _render_csp())
+CONTENT_SECURITY_POLICY_DOCS = _render_csp(_CSP_DOCS_OVERRIDES)
+# Paths that get the wider policy above. Prefix match.
+CSP_DOCS_PATHS = ('/api/docs/', '/api/redoc/')
 
 # GDPR owner-PII retention window (days). 0 = disabled. The purge_expired_pii
 # management command anonymizes owners not updated within this window.
