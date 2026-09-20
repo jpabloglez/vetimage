@@ -420,21 +420,27 @@ class CustomTokenRefreshView(APIView):
 
             # If token rotation is enabled, generate a new refresh token
             if settings.SIMPLE_JWT.get('ROTATE_REFRESH_TOKENS', False):
-                # Blacklist the old token before issuing a new one
-                if settings.SIMPLE_JWT.get('BLACKLIST_AFTER_ROTATION', False):
-                    try:
-                        refresh.blacklist()
-                    except AttributeError:
-                        pass  # Blacklist app not installed
+                # Say outright that this is a rotation. Blacklisting the old
+                # token and minting a new one each fire a signal that otherwise
+                # reads as a logout and a fresh login — turning one login into
+                # a chain of session rows and filling the audit trail with
+                # events nobody performed. See credentials.session_activity.
+                with session_activity.rotating(sid):
+                    # Blacklist the old token before issuing a new one
+                    if settings.SIMPLE_JWT.get('BLACKLIST_AFTER_ROTATION', False):
+                        try:
+                            refresh.blacklist()
+                        except AttributeError:
+                            pass  # Blacklist app not installed
 
-                # Generate a new refresh token with fresh jti/exp/iat
-                new_refresh = RefreshToken.for_user(
-                    User.objects.get(pk=refresh['user_id'])
-                )
-                # for_user() builds a fresh payload, so the session id has to
-                # be carried over explicitly — otherwise every refresh starts a
-                # new session and the idle clock never runs out.
-                session_activity.carry_forward(refresh, new_refresh)
+                    # Generate a new refresh token with fresh jti/exp/iat
+                    new_refresh = RefreshToken.for_user(
+                        User.objects.get(pk=refresh['user_id'])
+                    )
+                    # for_user() builds a fresh payload, so the session id has
+                    # to be carried over explicitly — otherwise every refresh
+                    # starts a new session and the idle clock never runs out.
+                    session_activity.carry_forward(refresh, new_refresh)
 
                 cookie_kwargs = {
                     'key': settings.REFRESH_TOKEN_COOKIE_NAME,

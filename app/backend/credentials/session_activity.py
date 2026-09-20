@@ -28,7 +28,9 @@ it dies at its own 5-minute expiry with nothing to replace it.
 """
 
 import logging
+import threading
 import uuid
+from contextlib import contextmanager
 
 from django.conf import settings
 from django.core.cache import cache
@@ -188,6 +190,50 @@ def forget(sid: str) -> None:
         return
     cache.delete(_KEY.format(sid=sid))
 
+
+
+# ---------------------------------------------------------------------------
+# Refresh-token rotation
+# ---------------------------------------------------------------------------
+#
+# Rotation is not a logout followed by a login, but the token signals cannot
+# tell the difference on their own: `CustomTokenRefreshView` blacklists the old
+# refresh token and mints a new one, and each of those fires a `post_save` that
+# the session signals read as an ending and a beginning.
+#
+# The cost was not theoretical. On a development database, 3,027 session rows
+# represented 12 actual logins — chains of up to 19 rows each — and 97% of the
+# audit log was fabricated: 3,035 `login_success` and 2,859 `logout` events for
+# roughly a dozen real ones. The concurrent-session limit had fired 147 times,
+# every one of them against a phantom.
+#
+# So the view says outright that it is rotating, and the signals believe it,
+# rather than trying to infer it from ordering or from a cache key that a Redis
+# restart would take away.
+
+_rotation = threading.local()
+
+
+@contextmanager
+def rotating(sid: str | None):
+    """
+    Mark the current thread as rotating a refresh token for `sid`.
+
+    The session signals consult this to relink the existing session instead of
+    ending one and starting another. Re-entrant only in the sense that it
+    restores whatever it replaced, so a nested use cannot strand the flag.
+    """
+    previous = getattr(_rotation, 'sid', None)
+    _rotation.sid = sid
+    try:
+        yield
+    finally:
+        _rotation.sid = previous
+
+
+def rotating_sid() -> str | None:
+    """The sid being rotated on this thread, or None if no rotation is open."""
+    return getattr(_rotation, 'sid', None)
 
 def expire(sid: str, *, user=None, ip_address: str = '', request=None) -> int:
     """
