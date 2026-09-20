@@ -83,6 +83,11 @@ export SECRET_KEY="…64+ random chars…"
 export ALLOWED_HOSTS="vetimage.example.com"
 export CORS_ALLOWED_ORIGINS="https://vetimage.example.com"
 
+# Baked into the SPA bundle at build time — see below. These must be the
+# browser-facing origins, not internal compose hostnames.
+export VITE_API_URL="https://api.vetimage.example.com"
+export VITE_WS_URL="wss://api.vetimage.example.com"
+
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
 
@@ -91,6 +96,39 @@ Static assets (admin / DRF / Swagger) are served by **WhiteNoise** from the ASGI
 app — no separate static web server is required. The React frontend is its own
 container; point your reverse proxy at the frontend for `/` and at the backend
 for `/api`, `/users`, `/ws` (WebSocket upgrade).
+
+### The frontend container serves a built bundle
+
+`docker-compose.prod.yml` builds the `serve` target of
+`compose/Dockerfile.frontend`: Vite compiles the bundle, and **nginx** serves it
+from `/usr/share/nginx/html` on port 3000 (the same port the dev server uses, so
+the port mapping and healthcheck are unchanged).
+
+This used to be wrong in a way that was invisible. The prod file overrode only
+`restart:` for the frontend, so it inherited `command: npm run dev` from the base
+file and **production ran the Vite dev server** — unminified source over HMR, and
+a CSP forced to allow `'unsafe-inline'` and `'unsafe-eval'` because HMR needs
+them. Both compose files now name their build `target` explicitly, and
+`tests/test_deployment_config.py` fails if either drifts back.
+
+Two consequences worth knowing:
+
+- **`VITE_API_URL` and `VITE_WS_URL` are build-time.** Vite inlines
+  `import.meta.env.*` into the bundle, so they cannot be changed by setting an
+  environment variable on the running container — an image built for one
+  deployment will not work against another. Both are declared with `:?`, so a
+  build without them fails rather than silently shipping `localhost`.
+- **The SPA's CSP now comes from nginx**, not `vite.config.ts` (whose headers
+  apply to `npm run dev` only). Because the bundle loads its code from external
+  module scripts, `script-src` is plain `'self'` — no `'unsafe-inline'`, no
+  `'unsafe-eval'`. Verified by driving every route, signed in and out, including
+  the Cornerstone viewer: zero violations. `style-src` keeps `'unsafe-inline'`
+  deliberately, because React writes `style={{…}}` as an inline style attribute.
+
+  `CSP_CONNECT_SRC` and `CSP_REPORT_URI` are substituted into the policy at
+  container start, so it tracks the deployment. `connect-src` **must** name the
+  backend origin: the SPA calls it cross-origin, and a bare `'self'` puts every
+  API call and WebSocket in violation — which, enforced, takes the app down.
 
 ### Static files & WhiteNoise
 

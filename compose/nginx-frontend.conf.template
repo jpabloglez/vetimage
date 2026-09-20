@@ -1,0 +1,76 @@
+# Serves the built SPA bundle.
+#
+# Rendered at container start by the nginx image's entrypoint, which runs
+# envsubst over this file. Only variables that actually exist in the
+# environment are substituted, so nginx's own `$uri` and `$spa_cache` survive
+# untouched — but keep that in mind before naming an environment variable
+# after an nginx variable.
+#
+# The security headers live here because in production this is what serves the
+# SPA. The policy in vite.config.ts applies to `npm run dev` only, and a built
+# bundle served by anything that does not set its own carries no CSP at all.
+
+# Cache-Control is chosen here rather than with `add_header` inside each
+# location, because **`add_header` in a location discards every header
+# inherited from the server block**. A per-location Cache-Control would have
+# silently dropped the CSP from index.html — the one document where it matters
+# most. One mapped variable keeps a single set of headers for every response.
+map $uri $spa_cache {
+    # Vite fingerprints asset filenames, so those are safe to cache forever.
+    ~^/assets/  "public, max-age=31536000, immutable";
+    # Everything else resolves to index.html, which must never be cached: it is
+    # what points at the current fingerprinted bundle, so a stale copy pins a
+    # browser to a build that no longer exists.
+    default     "no-store, must-revalidate";
+}
+
+server {
+    # 3000, matching the dev server, so the compose port mapping and
+    # healthcheck are the same for both targets.
+    listen 3000;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # ---------------------------------------------------------------------
+    # Security headers — one set, applied to every response
+    # ---------------------------------------------------------------------
+    #
+    # `script-src 'self'` with no 'unsafe-inline' and no 'unsafe-eval', which
+    # is the whole reason for building the bundle rather than serving it from
+    # the dev server. HMR needed both; a built bundle loads its code from
+    # external module scripts and needs neither, so the policy can finally do
+    # what a CSP is for and stop injected script from running.
+    #
+    # `style-src` keeps 'unsafe-inline' deliberately: React writes `style={{…}}`
+    # as an inline style attribute, which that keyword governs. Removing it
+    # would mean removing every inline style in the app, which buys far less
+    # than the script-src tightening and would be a much larger change.
+    #
+    # blob: in img-src and worker-src is required by Cornerstone, which decodes
+    # DICOM frames into blobs and runs its codecs in web workers.
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://images.unsplash.com; worker-src 'self' blob:; connect-src ${CSP_CONNECT_SRC}; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'${CSP_REPORT_URI}" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=()" always;
+    add_header Cache-Control $spa_cache always;
+
+    # Client-side routing: an unmatched path is a React Router route, not a
+    # 404. A missing *asset* must still 404 rather than being handed index.html
+    # — otherwise a stale bundle reference returns HTML with a JavaScript
+    # content type and fails with a parse error that says nothing useful.
+    location /assets/ {
+        try_files $uri =404;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css application/javascript application/json
+               image/svg+xml application/wasm;
+}

@@ -47,6 +47,38 @@ services:
 
   frontend-vetimage:
     restart: unless-stopped
+    # Production serves the **built** bundle from nginx. Overriding only
+    # `restart:` here is what used to leave production inheriting
+    # `command: npm run dev` from the base file — running the Vite dev server,
+    # serving unminified source over HMR, and forcing 'unsafe-inline' and
+    # 'unsafe-eval' into the SPA's CSP because HMR needs them.
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile.frontend
+      target: serve
+      args:
+        # Baked into the bundle at build time by Vite — an image built for one
+        # deployment will not work against another. Must be the browser-facing
+        # backend origin, not an internal compose hostname.
+        VITE_API_URL: ${VITE_API_URL:?VITE_API_URL is required in production}
+        VITE_WS_URL: ${VITE_WS_URL:?VITE_WS_URL is required in production}
+    # `command:` is overridden to nothing so the base file's `npm run dev`
+    # cannot carry through; nginx's own entrypoint runs instead.
+    command: []
+    # The base healthcheck shells out to curl, which the node image has and
+    # nginx:alpine does not — inherited unchanged it would mark a perfectly
+    # healthy container unhealthy for ever. busybox wget ships with alpine.
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      # The SPA calls the backend cross-origin, so connect-src has to name it.
+      # A bare 'self' would put every API call and every WebSocket in
+      # violation — and with the policy enforced, that takes the app down.
+      - CSP_CONNECT_SRC=${CSP_CONNECT_SRC:-'self' ${VITE_API_URL} ${VITE_WS_URL}}
+      - CSP_REPORT_URI=${CSP_REPORT_URI:-; report-uri ${VITE_API_URL}/api/csp-report/}
 
   db-vetimage:
     restart: unless-stopped

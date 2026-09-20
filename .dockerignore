@@ -8,3 +8,10 @@ node_modules
 data/
 # Git
 .git/
+# app/frontend/public/static is a committed symlink to /var/www/static/ — an
+# absolute path that only resolves inside a container with the shared_volume
+# mounted. Vite copies public/ wholesale when building, so in a clean image it
+# stats a dangling link and the build dies with ENOENT. It exists purely so the
+# dev server can reach Django's collected static; the SPA never references
+# /static/, and in production WhiteNoise serves it from the backend.
+app/frontend/public/static
