@@ -265,6 +265,19 @@ The invariant is that a clinic always keeps **at least one active administrator*
 
 **Note:** this project's `User` model has **no `date_joined`** field — only `last_login`. Referencing it in a serializer raises `AttributeError` at request time (it shipped once in the admin clinic-detail roster and returned 500).
 
+### Subscription plans (`users/plans.py`)
+
+`Plan` (seats, monthly AI analyses, storage bytes, feature flags) + `Clinic.plan` (`PROTECT` — deleting a tier clinics are on would either delete them or silently un-limit them). Tiers seeded by `manage.py seed_plans` (idempotent). **Plans are not billing** — deliberately separate, so limits could ship without waiting on payment integration.
+
+- **`None` = unlimited, `0` = none allowed.** Never conflate them: 0 doubling as "unlimited" is how a misconfigured plan silently grants everything. `tests/test_plans.py` pins it. A clinic with **no** plan is treated as unlimited, so a row a migration missed keeps working.
+- **Limits apply at creation, never retroactively.** Over a limit blocks *new* work; it never withdraws access to existing patients, studies or reports. Patient history is a clinical and legal obligation — a subscription state must not stand between a vet and a chart. There is a test class for exactly this (`TestLimitsNeverReachBackwards`).
+- **Enforced in two places only**: seats in `users/views_invitations.py` (at invitation, not acceptance — refusing later means turning away a colleague who was already told they had access), and the monthly quota in `ai_analysis/views.py` at task creation. Both return **402** with a `code` (`plan_seat_limit` / `plan_analysis_quota`) so the client can tell a plan refusal from any other failure.
+- **`plans.seats_occupied()` is the single source of truth** for seats — active members **plus** live invitations. The usage report and the gate must both call it; they diverged once, and the panel showed a free seat the API then refused to fill. `GET /users/clinic/usage/` returns the breakdown (`members`, `pending_invitations`) so the panel can explain the number.
+- Only **active** members occupy a seat — offboarding deactivates rather than deletes, so counting rows would mean you keep paying for everyone who left.
+- **`retry` is deliberately not gated**: it reuses the same task rather than creating one, so it never increments the count, and is already bounded by `AIModel.max_retries`.
+- Existing clinics were grandfathered onto a non-public `legacy` tier (migration `users.0019`) with every limit `None`. They were sold nothing and agreed to nothing, so introducing limits had to be a no-op for them.
+- Platform staff assign tiers via `PATCH /api/admin/clinics/<id>/`, which is writable for **`plan` only** — a commercial fact, not a clinical record, so the admin module's read-only-over-clinical-data rule still holds.
+
 ### Admin panel (`/admin`, platform staff only)
 
 `users/views_admin.py` + `users/urls_admin.py` under `/api/admin/`, every view gated on `IsPlatformStaff`. **The only module permitted to read across clinics** — anywhere else an unscoped query is a bug.
@@ -336,6 +349,7 @@ Two **independent** axes — do not conflate them:
 - Frontend: PascalCase components, `useCamelCase` hooks, `camelCase` utils
 - Validation schemas in `utils/validation.ts`: `ownerSchema` (required email + phone), `ownerAnimalSchema` (new-owner registration: name + species), `animalPatientSchema` (standalone animal), `vhsSchema`
 - i18n namespace `patients` covers all of `PatientsPage`, `OwnerReportPage`, and `AuditLogPanel` owner labels
+- `ApiError` carries the parsed response body as **`data`**, plus the flattened message as `detail`. Read `data` for structured failures (DRF field errors like `{email: [...]}`, or `{error, code}` refusals) and fall back to `detail`. It was added because several call sites already read `err.data` on the assumption it existed — it did not, so every "show the backend's explanation" path silently fell through to its generic fallback. A test that mocks a rejection must use the shape `apiClient` really throws, or it validates the assumption instead of the code.
 - Component tests that use `renderWithProviders` must **not** declare their own `vi.mock('../utils/api')` — `test-utils.tsx` already registers one, and a second creates a rival module instance the component never sees (the mock configures cleanly while the component reads a different object). Configure the shared `apiClient` instead.
 - `getByLabelText` in tests must use anchored regexes (`/^Email/i` not `/Email/i`) — the search bar's aria-label contains "email" and causes false matches
 

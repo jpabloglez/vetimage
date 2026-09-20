@@ -78,6 +78,7 @@ import type {
   PublicInvitation,
   ClinicMember,
   ClinicProfile,
+  ClinicUsage,
   AdminClinic,
   AdminPlatformSummary,
   AdminStatistics,
@@ -298,6 +299,7 @@ class ApiClient {
 
       try {
         const errorData = await response.json();
+        error.data = errorData;
         error.detail = errorData.message
           || (typeof errorData.detail === 'string' ? errorData.detail : undefined)
           || (typeof errorData.error === 'string' ? errorData.error : undefined);
@@ -540,6 +542,11 @@ class ApiClient {
   /** The caller's own clinic. Readable by members, editable by admins. */
   async getClinicProfile(): Promise<ClinicProfile> {
     return this.request<ClinicProfile>('/users/clinic/profile/');
+  }
+
+  /** Current usage against the clinic's plan. Readable by any member. */
+  async getClinicUsage(): Promise<ClinicUsage> {
+    return this.request<ClinicUsage>('/users/clinic/usage/');
   }
 
   async updateClinicProfile(data: Partial<ClinicProfile>): Promise<ClinicProfile> {

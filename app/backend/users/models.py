@@ -104,6 +104,90 @@ class User(AbstractBaseUser):
     #     return self.is_superuser
 
 
+class Plan(models.Model):
+    """
+    A subscription tier: what a clinic is allowed to do, not what it is billed.
+
+    Deliberately separate from billing. Limits and payment are different
+    decisions on different timelines, and coupling them would have meant
+    neither could ship until both were settled.
+
+    **A limit of `None` means unlimited, and `0` means none allowed.** Using 0
+    for "unlimited" is the classic way this kind of model goes wrong: the two
+    meanings collapse and a misconfigured plan silently grants everything.
+
+    Limits are enforced when something new is *created* — never retroactively.
+    A clinic that outgrows or lapses its plan is blocked from adding more; it
+    is never cut off from records it already has. Patient history is a clinical
+    and legal obligation, not a feature to withhold.
+    """
+
+    #: Feature flags. Each maps to something that already exists in the product,
+    #: so a plan gates real capability rather than aspirational line items.
+    FEATURE_OWNER_PORTAL = 'owner_portal'
+    FEATURE_STUDY_SHARING = 'study_sharing'
+    FEATURE_REFERRALS_SEND = 'referrals_send'
+    FEATURE_REFERRALS_RECEIVE = 'referrals_receive'
+    FEATURE_STAT_PRIORITY = 'stat_priority'
+    FEATURE_API_KEYS = 'api_keys'
+
+    FEATURE_CHOICES = (
+        (FEATURE_OWNER_PORTAL, 'Pet-owner portal'),
+        (FEATURE_STUDY_SHARING, 'Study share links'),
+        (FEATURE_REFERRALS_SEND, 'Send referrals'),
+        (FEATURE_REFERRALS_RECEIVE, 'Receive referrals'),
+        (FEATURE_STAT_PRIORITY, 'STAT priority queue'),
+        (FEATURE_API_KEYS, 'API keys'),
+    )
+
+    slug = models.SlugField(
+        max_length=40, unique=True,
+        help_text="Stable identifier used in code, e.g. 'practice'.",
+    )
+    name = models.CharField(max_length=60)
+    description = models.CharField(max_length=200, blank=True)
+
+    seat_limit = models.PositiveIntegerField(
+        null=True, blank=True,
+        help_text='Maximum active members. Null = unlimited.',
+    )
+    monthly_analysis_quota = models.PositiveIntegerField(
+        null=True, blank=True,
+        help_text='AI analyses per calendar month. Null = unlimited.',
+    )
+    storage_bytes = models.BigIntegerField(
+        null=True, blank=True,
+        help_text='Total stored image bytes. Null = unlimited.',
+    )
+
+    features = models.JSONField(
+        default=list, blank=True,
+        help_text='List of FEATURE_* flags this plan grants.',
+    )
+
+    is_public = models.BooleanField(
+        default=True,
+        help_text=(
+            'Offered to new clinics. False keeps a plan usable by the clinics '
+            'already on it without listing it as an option — which is how '
+            'existing customers were grandfathered.'
+        ),
+    )
+    sort_order = models.PositiveSmallIntegerField(default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['sort_order', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def grants(self, feature: str) -> bool:
+        return feature in (self.features or [])
+
+
 class Clinic(models.Model):
     """
     A veterinary clinic — the tenant every record belongs to.
@@ -126,6 +210,15 @@ class Clinic(models.Model):
     city = models.CharField(max_length=100)
     billing_address = models.CharField(max_length=100)
     billing_code = models.CharField(max_length=100)
+
+    # PROTECT, not CASCADE or SET_NULL: deleting a plan that clinics are on
+    # would either delete the clinics or silently un-limit them. Both are worse
+    # than being told to move them first.
+    plan = models.ForeignKey(
+        'Plan', on_delete=models.PROTECT, null=True, blank=True,
+        related_name='clinics',
+        help_text='Subscription tier. Null means unlimited (no plan assigned).',
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -221,6 +221,10 @@ class TestRegistryCounts:
             'id', 'name', 'address', 'city', 'created_at', 'founder_email',
             'members', 'owners_count', 'patients_count', 'studies_count',
             'analyses_count', 'last_activity',
+            # Commercial facts, not clinical content: which tier a customer is
+            # on says nothing about a patient. Every addition here should have
+            # to be argued for — that is what this allowlist is for.
+            'plan', 'plan_name', 'plan_slug',
         }
         assert set(rows[0].keys()) == allowed
 

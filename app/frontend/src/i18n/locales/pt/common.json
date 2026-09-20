@@ -404,6 +404,16 @@
       "saved": "Dados da clínica atualizados",
       "saveError": "Não foi possível guardar os dados da clínica",
       "loadError": "Não foi possível carregar os dados da clínica"
+    },
+    "plan": {
+      "title": "Plano e utilização",
+      "description": "O que esta clínica está a usar, face ao que o plano permite. Exceder trava trabalho novo; nunca afeta os registos que já tens.",
+      "seats": "Membros da equipa",
+      "analyses": "Análises de IA este mês",
+      "storage": "Armazenamento",
+      "unlimited": "ilimitado",
+      "atLimit": "Atingiste um limite deste plano. Pacientes, estudos e relatórios existentes continuam totalmente disponíveis; apenas os novos ficam em pausa.",
+      "seatsBreakdown": "{{members}} na equipa, {{pending}} convidadas"
     }
   }
 }

@@ -30,10 +30,12 @@ from rest_framework.decorators import action
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from core.permissions import IsClinicAdmin
 from patients.views import get_or_create_clinic
 
+from . import plans
 from .models import CLINIC_ADMIN_ROLE, UserProfile
 from .serializers_clinic import (
     ClinicMemberRoleSerializer,
@@ -224,3 +226,21 @@ class ClinicProfileView(RetrieveUpdateAPIView):
         logger.info(
             'User %s updated details for clinic %s', self.request.user.id, clinic.id,
         )
+
+
+@extend_schema(tags=['Clinic'], responses=OpenApiTypes.OBJECT)
+class ClinicUsageView(APIView):
+    """
+    What the clinic is using, against what its plan allows.
+
+    Readable by any member, not just admins: a vet who hits the monthly quota
+    should be able to see why without having to ask someone. It reports and
+    never enforces — the limits are applied where the work is created
+    (`users/views_invitations.py`, `ai_analysis/views.py`), because a check the
+    client performs is advice, not a control.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response(plans.usage(get_or_create_clinic(request.user)))

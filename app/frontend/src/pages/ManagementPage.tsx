@@ -18,6 +18,7 @@ import { useAuth } from '../contexts';
 import MembersSection from '../components/management/MembersSection';
 import InvitationsSection from '../components/management/InvitationsSection';
 import ClinicProfileSection from '../components/management/ClinicProfileSection';
+import PlanUsageSection from '../components/management/PlanUsageSection';
 
 const ManagementPage: React.FC = () => {
   const { t } = useTranslation('common');
@@ -39,6 +40,9 @@ const ManagementPage: React.FC = () => {
             with. Inviting follows, then the clinic's own details. */}
         <MembersSection />
         <InvitationsSection />
+        {/* Usage sits under the two things it constrains, so a full seat
+            meter is read right after the roster that filled it. */}
+        <PlanUsageSection />
         <ClinicProfileSection />
       </div>
     </div>

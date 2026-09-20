@@ -404,6 +404,16 @@
       "saved": "Clinic details updated",
       "saveError": "Could not save the clinic details",
       "loadError": "Could not load the clinic details"
+    },
+    "plan": {
+      "title": "Plan & usage",
+      "description": "What this clinic is using, against what its plan allows. Going over stops new work — it never affects records you already have.",
+      "seats": "Team members",
+      "analyses": "AI analyses this month",
+      "storage": "Storage",
+      "unlimited": "unlimited",
+      "atLimit": "You've reached a limit on this plan. Existing patients, studies and reports stay fully available — only new ones are paused.",
+      "seatsBreakdown": "{{members}} on the team, {{pending}} invited"
     }
   }
 }

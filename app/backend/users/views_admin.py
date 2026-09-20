@@ -54,7 +54,11 @@ class AdminClinicViewSet(viewsets.ModelViewSet):
     """The clinic registry: every tenant on the platform, with usage counts."""
 
     permission_classes = [IsAuthenticated, IsPlatformStaff]
-    http_method_names = ['get', 'post', 'head', 'options']
+    # PATCH is allowed for exactly one field — `plan`. Every other field on
+    # AdminClinicSerializer is read-only, so this does not loosen the rule that
+    # platform staff never write into a clinic's records: which tier a customer
+    # is on is a commercial fact, not a clinical one.
+    http_method_names = ['get', 'post', 'patch', 'head', 'options']
 
     def get_serializer_class(self):
         if self.action == 'create':

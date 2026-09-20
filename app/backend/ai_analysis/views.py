@@ -211,6 +211,23 @@ class AnalysisTaskViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 )
 
+        # Plan quota. Checked here, at the point the work is actually
+        # started — not in the UI, which can only ever be advisory.
+        #
+        # `retry` is deliberately not gated: it reuses this same task rather
+        # than creating another, so it never increments the count, and it is
+        # already bounded by AIModel.max_retries. Charging a second unit for
+        # re-running work that failed on our side would be wrong.
+        from patients.views import get_or_create_clinic
+        from users import plans
+
+        quota_refusal = plans.analysis_refusal(get_or_create_clinic(request.user))
+        if quota_refusal:
+            return Response(
+                {'error': quota_refusal, 'code': 'plan_analysis_quota'},
+                status=status.HTTP_402_PAYMENT_REQUIRED,
+            )
+
         # Create task
         task = AnalysisTask.objects.create(
             model=model,
