@@ -153,8 +153,19 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build backend image
         run: docker build -f compose/Dockerfile.backend -t vetimage-backend:ci .
-      - name: Build frontend image
-        run: docker build -f compose/Dockerfile.frontend -t vetimage-frontend:ci .
+      - name: Build frontend image (dev target)
+        run: docker build -f compose/Dockerfile.frontend --target dev -t vetimage-frontend:ci .
+      # The production target is a different build entirely — it runs `vite
+      # build`, which the dev target never does. Without this, the image
+      # production actually ships would be the only one CI never compiled: the
+      # bundle had already been broken for a long time by a dangling symlink in
+      # public/, and nothing would have caught it.
+      - name: Build frontend image (production target)
+        run: |
+          docker build -f compose/Dockerfile.frontend --target serve \
+            --build-arg VITE_API_URL=https://api.example.test \
+            --build-arg VITE_WS_URL=wss://api.example.test \
+            -t vetimage-frontend-prod:ci .
 
   e2e-tests:
     name: E2E Tests (Playwright)
