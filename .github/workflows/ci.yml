@@ -114,6 +114,14 @@ jobs:
           npm ci --ignore-scripts
           npm audit --audit-level=high
 
+      # The step above fails only on high/critical, so moderates pass in
+      # silence and accumulate unread. This does not change that gate — a
+      # moderate still does not fail the build for being a moderate. It fails
+      # for being undocumented, which is a different and smaller claim: every
+      # advisory we carry has to have a written decision behind it.
+      - name: Check carried advisories are documented
+        run: python3 scripts/check_dependency_exceptions.py
+
   frontend-lint:
     name: Frontend Lint
     runs-on: ubuntu-latest
