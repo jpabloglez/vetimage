@@ -95,7 +95,14 @@ describe('MembersSection', () => {
   it('explains a refusal in the backend\'s own words', async () => {
     const user = userEvent.setup();
     const toast = await import('react-hot-toast');
+    // Shaped the way apiClient actually rejects — `detail` carries the
+    // flattened message, `data` the raw body. An earlier version of this test
+    // invented a `data`-only shape the client never produces, so it passed
+    // while the component silently showed the generic fallback instead.
     api.setClinicMemberRole.mockRejectedValue({
+      error: 'Bad Request',
+      status: 400,
+      detail: "You are the clinic's only administrator.",
       data: { error: "You are the clinic's only administrator." },
     });
     renderWithProviders(<MembersSection />);
@@ -104,6 +111,24 @@ describe('MembersSection', () => {
     await waitFor(() => {
       expect(toast.default.error).toHaveBeenCalledWith(
         "You are the clinic's only administrator.",
+      );
+    });
+  });
+
+  it('falls back to `detail` when the body is not repeated in `data`', async () => {
+    const user = userEvent.setup();
+    const toast = await import('react-hot-toast');
+    api.setClinicMemberRole.mockRejectedValue({
+      error: 'Bad Request',
+      status: 400,
+      detail: 'You cannot revoke your own access.',
+    });
+    renderWithProviders(<MembersSection />);
+
+    await user.selectOptions(await screen.findByLabelText(/role for ana ruiz/i), '3');
+    await waitFor(() => {
+      expect(toast.default.error).toHaveBeenCalledWith(
+        'You cannot revoke your own access.',
       );
     });
   });

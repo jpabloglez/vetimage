@@ -79,13 +79,21 @@ export const InvitationsSection: React.FC<Props> = ({ bare = false }) => {
       toast.success(t('management.invitations.sent'));
     } catch (err) {
       // The backend's messages are the useful ones here ("already in this
-      // clinic", "already pending") — show them rather than a generic failure.
-      const detail =
-        (err as { data?: { email?: string[]; role?: string[] } })?.data?.email?.[0] ??
-        (err as { data?: { role?: string[] } })?.data?.role?.[0] ??
+      // clinic", "already pending", "your plan includes N members") — show
+      // them rather than a generic failure.
+      const data = (err as { data?: Record<string, unknown> })?.data ?? {};
+      const fieldMessage =
+        (data.email as string[] | undefined)?.[0] ??
+        (data.role as string[] | undefined)?.[0] ??
         null;
-      setFieldError(detail);
-      if (!detail) toast.error(t('management.invitations.sendError'));
+      // A plan refusal is about the clinic, not about the address typed — so
+      // it belongs in a toast, not pinned under the email field.
+      const planMessage =
+        data.code === 'plan_seat_limit' ? (data.error as string) : null;
+
+      setFieldError(fieldMessage);
+      if (planMessage) toast.error(planMessage);
+      else if (!fieldMessage) toast.error(t('management.invitations.sendError'));
     } finally {
       setAdding(false);
     }

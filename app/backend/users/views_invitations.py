@@ -28,6 +28,7 @@ from rest_framework.views import APIView
 from core.permissions import IsClinicAdmin
 from patients.views import get_or_create_clinic
 
+from . import plans
 from .models import ClinicInvitation, UserProfile
 from .serializers_invitations import (
     AcceptInvitationSerializer,
@@ -65,6 +66,18 @@ class ClinicInvitationViewSet(viewsets.ModelViewSet):
         ctx = super().get_serializer_context()
         ctx['clinic'] = get_or_create_clinic(self.request.user)
         return ctx
+
+    def create(self, request, *args, **kwargs):
+        # Seat limit is checked here rather than on acceptance: refusing an
+        # invitation the admin already sent means turning away a colleague who
+        # was told they had access. Better to refuse the invite.
+        refusal = plans.seat_refusal(get_or_create_clinic(request.user))
+        if refusal:
+            return Response(
+                {'error': refusal, 'code': 'plan_seat_limit'},
+                status=status.HTTP_402_PAYMENT_REQUIRED,
+            )
+        return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         # clinic and inviter come from the request, never the payload.

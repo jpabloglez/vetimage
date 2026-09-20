@@ -47,10 +47,15 @@ export const MembersSection: React.FC = () => {
   useEffect(() => { void load(); }, [load]);
 
   /** The backend's message is the useful one — it explains *why* (last admin,
-   *  own account), which a generic failure would throw away. */
+   *  own account), which a generic failure would throw away.
+   *
+   *  Reads both shapes on purpose: `data.error` is the raw body, `detail` is
+   *  what apiClient flattens it to. An earlier version read only `data`, which
+   *  the client did not populate, so every refusal fell through to the generic
+   *  message it was written to avoid. */
   const failWith = (err: unknown, fallbackKey: string) => {
-    const detail = (err as { data?: { error?: string } })?.data?.error;
-    toast.error(detail || t(fallbackKey));
+    const e = err as { data?: { error?: string }; detail?: string };
+    toast.error(e?.data?.error || e?.detail || t(fallbackKey));
   };
 
   const changeRole = async (member: ClinicMember, role: number) => {

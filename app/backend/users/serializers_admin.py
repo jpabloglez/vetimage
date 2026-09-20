@@ -29,15 +29,21 @@ class AdminClinicSerializer(serializers.ModelSerializer):
     analyses_count = serializers.IntegerField(source='_analyses', read_only=True)
     founder_email = serializers.EmailField(source='user.email', read_only=True, default=None)
     last_activity = serializers.DateTimeField(source='_last_activity', read_only=True, default=None)
+    plan_name = serializers.CharField(source='plan.name', read_only=True, default=None)
+    plan_slug = serializers.SlugField(source='plan.slug', read_only=True, default=None)
 
     class Meta:
         model = Clinic
         fields = (
             'id', 'name', 'address', 'city', 'created_at', 'founder_email',
             'members', 'owners_count', 'patients_count', 'studies_count',
-            'analyses_count', 'last_activity',
+            'analyses_count', 'last_activity', 'plan', 'plan_name', 'plan_slug',
         )
-        read_only_fields = fields
+        # `plan` is the one writable field on this serializer: which tier a
+        # clinic is on is a commercial fact, not a clinical record, so platform
+        # staff setting it does not breach the read-only-over-clinical-data
+        # rule the admin module otherwise holds to.
+        read_only_fields = tuple(f for f in fields if f != 'plan')
 
 
 class AdminClinicCreateSerializer(serializers.ModelSerializer):

@@ -821,6 +821,30 @@ export interface ClinicMember {
   job_title: string;
 }
 
+/**
+ * One metered resource. `limit: null` means unlimited — deliberately null
+ * rather than a sentinel number, so rendering "unlimited" is a null check and
+ * not a magic-value comparison someone has to remember.
+ */
+export interface PlanAllowance {
+  used: number;
+  limit: number | null;
+  remaining: number | null;
+  exceeded: boolean;
+}
+
+export interface ClinicUsage {
+  plan: { slug: string; name: string; features: string[] } | null;
+  /**
+   * `used` counts members *and* live invitations, because both occupy a seat.
+   * The breakdown is here so the panel can explain a number the admin would
+   * otherwise be unable to reconcile against the roster.
+   */
+  seats: PlanAllowance & { members: number; pending_invitations: number };
+  analyses: PlanAllowance;
+  storage: PlanAllowance;
+}
+
 export interface ClinicProfile {
   id: number;
   name: string;
@@ -1359,4 +1383,14 @@ export interface ApiError {
   detail?: string;
   details?: Record<string, any>;
   status: number;
+  /**
+   * The parsed response body, verbatim.
+   *
+   * Needed because the useful part of a failure is often structured, not a
+   * sentence: DRF field errors (`{email: ["already in this clinic"]}`), or a
+   * machine-readable refusal (`{error, code: "plan_seat_limit"}`). Flattening
+   * everything into `detail` threw that away, and several call sites were
+   * already reading `err.data` on the assumption it was here.
+   */
+  data?: Record<string, any>;
 }

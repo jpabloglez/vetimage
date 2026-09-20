@@ -79,6 +79,7 @@ const API_METHODS = [
   // Clinic self-administration
   'getClinicMembers', 'setClinicMemberRole', 'revokeClinicMember',
   'restoreClinicMember', 'getClinicProfile', 'updateClinicProfile',
+  'getClinicUsage',
   // Clinic invitations
   'getClinicInvitations', 'createClinicInvitation', 'revokeClinicInvitation',
   'getInvitation', 'acceptInvitation',
@@ -123,6 +124,14 @@ export function createApiClientMock(overrides: ApiClientMock = {}): ApiClientMoc
   mock.getNotifications = vi.fn().mockResolvedValue([]);
   mock.getClinicInvitations = vi.fn().mockResolvedValue([]);
   mock.getClinicMembers = vi.fn().mockResolvedValue([]);
+  // Unlimited by default: a test that isn't about plans should never
+  // trip a limit it didn't set up.
+  mock.getClinicUsage = vi.fn().mockResolvedValue({
+    plan: null,
+    seats: { used: 0, limit: null, remaining: null, exceeded: false, members: 0, pending_invitations: 0 },
+    analyses: { used: 0, limit: null, remaining: null, exceeded: false },
+    storage: { used: 0, limit: null, remaining: null, exceeded: false },
+  });
   mock.getAdminClinics = vi.fn().mockResolvedValue([]);
   mock.getStudies = vi.fn().mockResolvedValue([]);
   mock.getSeries = vi.fn().mockResolvedValue([]);
