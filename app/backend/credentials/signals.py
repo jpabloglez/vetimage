@@ -15,6 +15,7 @@ from rest_framework_simplejwt.token_blacklist.models import (
     BlacklistedToken
 )
 
+from . import session_activity
 from .models import UserSession, AuditLog
 from .utils import (
     get_current_request,
@@ -30,6 +31,34 @@ logger = logging.getLogger(__name__)
 # Custom signals
 session_terminated = Signal()
 suspicious_activity_detected = Signal()
+
+
+
+def _relink_rotated_session(sid, new_token):
+    """
+    Point the login's existing session row at the token that just replaced its
+    previous one. Returns True when it did, False when there was nothing to
+    relink (a first login, or a session already ended).
+
+    `UserSession.outstanding_token` is a OneToOne, so moving it frees the old
+    token's link rather than conflicting with it.
+
+    Best-effort: session bookkeeping must never be the reason a refresh fails.
+    """
+    try:
+        session = UserSession.objects.filter(
+            sid=sid, is_active=True,
+        ).order_by('-created_at').first()
+        if session is None:
+            return False
+
+        session.outstanding_token = new_token
+        session.expires_at = new_token.expires_at
+        session.save(update_fields=['outstanding_token', 'expires_at'])
+        return True
+    except Exception as e:  # pragma: no cover - defensive
+        logger.error(f"Error relinking rotated session: {e}", exc_info=True)
+        return False
 
 
 @receiver(post_save, sender=OutstandingToken)
@@ -50,6 +79,14 @@ def create_user_session(sender, instance, created, **kwargs):
 
     # Check if session tracking is enabled
     if not getattr(settings, 'CREDENTIALS_TRACKING_ENABLED', True):
+        return
+
+    # A rotation is the same login continuing, not a new one. Relink the
+    # existing row and stop: creating another would fork one login into a chain
+    # of rows, write a `login_success` nobody performed, and count against the
+    # concurrent-session limit as if a second device had appeared.
+    rotating_sid = session_activity.rotating_sid()
+    if rotating_sid and _relink_rotated_session(rotating_sid, instance):
         return
 
     try:
@@ -259,6 +296,12 @@ def terminate_user_session(sender, instance, created, **kwargs):
 
     # Check if session tracking is enabled
     if not getattr(settings, 'CREDENTIALS_TRACKING_ENABLED', True):
+        return
+
+    # Rotation blacklists the outgoing refresh token. That is bookkeeping, not
+    # the user leaving — auditing it as a logout is how a compliance record
+    # ends up mostly describing events that never happened.
+    if session_activity.rotating_sid():
         return
 
     try:
