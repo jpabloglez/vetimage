@@ -37,3 +37,12 @@ services:
   celery-beat-vetimage:
     volumes:
       - ./app/backend:/var/www/app/backend
+
+  # The frontend source mount belongs here for the same reason the backend's
+  # does: Compose merges volume lists and cannot remove an entry the base file
+  # adds, so a mount left in the base would follow the built bundle into the
+  # production image. Hot reload needs it; nginx serving /usr/share/nginx/html
+  # does not.
+  frontend-vetimage:
+    volumes:
+      - ./app/frontend/:/var/www/app/frontend

@@ -115,12 +115,14 @@ services:
     build:
       context: .
       dockerfile: ./compose/Dockerfile.frontend
+      # Explicit, so re-ordering the stages in that file cannot silently
+      # change what this builds. docker-compose.prod.yml names `serve`.
+      target: dev
     container_name: frontend-vetimage
     image: frontend-vetimage
     ports:
       - 3001:3000
     volumes:
-      - ./app/frontend/:/var/www/app/frontend
       - shared_volume:/var/www/static
     command: npm run dev
     tty: true
